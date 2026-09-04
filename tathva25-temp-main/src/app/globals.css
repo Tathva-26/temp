@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+
+@font-face {
+  font-family: "PPFragment";
+  src: url("/fonts/PPFragment-SerifLight.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Helvetica";
+  src: url("/fonts/Helvetica.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "PlusJakarta";
+  src: url("/fonts/PlusJakartaSans-VariableFont_wght.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Monocraft";
+  src: url("/fonts/Monocraft.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+.plus-jakarta {
+  font-family: "PlusJakarta", sans-serif;
+}
+
+.poppins {
+  font-family: "Poppins", sans-serif;
+}
+
+.pp-fragment {
+  font-family: "PPFragment", sans-serif;
+}
+
+.helvetica {
+  font-family: "Helvetica", sans-serif;
+}
+
+.inter {
+  font-family: "Inter", sans-serif;
+}
+
+.monocraft {
+  font-family: "Monocraft", monospace;
+}
+
+@tailwind utilities;

@@ -1,0 +1,234 @@
+.main-divsion-for-footer {
+	left: 2px;
+	top: 7796px;
+	/* display: flex; */
+	flex-direction: row;
+	align-content: stretch;
+	background: radial-gradient(
+		60.63% 80.63% at 51.48% 121.67%,
+		#4a72ff 21.88%,
+		rgba(8, 8, 8, 0) 100%
+	);
+
+	margin: auto;
+	padding: auto;
+    background-color: black;
+    color: white    ;
+}
+.main-divsion-for-footer2 {
+	display: none;
+}
+.wrapper {
+	padding: 0 36px;
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+	align-items: center;
+}
+
+.heading {
+	display: flex;
+	justify-content: end;
+	/* padding-bottom: 16px; */
+	font-size: 22px;
+	color: var(--white-color);
+}
+
+.heading h6 {
+	color: var(--white-color);
+}
+.bg {
+	height: 60px;
+	width: 60px;
+	padding: 0%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.bg a {
+	width: 100%;
+	display: grid;
+	place-content: center;
+}
+.bg a img {
+	width: 100%;
+	height: 100%;
+}
+.icons{
+	transition: .5s ease all;
+}
+.icons:hover{
+	transform: scale(1.1);
+}
+.frame-wrapper {
+	display: flex;
+	margin-right: -8px;
+}
+.footer-info ul {
+	display: flex;
+	gap: 48px;
+	justify-content: center;
+	align-items: center;
+}
+.footer-info ul li {
+	font-family: 'Sweet Sans Pro', sans-serif;
+	color: #ffffff;
+}
+
+.footer-info a {
+	font-weight: 300;
+	font-size: 18px;
+	line-height: 23px;
+	text-transform: uppercase;
+}
+.social-media-icons {
+	margin-bottom: 30px;
+}
+.sub-footer {
+	margin: 0 36px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 0px;
+	gap: 8px;
+	border-top: 1px solid rgba(255, 255, 255, 0.2);
+	color: var(--white-color);
+	padding-top: 22px;
+	padding-bottom: 22px;
+}
+
+.sub-footer span {
+	color: var(--white-color);
+}
+.terms-privacy {
+	display: flex;
+	gap: 23px;
+}
+.terms-privacy span {
+	color: var(--white-color);
+}
+
+@media (max-width: 786px) {
+	.wrapper {
+		padding: 0 16px;
+	}
+	.footer-info ul {
+		gap: 30px;
+	}
+	.sub-footer {
+		margin: 0 16px;
+	}
+}
+@media (max-width: 656px) {
+	.main-divsion-for-footer {
+		display: none;
+	}
+	.main-divsion-for-footer2 {
+		margin-top: 34px;
+		display: block;
+		left: 2px;
+		top: 7796px;
+		background: radial-gradient(
+			74.63% 74.63% at 51.48% 121.67%,
+			#a5fa00 21.88%,
+			rgba(8, 8, 8, 0) 100%
+		);
+		background-position: center 50px;
+		background-repeat: no-repeat;
+		background-size: 120% 100%;
+	}
+	.wrapper {
+		display: flex;
+		justify-content: space-between;
+		margin: 0 auto;
+		max-width: 480px;
+		margin-bottom: 36px;
+	}
+	.frame-wrapper {
+		margin-right: 0px;
+	}
+	.footer-info {
+		position: relative;
+		bottom: -35px;
+		height: 170px;
+	}
+	.footer-info ul {
+		display: flex;
+		/* justify-content: start;  */
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 19px;
+		margin-left: 18px;
+	}
+	.footer-info ul li {
+		font-size: 18px;
+		line-height: 23px;
+		font-family: 'Space Grotesk';
+		font-weight: 600;
+	}
+	.social-media-icons {
+		display: flex;
+		flex-direction: column;
+		margin-bottom: 0;
+	}
+	.logo-social-icons {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+	}
+	.logo {
+		padding-bottom: 10px;
+	}
+	.logo-hash {
+		display: flex;
+		justify-content: start;
+		align-items: flex-end;
+		margin-top: 5px;
+		color: var(--white-color);
+	}
+	.heading {
+		display: flex;
+		font-size: 18px;
+		justify-content: start;
+		color: var(--white-color);
+		font-family: '';
+		font-weight: 400;
+		font-size: 20px;
+		padding-left: 9px;
+	}
+	.sub-footer {
+		display: flex;
+		flex-direction: column;
+		padding: 0;
+		margin: 0;
+	}
+
+	.terms-privacy {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		gap: 60px;
+		padding: 15px 0;
+		color: var(--white-color);
+		font-family: 'Sweet Sans Pro';
+		font-weight: 400;
+		font-size: 14px;
+		line-height: 17px;
+		display: none;
+	}
+
+	.tathva-sec {
+		border-top: 0.5px solid rgba(255, 255, 255, 0.15);
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: 18px 0;
+		width: 100%;
+		font-family: 'Sweet Sans Pro';
+		font-weight: 400;
+		font-size: 14px;
+	}
+	.tathva-sec span {
+		color: var(--white-color);
+	}
+}

@@ -1,0 +1,213 @@
+NITC 3D Map - Architecture Documentation
+📋 Overview
+This project is a 3D interactive campus map application built with React and Three.js. It allows users to explore a 3D model of the NITC campus, view building labels, click on location markers to see events, and navigate the map intuitively.
+
+🏗️ Project Structure
+nitc-map/
+├── config.js                    # Configuration & data constants
+├── sceneSetup.js               # Three.js scene initialization
+├── modelLoader.js              # 3D model loading & processing
+├── markerSystem.js             # Location marker management
+├── buildingLabels.js           # Building highlighting & labels
+├── cameraUtils.js              # Camera animation & constraints
+├── interactionHandlers.js      # User input handling
+├── animationLoop.js            # Main render loop
+├── cleanupUtils.js             # Resource disposal
+├── NITCMapPage.jsx             # Main React component
+└── EventPanel.jsx              # UI panel component (not refactored)
+📦 Module Breakdown
+1. config.js - Configuration & Data
+Purpose: Centralized configuration and data storage
+
+Contents:
+
+CONFIG: All configurable parameters (camera, controls, animations, etc.)
+LOCATION_DATA: Campus locations with coordinates
+EVENT_DATA: Events linked to locations
+Why separate: Makes it easy to adjust settings and add new locations/events without touching code logic.
+
+2. sceneSetup.js - Scene Initialization
+Purpose: Sets up the Three.js environment
+
+Key Functions:
+
+initializeScene(): Creates scene, camera, renderer, and controls
+setupLighting(): Adds ambient, hemisphere, and directional lights
+createGroundPlane(): Creates shadow-receiving ground
+Why separate: Scene setup is a one-time initialization process that doesn't need to be mixed with dynamic logic.
+
+3. modelLoader.js - Model Loading
+Purpose: Handles 3D model loading and terrain queries
+
+Key Functions:
+
+loadModel(): Loads GLTF model with DRACO compression
+findGroundHeight(): Uses raycasting to find terrain height at X,Z
+checkCollisionAtPosition(): Detects camera collisions with buildings
+Why separate: Model loading is asynchronous and requires special handling. Terrain queries are used throughout the app.
+
+4. markerSystem.js - Location Markers
+Purpose: Manages 3D marker pins on the map
+
+Key Functions:
+
+createMarkerMaterials(): Creates shared materials for efficiency
+createMarkers(): Generates markers for all locations
+highlightMarker(): Highlights/unhighlights markers
+findMarkerById(): Looks up markers by location ID
+Why separate: Marker management is a distinct feature with its own lifecycle and interactions.
+
+5. buildingLabels.js - Building Highlighting
+Purpose: Creates floating labels and highlights buildings
+
+Key Functions:
+
+highlightBuildings(): Sets up building grouping, labels, and highlight system
+cleanupBuildingLabels(): Removes DOM labels on unmount
+Features:
+
+Groups building meshes by name
+Creates DOM overlay for labels
+Applies subtle glow effect to highlighted buildings
+Updates label positions every frame based on camera view
+Why separate: Complex system involving both Three.js and DOM manipulation. Self-contained feature.
+
+6. cameraUtils.js - Camera Control
+Purpose: Handles camera animations and constraints
+
+Key Functions:
+
+clampToMapBounds(): Keeps camera within map boundaries
+flyToLocation(): Animates camera to a specific point
+updateCameraAnimation(): Smoothly interpolates camera position
+applyCameraConstraints(): Prevents camera from going underground
+resetCamera(): Returns to default view
+Why separate: Camera logic is complex and used in multiple places. Centralizing it prevents duplication.
+
+7. interactionHandlers.js - User Input
+Purpose: Processes all user interactions
+
+Key Functions:
+
+setupEventHandlers(): Attaches all event listeners
+cleanupEventHandlers(): Removes event listeners
+Handles:
+
+Mouse clicks and touch events
+Double-tap to fly
+Swipe/pan detection
+Marker clicking
+Keyboard shortcuts (R to reset)
+Window resize
+Why separate: Input handling is event-driven and distinct from rendering logic. Keeps event logic organized.
+
+8. animationLoop.js - Render Loop
+Purpose: Main animation loop that runs every frame
+
+Key Functions:
+
+startAnimationLoop(): Starts the render loop
+stopAnimationLoop(): Stops the render loop
+Per-frame tasks:
+
+Update camera animation
+Update controls (damping)
+Apply terrain constraints
+Update building labels
+Render scene
+Why separate: The render loop is the heartbeat of the app. Keeping it clean and focused improves performance debugging.
+
+9. cleanupUtils.js - Resource Disposal
+Purpose: Properly disposes of Three.js resources
+
+Key Functions:
+
+disposeScene(): Recursively disposes geometries and materials
+disposeMarkers(): Cleans up marker meshes
+cleanup(): Main cleanup function
+Why separate: Memory management is critical for Three.js apps. Centralizing disposal logic prevents memory leaks.
+
+10. NITCMapPage.jsx - Main Component
+Purpose: Orchestrates all modules and manages React state
+
+Responsibilities:
+
+Initializes all modules in correct order
+Manages React state for UI (panels, active location)
+Provides callback functions to modules
+Handles UI button clicks
+Cleans up on unmount
+Why it's the main file: React components need to manage lifecycle and state. This component acts as the "conductor" for all other modules.
+
+🔄 Data Flow
+User Interaction
+      ↓
+interactionHandlers.js (detects click/tap)
+      ↓
+NITCMapPage.jsx (callback triggered)
+      ↓
+React State Update (setPanelView, setActiveLocation)
+      ↓
+UI Re-renders (EventPanel shown)
+      ↓
+User clicks "Navigate"
+      ↓
+cameraUtils.js (flyToLocation)
+      ↓
+animationLoop.js (updates camera every frame)
+      ↓
+Camera reaches destination
+🎯 Key Design Decisions
+1. Why use refs instead of state for Three.js objects?
+Three.js objects are mutable and updated every frame
+Storing them in React state would cause unnecessary re-renders
+Refs provide direct access without triggering React's update cycle
+2. Why separate modules instead of one big file?
+Maintainability: Each module has a single responsibility
+Testability: Modules can be tested independently
+Reusability: Functions can be used in different contexts
+Readability: Easier to understand and navigate
+3. Why use window globals for building labels?
+DOM labels live outside React's component tree
+Animation loop needs to update labels every frame
+Global functions provide simple access without prop drilling
+4. Why use callbacks instead of events?
+Direct callbacks are simpler and more predictable
+Easier to debug than event emitters
+Type-safe (with TypeScript)
+🚀 Adding New Features
+Adding a new location:
+Add entry to LOCATION_DATA in config.js
+Marker will be automatically created
+Adding a new event:
+Add entry to EVENT_DATA in config.js
+Link to location via locationId
+Changing camera behavior:
+Modify settings in CONFIG.CAMERA in config.js
+Adjust functions in cameraUtils.js if needed
+Adding new interactions:
+Add handler in interactionHandlers.js
+Wire up callback in NITCMapPage.jsx
+🐛 Debugging Tips
+Labels not showing: Check browser console for errors, verify window.updateBuildingLabels exists
+Camera going underground: Adjust MIN_HEIGHT_ABOVE_TERRAIN in config
+Markers in wrong place: Verify coordinates in LOCATION_DATA
+Performance issues: Check animation loop, reduce label update frequency
+Memory leaks: Verify cleanup functions are called on unmount
+📝 Code Conventions
+Function naming: Use descriptive verbs (e.g., createMarkers, handleClick)
+Comments: Every module and key function has explanatory comments
+Constants: Use UPPER_SNAKE_CASE for config constants
+File naming: Use camelCase for .js files, PascalCase for .jsx components
+Organization: Group related functions within modules
+🔧 Future Improvements
+TypeScript: Add type safety
+Lazy loading: Load model chunks on demand
+LOD system: Level-of-detail for performance
+Search: Add location search feature
+Routing: Generate paths between locations
+Analytics: Track user interactions
+Accessibility: Improve keyboard navigation
+Last Updated: October 2025
+Maintainer: NITC Development Team
+
