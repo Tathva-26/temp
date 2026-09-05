@@ -5,6 +5,13 @@ body {
   max-width: 100%;
   overflow-x: hidden;
   background: #000;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
 }
 
 body {
@@ -88,6 +95,10 @@ body {
 
 .tathva-heading {
   font-family: "Orbitron", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 @tailwind utilities;
