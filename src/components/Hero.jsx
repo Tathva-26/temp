@@ -2,16 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import * as THREE from "three";
-import NET from "vanta/dist/vanta.net.min";
-import { toast } from "react-toastify";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BellDot } from "lucide-react";
+import LetterGlitch from "@/components/LetterGlitch";
 
 export default function Hero({ refs }) {
-  const vantaRef = useRef(null);
-  const vantaEffect = useRef(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [countdown, setCountdown] = useState({
     days: 0,
@@ -28,31 +24,6 @@ export default function Hero({ refs }) {
   useEffect(() => {
     const jwt = localStorage.getItem("jwt") || localStorage.getItem("token");
     setIsLoggedIn(!!jwt);
-
-    if (!vantaEffect.current && vantaRef.current) {
-      vantaEffect.current = NET({
-        el: vantaRef.current,
-        THREE: THREE,
-        mouseControls: true,
-        touchControls: true,
-        gyroControls: false,
-        minHeight: 400.0,
-        minWidth: 200.0,
-        scale: 1.0,
-        scaleMobile: 1.0,
-        color: 0x000000,
-        backgroundColor: 0xffffff,
-        points: 12.0,
-        maxDistance: 27.0,
-        spacing: 15.0,
-      });
-    }
-    return () => {
-      if (vantaEffect.current) {
-        vantaEffect.current.destroy();
-        vantaEffect.current = null;
-      }
-    };
   }, []);
 
   useEffect(() => {
@@ -93,11 +64,11 @@ export default function Hero({ refs }) {
   const CountdownBox = ({ value, label }) => (
     <div className="flex flex-col items-center">
       <div>
-        <p className="text-2xl sm:text-3xl md:text-6xl font-bold text-black monocraft">
+        <p className="text-2xl sm:text-3xl md:text-6xl font-bold text-white monocraft">
           {String(value).padStart(2, "0")}
         </p>
       </div>
-      <p className="text-xs sm:text-sm md:text-base font-semibold mt-1 text-black">
+      <p className="text-xs sm:text-sm md:text-base font-semibold mt-1 text-white">
         {label}
       </p>
     </div>
@@ -105,39 +76,41 @@ export default function Hero({ refs }) {
 
   return (
     <header
-      ref={vantaRef}
-      className="relative w-screen min-h-screen flex items-center justify-center text-black flex-col"
+      className="relative w-screen min-h-screen flex items-center justify-center text-white flex-col overflow-hidden"
       style={{ fontFamily: "PPFragment, sans-serif" }}
     >
+      <div className="absolute inset-0 z-0">
+        <LetterGlitch centerVignette  />
+      </div>
       <Image
         src="/images/TATHVA25_LOGO_BLACK.png"
         alt="Tathva Logo"
         width={150}
         height={150}
-        className="absolute top-4 left-1/2 -translate-x-1/2 sm:left-auto sm:right-4 sm:translate-x-0 z-10 brightness-0"
+        className="absolute top-4 left-1/2 -translate-x-1/2 sm:left-auto sm:right-4 sm:translate-x-0 z-10 invert"
       />
       <div className="absolute top-20 right-10 max-[639px]:top-4 max-[639px]:right-3 z-50 group">
         <Link className="p-3" href="/announcements">
-          <BellDot size={24} className="text-black" />
+          <BellDot size={24} className="text-white" />
         </Link>
       </div>
       
       {/* Countdown Timer */}
       <div className="flex flex-col items-center z-10 pt-20 md:pt-8">
-        <p className="text-xs md:text-base font-bold mb-3 md:mb-4 text-black uppercase tracking-wide">
+        <p className="text-xs md:text-base font-bold mb-3 md:mb-4 text-white uppercase tracking-wide">
           Website Launching IN
         </p>
         <div className="flex gap-1 md:gap-6 justify-center items-center px-2">
           <CountdownBox value={countdown.days}  />
-          <div className="flex items-center text-lg md:text-5xl font-bold text-black">
+          <div className="flex items-center text-lg md:text-5xl font-bold text-white">
             :
           </div>
           <CountdownBox value={countdown.hours} />
-          <div className="flex items-center text-lg md:text-5xl font-bold text-black">
+          <div className="flex items-center text-lg md:text-5xl font-bold text-white">
             :
           </div>
           <CountdownBox value={countdown.minutes} />
-          <div className="flex items-center text-lg md:text-5xl font-bold text-black">
+          <div className="flex items-center text-lg md:text-5xl font-bold text-white">
             :
           </div>
           <CountdownBox value={countdown.seconds} />
@@ -153,30 +126,30 @@ export default function Hero({ refs }) {
       </div>
 
       <div className="flex items-center flex-col gap-6 mt-8 md:mt-12 w-full px-4">
-        <div className="flex lg:flex-row flex-col w-full justify-center items-center z-[10] lg:space-x-13 2xl:space-x-20 text-base md:text-xl xl:text-2xl space-y-4 lg:space-y-0">
+        <div className="flex lg:flex-row flex-col w-full justify-center items-center z-[10] gap-4 lg:gap-8 2xl:gap-12 text-base md:text-xl xl:text-2xl">
           <Link
             href="/workshops"
-            className="hover:transition-all duration-300 hover:scale-110"
+            className="px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110"
           >
             WORKSHOPS
           </Link>
           <Link
             href="/competitions"
-            className="hover:transition-all duration-300 hover:scale-110"
+            className="px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110"
           >
             COMPETITIONS
           </Link>
 
                    <Link
             href="/passes"
-            className="hover:transition-all duration-300 hover:scale-110"
+            className="px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110"
           >
             PASSES
           </Link>
 
       <Link
             href="/lectures"
-            className="hover:transition-all duration-300 hover:scale-110"
+            className="px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110"
           >
             LECTURES
                </Link>
@@ -189,38 +162,51 @@ export default function Hero({ refs }) {
           </button> */}
 <Link
             href="/accomodation"
-            className="hover:transition-all duration-300 hover:scale-110"
+            className="px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110"
           >
             ACCOMODATION
           </Link>
           <Link
             href="/announcements"
-            className="hover:transition-all duration-300 hover:scale-110"
+            className="px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110"
           >
             ANNOUNCEMENTS
           </Link>
         </div>
 
         {isLoggedIn ? (
-          <button
-            onClick={handleVisitDashboard}
-            className="font-mono z-10 flex items-center gap-3 bg-white hover:border-gray-700 text-gray-700 font-semibold py-3 px-6 rounded-full transition-all duration-300 border border-gray-300 group mt-4 md:mt-6"
-          >
-            <svg
-              className="w-5 h-5 group-hover:scale-110 transition-transform"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-              <polyline points="9 22 9 12 15 12 15 22" />
-            </svg>
-            <span className="font-plus-jakarta">Visit Dashboard</span>
-          </button>
+            <button
+    onClick={handleVisitDashboard}
+    className="z-10 flex items-center gap-3
+      bg-black/[0.08]
+      backdrop-blur-xl
+      border border-white/40
+      text-white
+      font-semibold
+      py-3 px-6
+      rounded-md
+      transition-all duration-300
+      hover:bg-black/[0.20]
+      hover:scale-105
+      group
+      mt-4 md:mt-6"
+  >
+    <svg
+      className="w-5 h-5"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <polyline points="9 22 9 12 15 12 15 22" />
+    </svg>
+
+    <span className="monocraft">Visit Dashboard</span>
+  </button>
         ) : (
           <button
             onClick={handleGoogleSignIn}

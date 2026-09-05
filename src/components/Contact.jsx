@@ -81,15 +81,15 @@ const ContactPage = forwardRef((props, ref) => {
 
 
   return (
-    <div ref={ref} className=" bg-white  items-center justify-center ">
+    <div ref={ref} className=" bg-black  items-center justify-center ">
       <ToastContainer />
       <div className="w-full h-fit">
         <div className="relative px-6 sm:px-8 sm:py-8">
-          <div className="flex justify-between flex-col  text-black">
-            <h1 className="text-3xl sm:text-4xl tracking-wide pp-fragment text-gray-800">
+          <div className="flex justify-between flex-col  text-white">
+            <h1 className="text-3xl sm:text-4xl tracking-wide pp-fragment text-white">
               CONTACT US
             </h1>
-          <p className="mt-4 text-gray-600 text-sm sm:text-base font-light">
+          <p className="mt-4 text-gray-300 text-sm sm:text-base font-light">
       For all Tathva-related enquiries, our team is just a message away.
     </p>
           </div>
@@ -97,8 +97,8 @@ const ContactPage = forwardRef((props, ref) => {
 
         <form onSubmit={handleSubmit} className="px-6 sm:px-8 py-8 ">
 
-          <div className="border-t border-gray-300 pt-2 pb-8 flex flex-col md:flex-row justify-between w-full">
-            <label className="block poppins uppercase font-medium md:w-[50%] text-black">
+          <div className="border-t border-white/20 pt-2 pb-8 flex flex-col md:flex-row justify-between w-full">
+            <label className="block poppins uppercase font-medium md:w-[50%] text-white">
               Topic
             </label>
             <div className="md:w-[50%]">
@@ -108,7 +108,7 @@ const ContactPage = forwardRef((props, ref) => {
                 value={formData.topic}
                 onChange={handleInputChange}
                 placeholder="ENTER TOPIC"
-                className="w-full text-lg sm:text-2xl md:text-3xl text-black placeholder-gray-400 pp-fragment bg-transparent text-right md:text-left border-0 focus:outline-none focus:ring-0"
+                className="w-full text-lg sm:text-2xl md:text-3xl text-white placeholder-gray-500 pp-fragment bg-transparent text-right md:text-left border-0 focus:outline-none focus:ring-0"
               />
               {errors.topic && (
                 <p className="text-red-500 text-sm mt-1">{errors.topic}</p>
@@ -116,8 +116,8 @@ const ContactPage = forwardRef((props, ref) => {
             </div>
           </div>
 
-          <div className="border-t border-gray-300 pt-2 pb-8 flex flex-col md:flex-row justify-between w-full">
-            <label className="block poppins uppercase md:w-[50%] t text-black ">
+          <div className="border-t border-white/20 pt-2 pb-8 flex flex-col md:flex-row justify-between w-full">
+            <label className="block poppins uppercase md:w-[50%] t text-white ">
               Name
             </label>
             <div className="md:w-[50%]">
@@ -127,7 +127,7 @@ const ContactPage = forwardRef((props, ref) => {
                 value={formData.name}
                 onChange={handleInputChange}
                 placeholder="FULL NAME"
-                className="w-full text-lg sm:text-2xl md:text-3xl text-black placeholder-gray-400 pp-fragment bg-transparent text-right md:text-left border-0 focus:outline-none focus:ring-0"
+                className="w-full text-lg sm:text-2xl md:text-3xl text-white placeholder-gray-500 pp-fragment bg-transparent text-right md:text-left border-0 focus:outline-none focus:ring-0"
               />
               {errors.name && (
                 <p className="text-red-500 text-sm mt-1">{errors.name}</p>
@@ -135,8 +135,8 @@ const ContactPage = forwardRef((props, ref) => {
             </div>
           </div>
 
-          <div className="border-t border-gray-300 pt-2 pb-8 flex flex-col md:flex-row justify-between w-full">
-            <label className="block poppins uppercase md:w-[50%] text-black font-medium">
+          <div className="border-t border-white/20 pt-2 pb-8 flex flex-col md:flex-row justify-between w-full">
+            <label className="block poppins uppercase md:w-[50%] text-white font-medium">
               Email
             </label>
             <div className="md:w-[50%]">
@@ -146,7 +146,7 @@ const ContactPage = forwardRef((props, ref) => {
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="yourname@example.com"
-                className="w-full text-lg sm:text-2xl md:text-3xl text-black placeholder-gray-400 pp-fragment bg-transparent text-right md:text-left border-0 focus:outline-none focus:ring-0"
+                className="w-full text-lg sm:text-2xl md:text-3xl text-white placeholder-gray-500 pp-fragment bg-transparent text-right md:text-left border-0 focus:outline-none focus:ring-0"
               />
               {errors.email && (
                 <p className="text-red-500 text-sm mt-1">{errors.email}</p>
@@ -154,8 +154,8 @@ const ContactPage = forwardRef((props, ref) => {
             </div>
           </div>
 
-          <div className="border-t border-gray-300 pt-2 pb-8 flex flex-col md:flex-row justify-between w-full">
-            <label className="block poppins uppercase md:w-[50%] text-black font-medium">
+          <div className="border-t border-white/20 pt-2 pb-8 flex flex-col md:flex-row justify-between w-full">
+            <label className="block poppins uppercase md:w-[50%] text-white font-medium">
               Phone
             </label>
             <div className="md:w-[50%]">
@@ -165,7 +165,7 @@ const ContactPage = forwardRef((props, ref) => {
                 value={formData.phone}
                 onChange={handleInputChange}
                 placeholder="+91 00000 00000"
-                className="w-full text-lg sm:text-2xl md:text-3xl text-black  placeholder-gray-400 pp-fragment bg-transparent text-right md:text-left border-0 focus:outline-none focus:ring-0"
+                className="w-full text-lg sm:text-2xl md:text-3xl text-white  placeholder-gray-500 pp-fragment bg-transparent text-right md:text-left border-0 focus:outline-none focus:ring-0"
               />
               {errors.phone && (
                 <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
@@ -173,8 +173,8 @@ const ContactPage = forwardRef((props, ref) => {
             </div>
           </div>
 
-          <div className="border-t border-gray-300 pt-2 flex flex-col md:flex-row justify-between w-full">
-            <label className="block poppins uppercase text-black font-medium">
+          <div className="border-t border-white/20 pt-2 flex flex-col md:flex-row justify-between w-full">
+            <label className="block poppins uppercase text-white font-medium">
               Query
             </label>
             <div className="md:w-[50%]">
@@ -184,7 +184,7 @@ const ContactPage = forwardRef((props, ref) => {
                 onChange={handleInputChange}
                 placeholder="ENTER DETAILS"
                 rows={4}
-                className="w-full text-lg sm:text-2xl md:text-3xl mt-6 sm:mt-0 text-black text-right md:text-left pp-fragment placeholder-gray-400 border-0 focus:outline-none focus:ring-0 resize-none"
+                className="w-full text-lg sm:text-2xl md:text-3xl mt-6 sm:mt-0 text-white text-right md:text-left pp-fragment placeholder-gray-500 border-0 focus:outline-none focus:ring-0 resize-none"
               />
               {errors.query && (
                 <p className="text-red-500 text-sm mt-1">{errors.query}</p>
@@ -195,7 +195,7 @@ const ContactPage = forwardRef((props, ref) => {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="flex items-center mt-2 md:-mt-10  gap-2 text-xl  sm:text-3xl text-gray-800 bg-transparent pp-fragment border-gray-300 transition-colors duration-200 group"
+              className="flex items-center mt-2 md:-mt-10  gap-2 text-xl  sm:text-3xl text-white bg-transparent pp-fragment border-white/20 transition-colors duration-200 group"
               disabled={submitting}
             >
               {submitting ? "Submitting..." : "Submit"}
