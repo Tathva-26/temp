@@ -86,12 +86,13 @@ export default function Hero({ refs }) {
 
   return (
     <header
-      className="relative w-screen min-h-screen flex items-center justify-center text-white flex-col overflow-hidden"
+      className="relative flex min-h-[100svh] w-full flex-col items-center justify-center overflow-hidden bg-black py-24 text-white sm:py-16"
       style={{ fontFamily: "PPFragment, sans-serif" }}
     >
       <div className="absolute inset-0 z-0">
         <LetterGlitch centerVignette  />
       </div>
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-40 bg-gradient-to-b from-transparent to-black sm:h-56" />
       <Image
         src="/images/TATHVA25_LOGO_BLACK.png"
         alt="Tathva Logo"
@@ -106,11 +107,11 @@ export default function Hero({ refs }) {
       </div>
       
       {/* Countdown Timer */}
-      <div className="flex flex-col items-center z-10 pt-20 md:pt-8">
-       <p className="text-base md:text-xl font-black mb-3 md:mb-4 text-white uppercase tracking-wide">
-  Website Launching IN
-</p>
-        <div className="flex gap-1 md:gap-6 justify-center items-center px-2">
+      <div className="z-10 flex flex-col items-center">
+       <p className="mb-3 text-center text-sm font-black uppercase tracking-wide text-white sm:text-base md:mb-4 md:text-xl">
+          Website Launching IN
+        </p>
+        <div className="flex items-center justify-center gap-1 px-2 sm:gap-3 md:gap-6">
           <CountdownBox value={countdown.days}  />
           <div className="flex items-center text-lg md:text-5xl font-bold text-white">
             :
@@ -127,16 +128,16 @@ export default function Hero({ refs }) {
         </div>
       </div>
 
-      <div className="flex z-10 flex-col items-center mt-8 md:mt-16 px-4">
-        <p className="self-center text-lg md:text-2xl xl:text-3xl">2026</p>
-        <h1 className="relative text-4xl sm:text-6xl md:text-8xl lg:text-8xl xl:text-[12rem] tracking-widest tathva-heading text-center">
-  TATHVA'26
-</h1>
-        <p className="text-lg md:text-2xl xl:text-3xl mt-2">OCT 9, 10, 11</p>
+      <div className="z-10 mt-8 flex flex-col items-center px-4 text-center md:mt-16">
+        <p className="text-lg md:text-2xl xl:text-3xl">2026</p>
+        <h1 className="tathva-heading relative text-[clamp(2.5rem,13vw,12rem)] tracking-widest">
+          TATHVA&apos;26
+        </h1>
+        <p className="mt-2 text-lg md:text-2xl xl:text-3xl">OCT 9, 10, 11</p>
       </div>
 
-      <div className="flex items-center flex-col gap-6 mt-8 md:mt-12 w-full px-4">
-        <div className="flex lg:flex-row flex-col w-full justify-center items-center z-[10] gap-4 lg:gap-8 2xl:gap-12 text-base md:text-xl xl:text-2xl">
+      <div className="z-10 mt-8 flex w-full flex-col items-center gap-6 px-4 md:mt-12">
+        <div className="grid w-full max-w-4xl grid-cols-2 items-center justify-center gap-3 text-center text-sm sm:flex sm:flex-wrap sm:gap-4 md:text-xl xl:gap-8 xl:text-2xl">
           <Link
             href="/workshops"
             className="px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110"

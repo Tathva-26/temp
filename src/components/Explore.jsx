@@ -1,10 +1,11 @@
 "use client";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function MinimalSections() {
   const containerRef = useRef(null);
+  const sectionRefs = useRef([]);
   const [active, setActive] = useState(0);
 
   const sections = [
@@ -28,29 +29,32 @@ export default function MinimalSections() {
     },
   ];
 
-  const handleScroll = () => {
-    const el = containerRef.current;
-    if (!el) return;
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
 
-    const index = Math.round(el.scrollTop / el.clientHeight);
-    setActive(Math.min(index, sections.length - 1));
-  };
+        if (visible) {
+          setActive(Number(visible.target.dataset.index));
+        }
+      },
+      { threshold: [0.4, 0.7] }
+    );
+
+    sectionRefs.current.forEach((section) => section && observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
 
   const scrollTo = (index) => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    el.scrollTo({
-      top: index * el.clientHeight,
-      behavior: "smooth",
-    });
+    sectionRefs.current[index]?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
     <section
       ref={containerRef}
-      onScroll={handleScroll}
-      className="relative h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth bg-black [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="relative bg-black"
     >
       {sections.map((section, index) => {
         const route = `/${section.title.toLowerCase()}`;
@@ -58,14 +62,18 @@ export default function MinimalSections() {
         return (
           <div
             key={index}
-            className="relative h-screen snap-start flex items-center justify-center overflow-hidden"
+            ref={(section) => {
+              sectionRefs.current[index] = section;
+            }}
+            data-index={index}
+            className="relative flex min-h-[100svh] items-center justify-center overflow-hidden scroll-mt-0 py-20"
           >
-            <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16 max-w-6xl w-full px-4 sm:px-8 pt-16 md:pt-0">
+            <div className="flex w-full max-w-6xl flex-col items-center gap-8 px-5 sm:px-8 md:flex-row md:gap-16 md:py-0">
               <div className="overflow-hidden flex-1 w-full">
                 <img
                   src={section.image}
                   alt={section.title}
-                  className="w-full h-64 sm:h-80 md:h-[600px] object-cover scale-105"
+                  className="h-64 w-full scale-105 object-cover sm:h-80 md:h-[600px]"
                 />
               </div>
 
@@ -73,7 +81,7 @@ export default function MinimalSections() {
                 <div className="w-16 h-1 bg-white/30 mb-4"></div>
 
                 <Link href={route} className="group flex items-center gap-4">
-                  <h3 className="text-4xl sm:text-6xl font-medium text-white pp-fragment uppercase">
+                  <h3 className="pp-fragment text-4xl font-medium uppercase text-white sm:text-6xl">
                     {section.title}
                   </h3>
                   <ArrowRight
@@ -92,7 +100,7 @@ export default function MinimalSections() {
         );
       })}
 
-      <div className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10">
+      <div className="absolute right-4 top-1/2 z-10 flex -translate-y-1/2 flex-col gap-3 sm:right-8">
         {sections.map((section, index) => (
           <button
             key={index}

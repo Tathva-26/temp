@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+  background: #000;
+}
+
+body {
+  overscroll-behavior-x: none;
+}
+
 
 @font-face {
   font-family: "PPFragment";
