@@ -131,6 +131,7 @@ export default function Hero({ refs }) {
       <div className="z-10 mt-8 flex flex-col items-center px-4 text-center md:mt-16">
         <p className="text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-bold">2026</p>
         <h1 className="tathva-heading relative text-[clamp(2.5rem,13vw,12rem)] tracking-widest">
+
           TATHVA&apos;26
         </h1>
         <p className="mt-2 text-lg md:text-2xl xl:text-3xl">OCT 9, 10, 11</p>
