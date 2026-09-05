@@ -56,7 +56,7 @@ export default function ProfileClient({ user }) {
 
         // fetch bookings
         const bookingsResp = await axios.get(
-          "https://api.tathva.org/api/booking/getbooking",
+          `${process.env.NEXT_PUBLIC_API}/api/booking/getbooking`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -75,7 +75,7 @@ export default function ProfileClient({ user }) {
         // fetch referrals
         try {
           const refResp = await axios.get(
-            "https://api.tathva.org/api/referrals/",
+            `${process.env.NEXT_PUBLIC_API}/api/referrals/`,
             {
               headers: { Authorization: `Bearer ${token}` },
             }
@@ -102,7 +102,7 @@ export default function ProfileClient({ user }) {
           );
 
           try {
-            const accomResp = await jwtRequired.get("https://api.tathva.org/api/accomodation/");
+            const accomResp = await jwtRequired.get(`${process.env.NEXT_PUBLIC_API}/api/accomodation/`);
             console.log(accomResp);
             const confirmedBookings = (accomResp.data.roomBookings || []).filter(
                 (booking) => booking.status === "CONFIRMED"
@@ -182,7 +182,7 @@ export default function ProfileClient({ user }) {
       const apiFieldKey = fieldMapping[editingField] || editingField;
 
       const response = await axios.put(
-        `https://api.tathva.org/api/users/`,
+        `${process.env.NEXT_PUBLIC_API}/api/users/`,
         { [apiFieldKey]: value },
         {
           headers: {

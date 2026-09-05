@@ -13,12 +13,11 @@ import {
     Home,
 } from "lucide-react";
 import {useRouter} from "next/navigation";
-import { redirect } from 'next/navigation';
 import jwtRequired from "@/axios/jwtRequired";
 
 // A dummy function to simulate an API call
 const postAccommodationDetails = async (data) => {
-  const apiEndpoint = "https://api.tathva.org/api/booking/create"; // Sample backend link
+  const apiEndpoint = `${process.env.NEXT_PUBLIC_API}/api/booking/create`; // Sample backend link
   console.log("Submitting accommodation data to:", apiEndpoint);
   console.log("Payload:", data);
 
@@ -212,7 +211,7 @@ export default function AccommodationRegistration() {
 
       } catch (error) {
           console.error("Submission failed:", error);
-          setSubmitError(error.message || "An unexpected error occurred.");
+          setSubmitError(error.response?.data?.message || "An unexpected error occurred.");
           setIsSubmitting(false);
       }
   };

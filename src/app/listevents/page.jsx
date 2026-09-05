@@ -16,7 +16,7 @@ export default function EventsListing() {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const response = await fetch('https://api.tathva.org/api/tiqr-events');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API}/api/tiqr-events`);
       const data = await response.json();
       setEvents(data.events.results);
       setError(null);
@@ -47,7 +47,7 @@ export default function EventsListing() {
       };
 
       const response = await axios.post(
-        "https://api.tathva.org/api/events/create",
+        `${process.env.NEXT_PUBLIC_API}/api/events/create`,
         body,
         {
           headers: {

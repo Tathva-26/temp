@@ -1,5 +1,4 @@
 import jwtRequired from "@/axios/jwtRequired";
-import { redirect } from "next/navigation";
 import toast from "react-hot-toast";
 
 export const regHandler = async (eventId ,ticketId) => {
@@ -12,8 +11,8 @@ export const regHandler = async (eventId ,ticketId) => {
         bookingRes = await jwtRequired.post(url, { eventId, ticketId });
     }
     catch(error) {
-        //console.error("Error during booking:", error.response.data.error);
-        toast.error(error.response.data.error)
+        //console.error("Error during booking:", error.response.data.message);
+        toast.error(error.response?.data?.message || "Booking failed. Please try again.")
         return false;
     }
 
@@ -22,7 +21,7 @@ export const regHandler = async (eventId ,ticketId) => {
     const redirectUrl = bookingRes.data.redir_url;
 
     if (redirectUrl) {
-        redirect(redirectUrl);
+        window.location.href = redirectUrl;
     } else {
         console.error("No redirect URL found in response");
     }

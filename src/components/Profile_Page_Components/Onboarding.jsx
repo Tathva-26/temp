@@ -55,7 +55,7 @@ export default function OnboardingFlow() {
 
     try {
       const res = await axios.put(
-        "https://api.tathva.org/api/users",
+        `${process.env.NEXT_PUBLIC_API}/api/users`,
         dataToSend,
         {
           headers: {

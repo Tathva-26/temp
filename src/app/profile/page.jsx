@@ -12,6 +12,15 @@ export default function ProfilePage() {
   const router = useRouter();
 
   useEffect(() => {
+    const tokenFromQuery = new URLSearchParams(window.location.search).get(
+      "token"
+    );
+
+    if (tokenFromQuery) {
+      localStorage.setItem("jwt", tokenFromQuery);
+      window.history.replaceState({}, "", "/profile");
+    }
+
     const token = localStorage.getItem("jwt");
 
     if (!token) {

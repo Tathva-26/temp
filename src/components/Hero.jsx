@@ -82,8 +82,18 @@ export default function Hero({ refs }) {
   }, []);
 
   const handleGoogleSignIn = () => {
-    window.location.href =
-      "https://accounts.google.com/o/oauth2/auth?client_id=783776933631-jdor6jdgf8qvmmbbj4hrtt9con1no8ue.apps.googleusercontent.com&redirect_uri=https://api.tathva.org/api/auth/callback&response_type=code&scope=openid%20email%20profile&prompt=consent";
+    const clientId =
+      process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+      "783776933631-jdor6jdgf8qvmmbbj4hrtt9con1no8ue.apps.googleusercontent.com";
+    const redirectUri =
+      process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI ||
+      `${process.env.NEXT_PUBLIC_API || "http://localhost:5000"}/api/auth/callback`;
+    const url = `https://accounts.google.com/o/oauth2/auth?client_id=${encodeURIComponent(
+      clientId
+    )}&redirect_uri=${encodeURIComponent(
+      redirectUri
+    )}&response_type=code&scope=openid%20email%20profile&prompt=consent`;
+    window.location.href = url;
   };
 
   const handleVisitDashboard = () => {

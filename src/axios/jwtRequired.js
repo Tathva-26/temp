@@ -15,7 +15,7 @@ const isTokenExpired = (token) => {
 };
 
 const jwtRequired = axios.create({
-  baseURL: "https://api.tathva.org",
+  baseURL: process.env.NEXT_PUBLIC_API || "http://localhost:5000",
 });
 
 jwtRequired.interceptors.request.use(
