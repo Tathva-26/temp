@@ -37,12 +37,20 @@ export default async function LecturesPage() {
   const lectures = wlectures.filter((w) => !w.isFull);
 
   return (
-    <div className="bg-white min-h-screen py-16 px-4 sm:px-8">
+    <div className="bg-black min-h-screen py-4 sm:py-10 px-4 sm:px-8 text-white">
       {/* Heading */}
-      <div className=" mb-12">
-        <h1 className="text-4xl sm:text-5xl md:text-6xl border-b pb-3 border-gray-300 text-center md:text-left tracking-wide pp-fragment text-gray-900 uppercase">
-          LECTURES
-        </h1>
+      <div className="mb-12">
+        <Link
+          href="/"
+          className="text-sm font-medium text-gray-500 hover:text-white transition-colors"
+        >
+          ← Home
+        </Link>
+        <div className="mb-12 border-b border-gray-300 pb-4 mt-4">
+          <h1 className="pp-fragment text-4xl sm:text-5xl md:text-6xl text-center md:text-left tracking-wide text-white uppercase md:mt-3">
+            LECTURES
+          </h1>
+        </div>
       </div>
 
       {/* Lectures Grid */}
