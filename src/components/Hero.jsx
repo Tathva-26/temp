@@ -97,9 +97,9 @@ export default function Hero({ refs }) {
       
       {/* Countdown Timer */}
       <div className="flex flex-col items-center z-10 pt-20 md:pt-8">
-        <p className="text-xs md:text-base font-bold mb-3 md:mb-4 text-white uppercase tracking-wide">
-          Website Launching IN
-        </p>
+       <p className="text-base md:text-xl font-black mb-3 md:mb-4 text-white uppercase tracking-wide">
+  Website Launching IN
+</p>
         <div className="flex gap-1 md:gap-6 justify-center items-center px-2">
           <CountdownBox value={countdown.days}  />
           <div className="flex items-center text-lg md:text-5xl font-bold text-white">
