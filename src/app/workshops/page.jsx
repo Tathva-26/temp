@@ -59,10 +59,10 @@ export default function WorkshopsPage() {
 
   if (loading) {
     return (
-      <div className="bg-white min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center">
+      <div className="bg-black min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-gray-900 border-r-transparent"></div>
-          <p className="mt-4 text-gray-600">Loading workshops...</p>
+          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-white border-r-transparent"></div>
+          <p className="mt-4 text-gray-300">Loading workshops...</p>
         </div>
       </div>
     );
@@ -70,8 +70,8 @@ export default function WorkshopsPage() {
 
   if (error) {
     return (
-      <div className="bg-white min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center">
-        <div className="text-center text-red-600">
+      <div className="bg-black min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center">
+        <div className="text-center text-red-500">
           <p className="text-xl font-semibold">Error loading workshops</p>
           <p className="mt-2">{error}</p>
         </div>
@@ -97,7 +97,7 @@ export default function WorkshopsPage() {
   ];
 
   return (
-    <div className="bg-white min-h-screen py-4 sm:py-10 px-4 sm:px-8">
+    <div className="bg-black min-h-screen py-4 sm:py-10 px-4 sm:px-8 text-white">
       {/* Heading and home */}
       <div className="mb-12">
         <Link
@@ -110,7 +110,7 @@ export default function WorkshopsPage() {
         <div className="mb-12 border-b border-gray-300 pb-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             {/* Title */}
-            <h1 className="pp-fragment text-4xl sm:text-5xl md:text-6xl text-center md:text-left tracking-wide text-gray-900 uppercase md:mt-3">
+            <h1 className="pp-fragment text-4xl sm:text-5xl md:text-6xl text-center md:text-left tracking-wide text-white uppercase md:mt-3">
               WORKSHOPS
             </h1>
 
@@ -120,7 +120,7 @@ export default function WorkshopsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search For Workshops"
-              className="w-full md:max-w-lg p-4 border border-gray-300 rounded-full shadow-sm focus:ring-gray-500 focus:border-gray-500"
+              className="w-full md:max-w-lg p-4 bg-black/30 border border-white/30 rounded-full shadow-inner focus:ring-white focus:border-white"
             />
           </div>
         </div>
@@ -128,7 +128,7 @@ export default function WorkshopsPage() {
 
       <div className="mx-auto">
         {sortedWorkshops.length === 0 ? (
-          <p className="text-center text-gray-600 text-lg">
+          <p className="text-center text-gray-300 text-lg">
             No workshops found matching your search.
           </p>
         ) : (
