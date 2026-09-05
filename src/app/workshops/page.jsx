@@ -13,12 +13,15 @@ export default function WorkshopsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  
-  
   const [searchQuery, setSearchQuery] = useState("");
 
   if (!backendEnabled) {
-    return <BackendStatus title="Workshops coming soon" message="Workshop details will be available soon." />;
+    return (
+      <BackendStatus
+        title="Workshops coming soon"
+        message="Workshop details will be available soon."
+      />
+    );
   }
 
   const formatDate = (dateString) =>
@@ -50,9 +53,8 @@ export default function WorkshopsPage() {
     fetchWorkshops();
   }, []);
 
-  
   const searchedWorkshops = workshops.filter((workshop) =>
-    workshop.heading.toLowerCase().includes(searchQuery.toLowerCase())
+    workshop.heading.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   if (loading) {
@@ -82,17 +84,15 @@ export default function WorkshopsPage() {
     1476, 1498, 1522, 1521,
   ];
 
-  const filteredWorkshops = searchedWorkshops.filter(
-    (w) => !(w.isFull)
-  );
+  const filteredWorkshops = searchedWorkshops.filter((w) => !w.isFull);
 
   // Sort: real images first, dummy ones (ending with "-DUMMY.jpg") last
   const sortedWorkshops = [
     ...filteredWorkshops.filter(
-      (w) => !w.picture?.trim().endsWith("-DUMMY.jpg")
+      (w) => !w.picture?.trim().endsWith("-DUMMY.jpg"),
     ),
     ...filteredWorkshops.filter((w) =>
-      w.picture?.trim().endsWith("-DUMMY.jpg")
+      w.picture?.trim().endsWith("-DUMMY.jpg"),
     ),
   ];
 
@@ -107,27 +107,24 @@ export default function WorkshopsPage() {
           ← Home
         </Link>
 
-<div className="mb-12 border-b border-gray-300 pb-4">
-  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-    {/* Title */}
-    <h1 className="pp-fragment text-4xl sm:text-5xl md:text-6xl text-center md:text-left tracking-wide text-gray-900 uppercase md:mt-3">
-      WORKSHOPS
-    </h1>
+        <div className="mb-12 border-b border-gray-300 pb-4">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            {/* Title */}
+            <h1 className="pp-fragment text-4xl sm:text-5xl md:text-6xl text-center md:text-left tracking-wide text-gray-900 uppercase md:mt-3">
+              WORKSHOPS
+            </h1>
 
-    {/* Search Bar */}
-    <input
-      type="text"
-      value={searchQuery}
-      onChange={(e) => setSearchQuery(e.target.value)}
-      placeholder="Search For Workshops"
-      className="w-full md:max-w-lg p-4 border border-gray-300 rounded-full shadow-sm focus:ring-gray-500 focus:border-gray-500"
-    />
-  </div>
-</div>
-
+            {/* Search Bar */}
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search For Workshops"
+              className="w-full md:max-w-lg p-4 border border-gray-300 rounded-full shadow-sm focus:ring-gray-500 focus:border-gray-500"
+            />
+          </div>
+        </div>
       </div>
-
-     
 
       <div className="mx-auto">
         {sortedWorkshops.length === 0 ? (

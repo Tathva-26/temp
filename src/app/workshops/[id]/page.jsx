@@ -7,12 +7,11 @@ import BackendStatus from "@/components/BackendStatus";
 
 const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
-  console.log(process.env.NEXT_PUBLIC_API)
+console.log(process.env.NEXT_PUBLIC_API);
 
 async function getWorkshop(id) {
-
   const url = `${process.env.NEXT_PUBLIC_API}/api/events/details/${id}`;
-  console.log(url)
+  console.log(url);
 
   const res = await fetch(url);
   if (!res.ok) throw new Error("Failed to fetch workshop data");
@@ -22,13 +21,16 @@ async function getWorkshop(id) {
   return fin;
 }
 
-
-
 export default async function WorkshopPage({ params }) {
   const { id } = await params;
 
   if (!backendEnabled) {
-    return <BackendStatus title="Workshop details coming soon" message="Workshop registration will be available soon." />;
+    return (
+      <BackendStatus
+        title="Workshop details coming soon"
+        message="Workshop registration will be available soon."
+      />
+    );
   }
 
   const workshop = await getWorkshop(id);

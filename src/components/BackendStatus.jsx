@@ -1,4 +1,7 @@
-export default function BackendStatus({ title = "Coming soon", message = "This feature will be available soon." }) {
+export default function BackendStatus({
+  title = "Coming soon",
+  message = "This feature will be available soon.",
+}) {
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black px-6 py-16 text-center text-white">
       <div className="pointer-events-none absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:48px_48px]" />

@@ -21,7 +21,7 @@ export default function ProfilePage() {
     }
 
     const tokenFromQuery = new URLSearchParams(window.location.search).get(
-      "token"
+      "token",
     );
 
     if (tokenFromQuery) {
@@ -38,7 +38,7 @@ export default function ProfilePage() {
       return;
     }
 
-     const fetchUser = async () => {
+    const fetchUser = async () => {
       try {
         const res = await jwtRequired.get("/api/users");
 
@@ -66,39 +66,52 @@ export default function ProfilePage() {
       }
     };
 
-
     fetchUser();
   }, [router]);
 
   if (!backendEnabled) {
-    return <BackendStatus title="Profile coming soon" message="Login and profile features will be available soon." />;
+    return (
+      <BackendStatus
+        title="Profile coming soon"
+        message="Login and profile features will be available soon."
+      />
+    );
   }
 
   if (loading) {
-    return   <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="relative">
-        <div className="w-16 h-16 border-4 border-blue-200 rounded-full"></div>
-        <div className="w-16 h-16 border-4 border-black rounded-full border-t-transparent absolute top-0 left-0 animate-spin"></div>
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-blue-200 rounded-full"></div>
+          <div className="w-16 h-16 border-4 border-black rounded-full border-t-transparent absolute top-0 left-0 animate-spin"></div>
+        </div>
       </div>
-    </div>;
+    );
   }
-  
+
   const PageContainer = ({ children }) => (
-    <div className="" >
-      <Link href="/" className="absolute top-5 left-10 z-20" style={{ textDecoration: 'none', color: 'inherit', marginBottom: '1.5rem', display: 'inline-block' }}>
-        <span style={{ fontWeight: 'bold', fontSize: '1.5rem' }}>
-          &larr;  Home
+    <div className="">
+      <Link
+        href="/"
+        className="absolute top-5 left-10 z-20"
+        style={{
+          textDecoration: "none",
+          color: "inherit",
+          marginBottom: "1.5rem",
+          display: "inline-block",
+        }}
+      >
+        <span style={{ fontWeight: "bold", fontSize: "1.5rem" }}>
+          &larr; Home
         </span>
       </Link>
-          
+
       {children}
     </div>
   );
 
   if (!user) {
-    return (
-      <div></div>
-    );
+    return <div></div>;
   }
 
   return (

@@ -25,13 +25,16 @@ async function getLectures() {
 // The page component
 export default async function LecturesPage() {
   if (!backendEnabled) {
-    return <BackendStatus title="Lectures coming soon" message="Lecture details will be available soon." />;
+    return (
+      <BackendStatus
+        title="Lectures coming soon"
+        message="Lecture details will be available soon."
+      />
+    );
   }
 
   const wlectures = await getLectures();
-  const lectures = wlectures.filter(
-    (w) => !(w.isFull)
-  );
+  const lectures = wlectures.filter((w) => !w.isFull);
 
   return (
     <div className="bg-white min-h-screen py-16 px-4 sm:px-8">

@@ -16,7 +16,12 @@ export default function EventsPage() {
   const [searchQuery, setSearchQuery] = useState("");
 
   if (!backendEnabled) {
-    return <BackendStatus title="Competitions coming soon" message="Competition details will be available soon." />;
+    return (
+      <BackendStatus
+        title="Competitions coming soon"
+        message="Competition details will be available soon."
+      />
+    );
   }
 
   // Fetch data when the component mounts
@@ -41,24 +46,18 @@ export default function EventsPage() {
 
   // Filter competitions based on the search query in real-time
   const searchedCompetitions = allCompetitions.filter((event) =>
-    event.heading.toLowerCase().includes(searchQuery.toLowerCase())
+    event.heading.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   // Separate the *filtered* list into two categories
   const kgpcEvents = searchedCompetitions.filter(
-    (event) => event.committee === "GPC"
+    (event) => event.committee === "GPC",
   );
-    const gpcEvents = kgpcEvents.filter(
-    (event) => !(event.isFull)
-  );
+  const gpcEvents = kgpcEvents.filter((event) => !event.isFull);
   const kotherCompetitions = searchedCompetitions.filter(
-    (event) => event.committee !== "GPC"
+    (event) => event.committee !== "GPC",
   );
-  const otherCompetitions = kotherCompetitions.filter(
-    (event) => !(event.isFull)
-  );
-
-  
+  const otherCompetitions = kotherCompetitions.filter((event) => !event.isFull);
 
   // Loading state UI
   if (loading) {

@@ -31,9 +31,13 @@ const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 // ];
 
 export default function AnnouncementsPage() {
-
   if (!backendEnabled) {
-    return <BackendStatus title="Announcements coming soon" message="There are no announcements to show yet." />;
+    return (
+      <BackendStatus
+        title="Announcements coming soon"
+        message="There are no announcements to show yet."
+      />
+    );
   }
 
   const [specificAnnouncements, setSpecificAnnouncements] = useState([]);
@@ -41,36 +45,37 @@ export default function AnnouncementsPage() {
   const [error, setError] = useState(null);
 
   const formatDate = (dateString) =>
-      dateString
-          ? new Date(dateString).toLocaleDateString("en-IN", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-            timeZone: "Asia/Kolkata",
-          })
-          : "TBA";
+    dateString
+      ? new Date(dateString).toLocaleDateString("en-IN", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+          timeZone: "Asia/Kolkata",
+        })
+      : "TBA";
 
   useEffect(() => {
+    const fetchAnnouncements = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API}/api/announcements`,
+        );
 
-      const fetchAnnouncements = async () => {
-        try {
-          setLoading(true);
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API}/api/announcements`);
-
-          if (!response.ok) {
-            throw new Error('Failed to fetch announcements');
-          }
-
-          const data = await response.json();
-          setSpecificAnnouncements(data);
-        } catch (err) {
-          setError(err.message);
-          console.error('Error fetching announcements:', err);
-        } finally {
-          setLoading(false);
+        if (!response.ok) {
+          throw new Error("Failed to fetch announcements");
         }
-      };
-      fetchAnnouncements();
+
+        const data = await response.json();
+        setSpecificAnnouncements(data);
+      } catch (err) {
+        setError(err.message);
+        console.error("Error fetching announcements:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAnnouncements();
 
     // On visiting announcements page → mark all as read
     const allIds = specificAnnouncements.map((a) => a.id);
