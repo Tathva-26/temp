@@ -22,7 +22,7 @@ const LetterGlitch = ({
   const lettersAndSymbols = Array.from(characters);
 
   const fontSize = 16;
-  const charWidth = 10;
+  const charWidth = 8;
   const charHeight = 20;
 
   const getRandomChar = () => {
