@@ -40,6 +40,11 @@ export default function OnboardingFlow() {
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
 
+    if (process.env.NEXT_PUBLIC_BACKEND_ENABLED === "false") {
+      toast.info("Profile setup is coming soon.");
+      return;
+    }
+
     const token = localStorage.getItem("jwt");
     if (!token) {
       alert("Unauthorized: No JWT token found");

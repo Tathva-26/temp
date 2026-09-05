@@ -50,6 +50,10 @@ const ContactPage = forwardRef((props, ref) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (process.env.NEXT_PUBLIC_BACKEND_ENABLED === "false") {
+      toast.info("Contact submissions are coming soon.");
+      return;
+    }
     if (!validate()) return;
 
     try {

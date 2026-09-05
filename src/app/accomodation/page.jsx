@@ -17,6 +17,10 @@ import jwtRequired from "@/axios/jwtRequired";
 
 // A dummy function to simulate an API call
 const postAccommodationDetails = async (data) => {
+    if (process.env.NEXT_PUBLIC_BACKEND_ENABLED === "false") {
+        throw new Error("Accommodation booking is coming soon.");
+    }
+
   const apiEndpoint = `${process.env.NEXT_PUBLIC_API}/api/booking/create`; // Sample backend link
   console.log("Submitting accommodation data to:", apiEndpoint);
   console.log("Payload:", data);

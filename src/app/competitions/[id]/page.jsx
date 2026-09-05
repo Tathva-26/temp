@@ -4,6 +4,9 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import ModalWrapper from "@/components/modelWrapper";
 import BrochureButton from "@/components/BrochureButton";
+import BackendStatus from "@/components/BackendStatus";
+
+const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
 // DATA FETCHING FUNCTION
 async function getEvent(id) {
@@ -35,6 +38,10 @@ async function getBrochure(id) {
 // MAIN PAGE COMPONENT
 export default async function EventPage({ params}) {
   const { id } = await params;
+
+  if (!backendEnabled) {
+    return <BackendStatus title="Competition details coming soon" message="Competition registration will be available soon." />;
+  }
 
   const event = await getEvent(id);
   console.log(event);

@@ -1,5 +1,8 @@
 import SectionCard from "@/components/SectionCard";
 import Link from "next/link";
+import BackendStatus from "@/components/BackendStatus";
+
+const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
 // Function to fetch all lectures from Strapi
 async function getLectures() {
@@ -21,6 +24,10 @@ async function getLectures() {
 
 // The page component
 export default async function LecturesPage() {
+  if (!backendEnabled) {
+    return <BackendStatus title="Lectures coming soon" message="Lecture details will be available soon." />;
+  }
+
   const wlectures = await getLectures();
   const lectures = wlectures.filter(
     (w) => !(w.isFull)

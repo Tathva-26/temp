@@ -29,6 +29,10 @@ export default function EditModal({
 
  const handleSubmit = async (e) => {
   e.preventDefault();
+  if (process.env.NEXT_PUBLIC_BACKEND_ENABLED === 'false') {
+    setError('Profile updates are coming soon.');
+    return;
+  }
   setLoading(true);
   setError('');
 

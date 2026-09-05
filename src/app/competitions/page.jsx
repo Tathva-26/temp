@@ -4,6 +4,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Link from "next/link";
 import CompetitionTabs from "@/components/CompetitionTabs";
+import BackendStatus from "@/components/BackendStatus";
+
+const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
 export default function EventsPage() {
   // State for storing competitions, loading status, errors, and the search query
@@ -11,6 +14,10 @@ export default function EventsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+
+  if (!backendEnabled) {
+    return <BackendStatus title="Competitions coming soon" message="Competition details will be available soon." />;
+  }
 
   // Fetch data when the component mounts
   useEffect(() => {

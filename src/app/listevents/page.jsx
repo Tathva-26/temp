@@ -2,12 +2,19 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Calendar, MapPin, Tag } from 'lucide-react';
+import BackendStatus from '@/components/BackendStatus';
+
+const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== 'false';
 
 export default function EventsListing() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [addingEventId, setAddingEventId] = useState(null);
+
+  if (!backendEnabled) {
+    return <BackendStatus title="Event management coming soon" message="Event imports will be available when the backend is ready." />;
+  }
 
   useEffect(() => {
     fetchEvents();

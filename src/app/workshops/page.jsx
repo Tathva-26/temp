@@ -4,6 +4,9 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import SectionCard from "@/components/SectionCard";
 import Link from "next/link";
+import BackendStatus from "@/components/BackendStatus";
+
+const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
 export default function WorkshopsPage() {
   const [workshops, setWorkshops] = useState([]);
@@ -13,6 +16,10 @@ export default function WorkshopsPage() {
   
   
   const [searchQuery, setSearchQuery] = useState("");
+
+  if (!backendEnabled) {
+    return <BackendStatus title="Workshops coming soon" message="Workshop details will be available soon." />;
+  }
 
   const formatDate = (dateString) =>
     dateString

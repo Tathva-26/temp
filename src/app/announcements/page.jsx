@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import BackendStatus from "@/components/BackendStatus";
+
+const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
 // const specificAnnouncements = [
 //   {
@@ -28,6 +31,10 @@ import Link from "next/link";
 // ];
 
 export default function AnnouncementsPage() {
+
+  if (!backendEnabled) {
+    return <BackendStatus title="Announcements coming soon" message="There are no announcements to show yet." />;
+  }
 
   const [specificAnnouncements, setSpecificAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);

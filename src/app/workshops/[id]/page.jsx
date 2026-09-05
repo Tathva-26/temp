@@ -3,6 +3,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import ModalWrapper from "@/components/modelWrapper";
+import BackendStatus from "@/components/BackendStatus";
+
+const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
   console.log(process.env.NEXT_PUBLIC_API)
 
@@ -23,6 +26,11 @@ async function getWorkshop(id) {
 
 export default async function WorkshopPage({ params }) {
   const { id } = await params;
+
+  if (!backendEnabled) {
+    return <BackendStatus title="Workshop details coming soon" message="Workshop registration will be available soon." />;
+  }
+
   const workshop = await getWorkshop(id);
 
   if (!workshop) {

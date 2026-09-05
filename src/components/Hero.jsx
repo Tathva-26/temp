@@ -219,9 +219,10 @@ export default function Hero({ refs }) {
             <span className="monocraft">Visit Dashboard</span>
           </button>
         ) : (
+          <>
           <button
             onClick={handleGoogleSignIn}
-            className="font-mono z-10 flex items-center gap-3 bg-white hover:border-gray-700 text-gray-700 font-semibold py-3 px-6 rounded-full transition-all duration-300 border border-gray-300 group mt-4 md:mt-6"
+            className="font-mono z-10 flex max-[639px]:hidden items-center gap-3 bg-white hover:border-gray-700 text-gray-700 font-semibold py-3 px-6 rounded-full transition-all duration-300 border border-gray-300 group mt-4 md:mt-6"
           >
             <svg
               className="w-5 h-5 group-hover:scale-110 transition-transform"
@@ -247,6 +248,26 @@ export default function Hero({ refs }) {
             </svg>
             <span className="font-plus-jakarta">Sign in with Google</span>
           </button>
+          <button
+            onClick={handleVisitDashboard}
+            className="hidden max-[639px]:flex z-10 items-center gap-3 bg-black/[0.08] backdrop-blur-xl border border-white/40 text-white font-semibold py-3 px-6 rounded-md transition-all duration-300 hover:bg-black/[0.20] hover:scale-105 group mt-4 md:mt-6"
+          >
+            <svg
+              className="w-5 h-5"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+            <span className="monocraft">Visit Dashboard</span>
+          </button>
+          </>
         )}
       </div>
     </header>

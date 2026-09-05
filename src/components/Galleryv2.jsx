@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useRef, forwardRef } from "react";
@@ -84,11 +83,7 @@ const Gallery = forwardRef((props, ref) => {
   };
 
   return (
-    <div
-      ref={ref}
-      id="galleryx"
-      className="my-auto mb-14 bg-black"
-    >
+    <div ref={ref} id="galleryx" className="my-auto mb-14 bg-black">
       <div className="flex justify-center items-center px-4 sm:px-8 lg:px-16 sm:py-12">
         <p className="text-center max-w-3xl text-gray-300 plus-jakarta leading-relaxed tracking-wide font-light">
           <span className="bg-gradient-to-r pp-fragment from-white via-gray-300 to-white bg-clip-text text-transparent text-3xl sm:text-5xl block mb-6 sm:mb-10">
@@ -138,4 +133,3 @@ const Gallery = forwardRef((props, ref) => {
 });
 
 export default Gallery;
-

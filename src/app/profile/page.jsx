@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import jwtRequired from "@/axios/jwtRequired";
 import Link from "next/link"; // Import Link for navigation
 import ProfileClient from "@/components/Profile_Page_Components/ProfileClient";
+import BackendStatus from "@/components/BackendStatus";
+
+const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
@@ -12,6 +15,11 @@ export default function ProfilePage() {
   const router = useRouter();
 
   useEffect(() => {
+    if (!backendEnabled) {
+      setLoading(false);
+      return;
+    }
+
     const tokenFromQuery = new URLSearchParams(window.location.search).get(
       "token"
     );
@@ -61,6 +69,10 @@ export default function ProfilePage() {
 
     fetchUser();
   }, [router]);
+
+  if (!backendEnabled) {
+    return <BackendStatus title="Profile coming soon" message="Login and profile features will be available soon." />;
+  }
 
   if (loading) {
     return   <div className="flex items-center justify-center min-h-screen bg-gray-50">
