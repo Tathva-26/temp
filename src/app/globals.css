@@ -11,7 +11,6 @@ body {
   overscroll-behavior-x: none;
 }
 
-
 @font-face {
   font-family: "PPFragment";
   src: url("/fonts/PPFragment-SerifLight.otf") format("opentype");
@@ -56,12 +55,12 @@ body {
 
 @font-face {
   font-family: "Orbitron";
-  src: url("/fonts/Orbitron-VariableFont_wght.ttf") format("truetype-variations");
+  src: url("/fonts/Orbitron-VariableFont_wght.ttf")
+    format("truetype-variations");
   font-weight: 400 900;
   font-style: normal;
   font-display: swap;
 }
-
 
 .plus-jakarta {
   font-family: "PlusJakarta", sans-serif;

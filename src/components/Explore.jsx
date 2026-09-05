@@ -40,22 +40,24 @@ export default function MinimalSections() {
           setActive(Number(visible.target.dataset.index));
         }
       },
-      { threshold: [0.4, 0.7] }
+      { threshold: [0.4, 0.7] },
     );
 
-    sectionRefs.current.forEach((section) => section && observer.observe(section));
+    sectionRefs.current.forEach(
+      (section) => section && observer.observe(section),
+    );
     return () => observer.disconnect();
   }, []);
 
   const scrollTo = (index) => {
-    sectionRefs.current[index]?.scrollIntoView({ behavior: "smooth", block: "start" });
+    sectionRefs.current[index]?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
   };
 
   return (
-    <section
-      ref={containerRef}
-      className="relative bg-black"
-    >
+    <section ref={containerRef} className="relative bg-black">
       {sections.map((section, index) => {
         const route = `/${section.title.toLowerCase()}`;
 
@@ -110,7 +112,8 @@ export default function MinimalSections() {
               width: index === active ? "28px" : "10px",
               height: "10px",
               borderRadius: "9999px",
-              backgroundColor: index === active ? "#ffffff" : "rgba(255,255,255,0.3)",
+              backgroundColor:
+                index === active ? "#ffffff" : "rgba(255,255,255,0.3)",
             }}
             aria-label={`Scroll to ${section.title}`}
           />
