@@ -43,6 +43,15 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: "Orbitron";
+  src: url("/fonts/Orbitron-VariableFont_wght.ttf") format("truetype-variations");
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+
 .plus-jakarta {
   font-family: "PlusJakarta", sans-serif;
 }
@@ -65,6 +74,10 @@
 
 .monocraft {
   font-family: "Monocraft", monospace;
+}
+
+.tathva-heading {
+  font-family: "Orbitron", sans-serif;
 }
 
 @tailwind utilities;

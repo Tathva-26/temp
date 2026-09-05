@@ -62,7 +62,7 @@ function Ticket({ day, date, ticketId, eventId, price }) {
           <p
             className={`${mi.className} text-xs sm:text-md md:text-lg lg:text-xl font-bold md:pl-3 text-[#3E3E3B]`}
           >
-            {`OCT ${date} 2025`}
+            {`OCT ${date} 2026`}
           </p>
           <p
             className={`${mi.className} text-[0.5rem] sm:text-[0.52rem] md:text-[0.6rem] md:pl-3 lg:text-[0.65rem] text-[#3E3E3B]`}

@@ -28,7 +28,7 @@ export default function Hero({ refs }) {
 
   useEffect(() => {
     const updateCountdown = () => {
-      const targetDate = new Date("2025-10-18T18:00:00").getTime();
+      const targetDate = new Date("2026-10-01T18:00:00").getTime();
       const now = new Date().getTime();
       const distance = targetDate - now;
 
@@ -107,9 +107,9 @@ export default function Hero({ refs }) {
       
       {/* Countdown Timer */}
       <div className="flex flex-col items-center z-10 pt-20 md:pt-8">
-        <p className="text-xs md:text-base font-bold mb-3 md:mb-4 text-white uppercase tracking-wide">
-          Website Launching IN
-        </p>
+       <p className="text-base md:text-xl font-black mb-3 md:mb-4 text-white uppercase tracking-wide">
+  Website Launching IN
+</p>
         <div className="flex gap-1 md:gap-6 justify-center items-center px-2">
           <CountdownBox value={countdown.days}  />
           <div className="flex items-center text-lg md:text-5xl font-bold text-white">
@@ -128,11 +128,11 @@ export default function Hero({ refs }) {
       </div>
 
       <div className="flex z-10 flex-col items-center mt-8 md:mt-16 px-4">
-        <p className="self-center text-lg md:text-2xl xl:text-3xl">2025</p>
-        <h1 className="relative text-5xl sm:text-6xl md:text-8xl lg:text-9xl xl:text-[12rem] tracking-widest monocraft text-center">
-          TATHVA
-        </h1>
-        <p className="text-lg md:text-2xl xl:text-3xl mt-2">OCT 24, 25, 26</p>
+        <p className="self-center text-lg md:text-2xl xl:text-3xl">2026</p>
+        <h1 className="relative text-4xl sm:text-6xl md:text-8xl lg:text-8xl xl:text-[12rem] tracking-widest tathva-heading text-center">
+  TATHVA'26
+</h1>
+        <p className="text-lg md:text-2xl xl:text-3xl mt-2">OCT 9, 10, 11</p>
       </div>
 
       <div className="flex items-center flex-col gap-6 mt-8 md:mt-12 w-full px-4">

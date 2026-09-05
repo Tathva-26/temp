@@ -122,7 +122,7 @@ export default function Footer({refs}) {
     </div>
           </div>
 
-          <span className="text-sm text-white">&copy; TATHVA 2025</span>
+          <span className="text-sm text-white">&copy; TATHVA 2026</span>
         </div>
       </footer>
 
@@ -207,7 +207,7 @@ export default function Footer({refs}) {
             </button>
           </div>
           <div className=" border-white/15 flex justify-center items-center py-4 w-full font-['Sweet_Sans_Pro'] font-normal text-sm">
-            <span className="text-white inter">&copy; TATHVA 2025</span>
+            <span className="text-white inter">&copy; TATHVA 2026</span>
           </div>
         </div>
       </footer>
