@@ -40,20 +40,20 @@ export default function Footer({refs}) {
   return (
     <>
       {/* Desktop/Tablet Footer */}
-      <footer className="text-black hidden sm:block min-h-[240px] bg-gray-100">
+      <footer className="text-white hidden sm:block min-h-[240px] bg-black">
         <div className="flex h-full w-full relative py-16">
           {/* Logo/Image - Left Side */}
           <div className="absolute left-6 top-1/2 transform -translate-y-1/2">
             <img
               src="/images/TATHVA25_LOGO_BLACK.png"
               alt="Tathva Logo"
-              className="h-20 w-auto brightness-0"
+              className="h-20 w-auto invert"
             />
           </div>
           {/* Navigation Links - Center */}
           <div className="footer-info w-full h-full flex justify-center items-center">
             <ul className="flex gap-16 max-md:gap-10 justify-center items-center">
-              <li className="font-['pp-fragment'] text-black">
+              <li className="font-['pp-fragment'] text-white">
                 <Link
                   href="/competitions"
                   className="inter text-xl leading-7 transition-colors"
@@ -61,7 +61,7 @@ export default function Footer({refs}) {
                   Events
                 </Link>
               </li>
-              <li className="font-['pp-fragment'] text-black">
+              <li className="font-['pp-fragment'] text-white">
                 <Link
                   href="/workshops"
                   className="inter text-xl leading-7 transition-colors"
@@ -69,7 +69,7 @@ export default function Footer({refs}) {
                   Workshops
                 </Link>
               </li>
-              <li className="font-['pp-fragment'] text-black">
+              <li className="font-['pp-fragment'] text-white">
                 <Link
                   href="/lectures"
                   className="inter text-xl leading-7 transition-colors"
@@ -77,7 +77,7 @@ export default function Footer({refs}) {
                   Lectures
                 </Link>
               </li>
-			  <li className="font-['pp-fragment'] text-black">
+			  <li className="font-['pp-fragment'] text-white">
                 <button onClick={() => handleScroll(refs.gallery)} 
                   className="inter text-xl leading-7 transition-colors"
 
@@ -92,12 +92,12 @@ export default function Footer({refs}) {
         </div>
 
         {/* Bottom Section */}
-        <div className="mx-9 max-md:mx-4 flex justify-between items-center py-8 gap-2 border-t border-black/20 text-black relative">
+        <div className="mx-9 max-md:mx-4 flex justify-between items-center py-8 gap-2 border-t border-white/20 text-white relative">
           <div className="flex gap-6">
-            <button className="text-black hover:text-gray-500 transition-colors cursor-pointer">
+            <button className="text-white hover:text-gray-500 transition-colors cursor-pointer">
               Terms & Conditions
             </button>
-            <button className="text-black hover:text-gray-500 transition-colors cursor-pointer">
+            <button className="text-white hover:text-gray-500 transition-colors cursor-pointer">
               Privacy Policy
             </button>
           </div>
@@ -112,9 +112,9 @@ export default function Footer({refs}) {
           target="_blank"
           rel="noreferrer noopener"
           aria-label={link.name}
-          className="group flex items-center justify-center w-10 h-10 rounded-full border-2 border-black/10 hover:border-black/30 transition-all duration-200 hover:scale-110"
+          className="group flex items-center justify-center w-10 h-10 rounded-full border-2 border-white/20 hover:border-white/40 transition-all duration-200 hover:scale-110"
         >
-          <span className="text-black/70 group-hover:text-black transition-colors duration-200">
+          <span className="text-white/70 group-hover:text-white transition-colors duration-200">
             {link.icon}
           </span>
         </a>
@@ -122,12 +122,12 @@ export default function Footer({refs}) {
     </div>
           </div>
 
-          <span className="text-sm text-black">&copy; TATHVA 2025</span>
+          <span className="text-sm text-white">&copy; TATHVA 2025</span>
         </div>
       </footer>
 
       {/* Mobile Footer */}
-      <footer className="block sm:hidden mt-12 bg-gray-100 text-black">
+      <footer className="block sm:hidden mt-12 bg-black text-white">
         <div className="flex justify-between mx-auto max-w-[480px] mb-12 px-6 pt-8">
           {/* Navigation Links */}
           <div className="relative -bottom-9 h-[200px]">
@@ -135,7 +135,7 @@ export default function Footer({refs}) {
               <li className="text-lg leading-6 font-['pp-fragment'] ">
                 <Link
                   href="/events"
-                  className="hover:text-gray-500 transition-colors pp-fragment tracking-wider text-black"
+                  className="hover:text-gray-500 transition-colors pp-fragment tracking-wider text-white"
                 >
                   Events
                 </Link>
@@ -143,7 +143,7 @@ export default function Footer({refs}) {
               <li className="text-lg leading-6 ">
                 <Link
                   href="/workshops"
-                  className="hover:text-gray-500 transition-colors pp-fragment tracking-wider text-black"
+                  className="hover:text-gray-500 transition-colors pp-fragment tracking-wider text-white"
                 >
                   Workshops
                 </Link>
@@ -151,14 +151,14 @@ export default function Footer({refs}) {
               <li className="text-lg leading-6 font-['pp-fragment'] ">
                 <Link
                   href="/lectures"
-                  className="hover:text-gray-500 transition-colors pp-fragment tracking-wider text-black"
+                  className="hover:text-gray-500 transition-colors pp-fragment tracking-wider text-white"
                 >
                   Lectures
                 </Link>
               </li>
               <li className="text-lg leading-6 font-['pp-fragment'] ">
                 <button onClick={() => handleScroll(refs.gallery)}
-                  className="hover:text-gray-500 transition-colors pp-fragment tracking-wider text-black"
+                  className="hover:text-gray-500 transition-colors pp-fragment tracking-wider text-white"
                 >
                   Gallery
                 </button>
@@ -172,7 +172,7 @@ export default function Footer({refs}) {
               <img
                 src="/images/TATHVA25_LOGO_BLACK.png"
                 alt="Tathva Logo"
-                className="brightness-0"
+                className="invert"
               />
             </div>
 
@@ -185,9 +185,9 @@ export default function Footer({refs}) {
           target="_blank"
           rel="noreferrer noopener"
           aria-label={link.name}
-          className="group flex items-center justify-center w-10 h-10 rounded-full border-2 border-black/10 hover:border-black/30 transition-all duration-200 hover:scale-110"
+          className="group flex items-center justify-center w-10 h-10 rounded-full border-2 border-white/20 hover:border-white/40 transition-all duration-200 hover:scale-110"
         >
-          <span className="text-black/70 group-hover:text-black transition-colors duration-200">
+          <span className="text-white/70 group-hover:text-white transition-colors duration-200">
             {link.icon}
           </span>
         </a>
@@ -198,7 +198,7 @@ export default function Footer({refs}) {
 
         {/* Bottom Section */}
         <div className="flex flex-col p-0 m-0">
-          <div className="hidden w-full justify-center gap-6 py-4 text-black font-['Sweet_Sans_Pro'] font-normal text-sm leading-4">
+          <div className="hidden w-full justify-center gap-6 py-4 text-white font-['Sweet_Sans_Pro'] font-normal text-sm leading-4">
             <button className="hover:text-gray-500 transition-colors cursor-pointer">
               Terms & Conditions
             </button>
@@ -206,8 +206,8 @@ export default function Footer({refs}) {
               Privacy Policy
             </button>
           </div>
-          <div className=" border-black/15 flex justify-center items-center py-4 w-full font-['Sweet_Sans_Pro'] font-normal text-sm">
-            <span className="text-black inter">&copy; TATHVA 2025</span>
+          <div className=" border-white/15 flex justify-center items-center py-4 w-full font-['Sweet_Sans_Pro'] font-normal text-sm">
+            <span className="text-white inter">&copy; TATHVA 2025</span>
           </div>
         </div>
       </footer>
