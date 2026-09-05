@@ -62,10 +62,10 @@ export default function EventsPage() {
   // Loading state UI
   if (loading) {
     return (
-      <div className="bg-white min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center">
+      <div className="bg-black min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-gray-900 border-r-transparent"></div>
-          <p className="mt-4 text-gray-600">Loading competitions...</p>
+          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-white border-r-transparent"></div>
+          <p className="mt-4 text-gray-300">Loading competitions...</p>
         </div>
       </div>
     );
@@ -74,8 +74,8 @@ export default function EventsPage() {
   // Error state UI
   if (error) {
     return (
-      <div className="bg-white min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center">
-        <div className="text-center text-red-600">
+      <div className="bg-black min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center">
+        <div className="text-center text-red-500">
           <p className="text-xl font-semibold">Error loading competitions</p>
           <p className="mt-2">{error}</p>
         </div>
@@ -84,18 +84,18 @@ export default function EventsPage() {
   }
 
   return (
-    <div className="bg-white min-h-screen py-8 sm:py-16 px-4 sm:px-8">
+    <div className="bg-black min-h-screen py-4 sm:py-10 px-4 sm:px-8 text-white">
       {/* Heading and Search Bar Section */}
       <div className="mb-12">
         <Link
           href="/"
-          className="text-sm font-medium text-gray-500 hover:text-black transition-colors"
+          className="text-sm font-medium text-gray-500 hover:text-white transition-colors"
         >
-          ← Back to Home
+          ← Home
         </Link>
-        <div className="border-b border-gray-300 pb-4 mt-4">
+        <div className="mb-12 border-b border-gray-300 pb-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <h1 className="pp-fragment text-4xl sm:text-5xl md:text-6xl text-center md:text-left tracking-wide text-gray-900 uppercase">
+            <h1 className="pp-fragment text-4xl sm:text-5xl md:text-6xl text-center md:text-left tracking-wide text-white uppercase md:mt-3">
               COMPETITIONS
             </h1>
             <input
@@ -103,7 +103,7 @@ export default function EventsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search For Competitions"
-              className="w-full md:max-w-lg p-4 border border-gray-300 rounded-full shadow-sm focus:ring-gray-500 focus:border-gray-500"
+              className="w-full md:max-w-lg p-4 bg-black/30 border border-white/30 rounded-full shadow-inner focus:ring-white focus:border-white"
             />
           </div>
         </div>
@@ -111,7 +111,7 @@ export default function EventsPage() {
 
       {/* Conditional rendering for the tabs or a "not found" message */}
       {searchedCompetitions.length === 0 && !loading ? (
-        <p className="text-center text-gray-600 text-lg mt-16">
+        <p className="text-center text-gray-300 text-lg mt-16">
           No competitions found matching your search.
         </p>
       ) : (

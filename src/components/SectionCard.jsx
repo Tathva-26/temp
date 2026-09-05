@@ -11,18 +11,18 @@ export default function SectionCard({ image, title, description,date }) {
         />
       </div>
 
-      <div className="w-full h-px bg-gray-200 mb-4"></div>
+      <div className="w-full h-px bg-white/20 mb-4"></div>
 
       <div className="flex items-start justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-lg font-medium text-black mb-1 pp-fragment line-clamp-1 uppercase group">
+            <h3 className="text-lg font-medium text-white mb-1 pp-fragment line-clamp-1 uppercase group">
               {title}
             </h3>
-            <ArrowRight size={24} className="-mt-2 transform transition-transform duration-300 rotate-45 group-hover:-rotate-45 text-black" />
+            <ArrowRight size={24} className="-mt-2 transform transition-transform duration-300 rotate-45 group-hover:-rotate-45 text-white" />
           </div>
-          <p className="text-sm text-gray-600  border-x border-t mt-2 px-2 p-2">{description}</p>
-          <p className="text-sm text-black  italic border p-1 px-2 font-semibold">{date}</p>
+          <p className="text-sm text-gray-300  border-x border-t mt-2 px-2 p-2">{description}</p>
+          <p className="text-sm text-gray-300  italic border p-1 px-2 font-semibold">{date}</p>
         </div>
       </div>
     </div>
