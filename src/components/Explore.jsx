@@ -65,7 +65,7 @@ export default function MinimalSections() {
                 <img
                   src={section.image}
                   alt={section.title}
-                  className="w-full h-52 sm:h-64 md:h-96 object-cover"
+                  className="w-full h-64 sm:h-80 md:h-[600px] object-cover scale-105"
                 />
               </div>
 
