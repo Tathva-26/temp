@@ -60,16 +60,14 @@ const Gallery = forwardRef((props, ref) => {
     }
 
     // --- Batch all reads first, then all writes (avoids forced reflow per card) ---
-    const rect = el.getBoundingClientRect();
-    const center = rect.left + rect.width / 2;
-    const maxDist = rect.width / 2;
+    const center = el.scrollLeft + el.clientWidth / 2;
+    const maxDist = el.clientWidth / 2;
 
     const cards = el.querySelectorAll("[data-gallery-item]");
     const updates = [];
 
     cards.forEach((card) => {
-      const cardRect = card.getBoundingClientRect(); // read
-      const cardCenter = cardRect.left + cardRect.width / 2;
+      const cardCenter = card.offsetLeft + card.offsetWidth / 2;
       const distance = Math.abs(cardCenter - center);
       const factor = 1 - Math.min(1, distance / maxDist);
       updates.push({
