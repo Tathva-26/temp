@@ -243,6 +243,8 @@ const Gallery = forwardRef((props, ref) => {
         onScroll={handleScroll}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        onTouchStart={handleMouseEnter}
+        onTouchEnd={handleMouseLeave}
         style={{ scrollBehavior: "auto" }}
         className="relative overflow-x-scroll snap-x py-16 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
@@ -253,9 +255,11 @@ const Gallery = forwardRef((props, ref) => {
               data-gallery-item
               className="shrink-0 snap-center"
               style={{
-                width: "40vw",
-                maxWidth: "520px",
+                width: "55vw",       // was 70vw — too wide, ate up the peek space
+                maxWidth: "420px",
                 willChange: "transform",
+                
+                
               }}
             >
               <img
