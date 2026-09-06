@@ -144,7 +144,6 @@ const Gallery = forwardRef((props, ref) => {
               style={{
                 width: "40vw",
                 maxWidth: "520px",
-                minWidth: "280px",
                 willChange: "transform",
               }}
             >
