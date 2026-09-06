@@ -26,60 +26,95 @@ const sections = [
 
 export default function Explore() {
   const [active, setActive] = useState(0);
-  const textRefs = useRef([]);
+  const sectionRef = useRef(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            // Retrieve the index of the intersecting text block
-            const index = Number(entry.target.getAttribute("data-index"));
-            setActive(index);
-          }
-        });
-      },
-      {
-        root: null,
-        rootMargin: "-40% 0px -40% 0px", // Trigger when the text block is in the middle 20% of the screen
-        threshold: 0,
+    let rafId = null;
+    const handleScroll = () => {
+      if (!sectionRef.current) return;
+      
+      const rect = sectionRef.current.getBoundingClientRect();
+      const totalTravel = rect.height - window.innerHeight;
+      
+      // Calculate how far we have scrolled into the section
+      const travel = -rect.top;
+      
+      if (travel < 0 || totalTravel <= 0) {
+        // Before the section reaches the top
+        if (travel < 0 && active !== 0) setActive(0);
+        return;
       }
-    );
 
-    textRefs.current.forEach((ref) => {
-      if (ref) observer.observe(ref);
-    });
+      // Progress from 0.0 to 1.0
+      const progress = Math.max(0, Math.min(1, travel / totalTravel));
+      
+      // Perfectly uniform mapping: divide the 1.0 progress by number of sections
+      // Use Math.min to ensure it doesn't exceed the last index if progress exactly hits 1.0
+      const activeIndex = Math.min(
+        sections.length - 1,
+        Math.floor(progress * sections.length)
+      );
+      
+      setActive(activeIndex);
+    };
 
-    return () => observer.disconnect();
-  }, []);
+    const onScroll = () => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        handleScroll();
+        rafId = null;
+      });
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    // Initial check
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, [active]);
 
   return (
-    <section className="relative bg-black w-full text-white">
-      <div className="max-w-6xl mx-auto px-5 sm:px-8 flex flex-col md:flex-row relative">
+    <section 
+      ref={sectionRef}
+      className="relative bg-black w-full text-white"
+      // Height is 100vh for the sticky viewport + 100vh of travel per section
+      style={{ height: `${(sections.length + 1) * 100}vh` }} 
+    >
+      
+      {/* Sticky Viewport */}
+      <div className="sticky top-0 h-[100svh] w-full overflow-hidden flex flex-col md:flex-row max-w-6xl mx-auto px-5 sm:px-8 z-10">
         
-        {/* Left Side: Sticky Image Container */}
-        <div className="md:w-1/2 h-[100svh] sticky top-0 flex items-center justify-center overflow-hidden py-10 md:py-0 z-10">
-          <div className="relative w-full h-[40vh] sm:h-80 md:h-[600px] rounded-xl overflow-hidden bg-white/5">
-            {/* The inner track that slides vertically based on the active index */}
+        {/* Left Side: Image Container */}
+        <div className="md:w-1/2 h-full flex items-center justify-center py-10 md:py-0 pointer-events-auto">
+          <div className="relative w-full h-[40vh] sm:h-80 md:h-[600px] rounded-xl overflow-hidden bg-white/5 shadow-2xl">
+            {/* Sliding track for images */}
             <div
-              className="absolute top-0 left-0 w-full h-full transition-transform duration-700 cubic-bezier(0.16, 1, 0.3, 1)"
+              className="absolute top-0 left-0 w-full h-full transition-transform duration-[1000ms]"
               style={{
                 transform: `translateY(-${active * 100}%)`,
-                transitionTimingFunction: "cubic-bezier(0.25, 1, 0.5, 1)",
+                transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
               }}
             >
               {sections.map((section, index) => (
-                <div key={index} className="w-full h-full relative">
+                <div key={index} className="w-full h-full relative overflow-hidden">
                   <img
                     src={section.image}
                     alt={section.title}
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1500ms]"
+                    style={{
+                      transform: active === index ? "scale(1)" : "scale(1.15)",
+                      transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
+                    }}
                   />
-                  {/* Subtle darkening overlay for unselected state (optional) */}
+                  {/* Subtle darkening overlay for unselected state */}
                   <div 
-                    className={`absolute inset-0 bg-black transition-opacity duration-700 ${
-                      active === index ? 'opacity-0' : 'opacity-40'
-                    }`} 
+                    className={`absolute inset-0 bg-black transition-opacity duration-[1000ms] ${
+                      active === index ? 'opacity-0' : 'opacity-50'
+                    }`}
+                    style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
                   />
                 </div>
               ))}
@@ -87,23 +122,33 @@ export default function Explore() {
           </div>
         </div>
 
-        {/* Right Side: Normal Scrollable Text Blocks */}
-        <div className="md:w-1/2 md:pl-16 relative z-0 pb-[10vh]">
-          {sections.map((section, index) => {
-            const route = `/${section.title.toLowerCase()}`;
-            return (
-              <div
-                key={index}
-                data-index={index}
-                ref={(el) => (textRefs.current[index] = el)}
-                className="min-h-[100svh] flex flex-col justify-center py-20"
-              >
-                <div 
-                  className={`transition-all duration-700 ${
-                    active === index ? 'opacity-100 translate-y-0' : 'opacity-30 translate-y-8'
+        {/* Right Side: Text Blocks */}
+        <div className="md:w-1/2 h-full relative flex flex-col justify-center md:pl-16 pointer-events-auto">
+          {/* Container matching image height roughly, to contain text animation */}
+          <div className="relative w-full h-[40vh] sm:h-80 md:h-[600px] flex items-center">
+            {sections.map((section, index) => {
+              const route = `/${section.title.toLowerCase()}`;
+              const isActive = active === index;
+              const isPast = active > index;
+              
+              return (
+                <div
+                  key={index}
+                  className={`absolute left-0 right-0 transition-all duration-[800ms] flex flex-col justify-center ${
+                    isActive 
+                      ? 'opacity-100 translate-y-0 pointer-events-auto' 
+                      : isPast 
+                        ? 'opacity-0 -translate-y-16 pointer-events-none' 
+                        : 'opacity-0 translate-y-16 pointer-events-none'
                   }`}
+                  style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
                 >
-                  <div className="w-16 h-1 bg-white/30 mb-6 transition-colors duration-500 hover:bg-white"></div>
+                  <div 
+                    className={`w-16 h-1 mb-6 transition-all duration-[800ms] delay-100 ${
+                      isActive ? 'bg-white/80 scale-x-100 origin-left' : 'bg-white/20 scale-x-50 origin-left'
+                    }`}
+                    style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
+                  />
 
                   <Link href={route} className="group flex items-center gap-4 w-fit">
                     <h3 className="pp-fragment text-4xl font-medium uppercase text-white sm:text-6xl tracking-wide">
@@ -112,17 +157,24 @@ export default function Explore() {
                     <ArrowRight
                       size={32}
                       color="white"
-                      className="-rotate-45 transition-transform duration-300 group-hover:rotate-0"
+                      className={`-rotate-45 transition-all duration-300 group-hover:rotate-0 group-hover:translate-x-1 ${
+                        isActive ? 'opacity-100' : 'opacity-0'
+                      }`}
                     />
                   </Link>
 
-                  <p className="mt-6 text-gray-400 text-sm sm:text-base font-light max-w-lg leading-relaxed">
+                  <p 
+                    className={`mt-6 text-gray-400 text-sm sm:text-base font-light max-w-lg leading-relaxed transition-all duration-[800ms] delay-150 ${
+                      isActive ? 'opacity-100 translate-y-0' : isPast ? 'opacity-0 -translate-y-4' : 'opacity-0 translate-y-4'
+                    }`}
+                    style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
+                  >
                     {section.description}
                   </p>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>
