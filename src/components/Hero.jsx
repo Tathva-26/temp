@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BellDot } from "lucide-react";
-import LetterGlitch from "@/components/LetterGlitch";
+// import LetterGlitch from "@/components/LetterGlitch";
+import Galaxy from "@/components/Galaxy";
 
 export default function Hero({ refs }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -90,7 +91,15 @@ export default function Hero({ refs }) {
       style={{ fontFamily: "PPFragment, sans-serif" }}
     >
       <div className="absolute inset-0 z-0">
-        <LetterGlitch centerVignette />
+      <Galaxy
+          density={2.8}
+          speed={0.4}
+          glowIntensity={0.5}
+          saturation={0.4}
+          repulsionStrength={0.5}
+          twinkleIntensity={0.8}
+          rotationSpeed={0.05}
+        />
       </div>
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-40 bg-gradient-to-b from-transparent to-black sm:h-56" />
       <Image
