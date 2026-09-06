@@ -245,6 +245,7 @@ const PinnedSection = forwardRef(({ section, route }, ref) => {
               className='h-64 w-full object-cover sm:h-80 md:h-[600px]'
             />
           </div>
+        </div>
 
           <div
             ref={textRef}
