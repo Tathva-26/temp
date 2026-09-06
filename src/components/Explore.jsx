@@ -1,161 +1,247 @@
 "use client";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
+
+const sections = [
+  {
+    image: "/images/workshops.jpg",
+    title: "Workshops",
+    description:
+      "Hands-on sessions covering topics like robotics, AI, and sustainable tech. These workshops provide students with the opportunity to gain practical knowledge, work on real-world problems, and interact with industry professionals.",
+  },
+  {
+    image: "/images/events.jpg",
+    title: "Competitions",
+    description:
+      "Over 65 events including coding competitions, gaming, and cultural showcases. From technical battles of skill to fun informal events, Tathva's events are designed to inspire innovation, teamwork, and creativity.",
+  },
+  {
+    image: "/images/lecture.jpg",
+    title: "Lectures",
+    description:
+      "Industry experts and academicians share insights on emerging technologies. The lecture series bridges the gap between academia and industry, inspiring students to think beyond classrooms and pursue cutting-edge innovations.",
+  },
+];
+
+const SECTION_COUNT = sections.length;
+// 500vh → 400vh scrollable → ~200vh per section
+const CONTAINER_HEIGHT_VH = 5;
 
 export default function MinimalSections() {
-  const exploreRef = useRef(null);
-  const sectionRefs = useRef([]);
-  const previousScrollY = useRef(0);
+  const containerRef = useRef(null);
+  const sectionElsRef = useRef([]);
+  const imgElsRef = useRef([]);
+  const rafRef = useRef(null);
   const [active, setActive] = useState(0);
-  const [isExploreVisible, setIsExploreVisible] = useState(true);
-  const [isNavVisible, setIsNavVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const activeRef = useRef(0);
 
-  const sections = [
-    {
-      image: "/images/workshops.jpg",
-      title: "Workshops",
-      description:
-        "Hands-on sessions covering topics like robotics, AI, and sustainable tech. These workshops provide students with the opportunity to gain practical knowledge, work on real-world problems, and interact with industry professionals.",
-    },
-    {
-      image: "/images/events.jpg",
-      title: "Competitions",
-      description:
-        "Over 65 events including coding competitions, gaming, and cultural showcases. From technical battles of skill to fun informal events, Tathva’s events are designed to inspire innovation, teamwork, and creativity.",
-    },
-    {
-      image: "/images/lecture.jpg",
-      title: "Lectures",
-      description:
-        "Industry experts and academicians share insights on emerging technologies. The lecture series bridges the gap between academia and industry, inspiring students to think beyond classrooms and pursue cutting-edge innovations.",
-    },
-  ];
+  const updateVisuals = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) return;
 
-  // Track active section for the side-dot nav (same idea as before, using scroll position instead of IntersectionObserver
-  // since sections are now pinned/sticky rather than simple full-height blocks)
-  useEffect(() => {
-    let rafId = null;
+    const rect = container.getBoundingClientRect();
+    const totalScrollable = rect.height - window.innerHeight;
+    if (totalScrollable <= 0) return;
 
-    const handleScroll = () => {
-      if (rafId) return;
-      rafId = requestAnimationFrame(() => {
-        const currentScrollY = window.scrollY;
-        const scrollDirection =
-          currentScrollY >= previousScrollY.current ? "down" : "up";
-        previousScrollY.current = currentScrollY;
-        let closestIndex = 0;
-        let closestDist = Infinity;
+    const scrolled = -rect.top;
+    const progress = Math.min(1, Math.max(0, scrolled / totalScrollable));
 
-        sectionRefs.current.forEach((el, i) => {
-          if (!el) return;
-          const rect = el.getBoundingClientRect();
-          // Consider a section "active" while its pinned range covers the viewport center
-          if (rect.top <= 0 && rect.bottom >= window.innerHeight) {
-            closestIndex = i;
-            closestDist = 0;
-          } else {
-            const dist = Math.min(Math.abs(rect.top), Math.abs(rect.bottom - window.innerHeight));
-            if (dist < closestDist) {
-              closestDist = dist;
-              closestIndex = i;
-            }
-          }
-        });
+    const rawIndex = progress * (SECTION_COUNT - 1);
+    const lowerIndex = Math.min(Math.floor(rawIndex), SECTION_COUNT - 1);
+    const upperIndex = Math.min(lowerIndex + 1, SECTION_COUNT - 1);
+    const blend = rawIndex - lowerIndex;
 
-        setActive(closestIndex);
-        const firstSection = sectionRefs.current[0];
-        const firstRect = firstSection?.getBoundingClientRect();
-        const firstProgress = firstRect
-          ? Math.min(
-              1,
-              Math.max(
-                0,
-                -firstRect.top / (firstRect.height - window.innerHeight),
-              ),
-            )
-          : 0;
-        const lastSection = sectionRefs.current[2];
-        const lastRect = lastSection?.getBoundingClientRect();
-        const lastProgress = lastRect
-          ? Math.min(
-              1,
-              Math.max(
-                0,
-                -lastRect.top / (lastRect.height - window.innerHeight),
-              ),
-            )
-          : 1;
+    sections.forEach((_, index) => {
+      let opacity, translateY, scale;
 
-        setIsNavVisible(
-          closestIndex === 1 ||
-            (closestIndex === 0 && firstProgress >= 0.75) ||
-            (closestIndex === 2 &&
-              scrollDirection === "up" &&
-              lastProgress <= 0.25),
-        );
-        rafId = null;
-      });
-    };
+      if (lowerIndex === upperIndex) {
+        opacity = index === lowerIndex ? 1 : 0;
+        translateY = index === lowerIndex ? 0 : 40;
+        scale = index === lowerIndex ? 1.0 : 0.97;
+      } else if (index === lowerIndex) {
+        // OUTGOING: visible 0–35%, quick fade 35–50%
+        if (blend <= 0.35) {
+          opacity = 1;
+          translateY = 0;
+          scale = 1.0;
+        } else if (blend <= 0.50) {
+          const t = (blend - 0.35) / 0.15;
+          opacity = 1 - t;
+          translateY = -t * 30;
+          scale = 1.0 - t * 0.03;
+        } else {
+          opacity = 0;
+          translateY = -30;
+          scale = 0.97;
+        }
+      } else if (index === upperIndex) {
+        // INCOMING: quick fade in 50–65%, visible 65–100%
+        if (blend <= 0.50) {
+          opacity = 0;
+          translateY = 30;
+          scale = 0.97;
+        } else if (blend <= 0.65) {
+          const t = (blend - 0.50) / 0.15;
+          opacity = t;
+          translateY = 30 * (1 - t);
+          scale = 0.97 + t * 0.03;
+        } else {
+          opacity = 1;
+          translateY = 0;
+          scale = 1.0;
+        }
+      } else {
+        opacity = 0;
+        translateY = index < lowerIndex ? -30 : 30;
+        scale = 0.97;
+      }
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      if (rafId) cancelAnimationFrame(rafId);
-    };
+      const el = sectionElsRef.current[index];
+      const imgEl = imgElsRef.current[index];
+
+      if (el) {
+        el.style.opacity = opacity;
+        el.style.transform = `translateY(${translateY}px)`;
+        el.style.pointerEvents = opacity > 0.5 ? "auto" : "none";
+      }
+      if (imgEl) {
+        imgEl.style.transform = `scale(${scale})`;
+      }
+    });
+
+    const newActive = blend < 0.5 ? lowerIndex : upperIndex;
+    if (newActive !== activeRef.current) {
+      activeRef.current = newActive;
+      setActive(newActive);
+    }
   }, []);
 
+  const handleScroll = useCallback(() => {
+    if (rafRef.current) return;
+    rafRef.current = requestAnimationFrame(() => {
+      updateVisuals();
+      rafRef.current = null;
+    });
+  }, [updateVisuals]);
+
   useEffect(() => {
-    const explore = exploreRef.current;
-    if (!explore) return undefined;
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll);
+    updateVisuals();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [handleScroll, updateVisuals]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
 
     const observer = new IntersectionObserver(
-      ([entry]) => setIsExploreVisible(entry.isIntersecting),
-      { threshold: 0 },
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { threshold: 0 }
     );
 
-    observer.observe(explore);
+    observer.observe(container);
     return () => observer.disconnect();
   }, []);
 
   const scrollTo = (index) => {
-    sectionRefs.current[index]?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
+    const container = containerRef.current;
+    if (!container) return;
+
+    const totalScrollable =
+      container.getBoundingClientRect().height - window.innerHeight;
+    const targetProgress = SECTION_COUNT > 1 ? index / (SECTION_COUNT - 1) : 0;
+    const targetScroll = container.offsetTop + targetProgress * totalScrollable;
+
+    window.scrollTo({ top: targetScroll, behavior: "smooth" });
   };
 
   return (
-    <section ref={exploreRef} className="relative bg-black">
-      {sections.map((section, index) => {
-        const route = `/${section.title.toLowerCase()}`;
+    <section
+      ref={containerRef}
+      className="relative bg-black"
+      style={{ height: `${CONTAINER_HEIGHT_VH * 100}vh` }}
+    >
+      <div className="sticky top-0 flex min-h-[100svh] items-center justify-center overflow-hidden">
+        <div
+          className="relative w-full max-w-6xl px-5 sm:px-8"
+          style={{ minHeight: "600px" }}
+        >
+          {sections.map((section, index) => {
+            const route = `/${section.title.toLowerCase()}`;
 
-        return (
-          <PinnedSection
-            key={index}
-            ref={(el) => {
-              sectionRefs.current[index] = el;
-            }}
-            section={section}
-            route={route}
-          />
-        );
-      })}
+            return (
+              <div
+                key={index}
+                ref={(el) => {
+                  sectionElsRef.current[index] = el;
+                }}
+                className="absolute inset-0 flex flex-col items-center gap-8 py-20 md:flex-row md:gap-16 md:py-0"
+                style={{
+                  opacity: index === 0 ? 1 : 0,
+                  transform:
+                    index === 0 ? "translateY(0px)" : "translateY(30px)",
+                  willChange: "transform, opacity",
+                  pointerEvents: index === 0 ? "auto" : "none",
+                }}
+              >
+                <div className="overflow-hidden flex-1 w-full rounded-sm">
+                  <img
+                    ref={(el) => {
+                      imgElsRef.current[index] = el;
+                    }}
+                    src={section.image}
+                    alt={section.title}
+                    style={{
+                      transform: "scale(1)",
+                      willChange: "transform",
+                    }}
+                    className="h-64 w-full object-cover sm:h-80 md:h-[600px]"
+                  />
+                </div>
+
+                <div className="flex-1 w-full">
+                  <div className="w-16 h-1 bg-white/30 mb-4"></div>
+
+                  <Link href={route} className="group flex items-center gap-4">
+                    <h3 className="pp-fragment text-4xl font-medium uppercase text-white sm:text-6xl">
+                      {section.title}
+                    </h3>
+                    <ArrowRight
+                      size={28}
+                      color="white"
+                      className="-rotate-45 transition-transform duration-300 group-hover:rotate-0"
+                    />
+                  </Link>
+
+                  <p className="mt-5 text-gray-300 text-sm sm:text-base font-light max-w-lg">
+                    {section.description}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
       <div
-        className={`fixed right-4 top-1/2 z-10 flex -translate-y-1/2 flex-col gap-3 transition-opacity duration-300 sm:right-8 ${
-          isExploreVisible && isNavVisible
-            ? "opacity-100"
-            : "pointer-events-none opacity-0"
+        className={`fixed right-4 top-1/2 z-10 flex -translate-y-1/2 flex-col gap-3 transition-opacity duration-500 sm:right-8 ${
+          isVisible ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
-        aria-hidden={!isExploreVisible || !isNavVisible}
+        aria-hidden={!isVisible}
       >
         {sections.map((section, index) => (
           <button
             key={index}
             onClick={() => scrollTo(index)}
-            className="transition-all duration-300"
+            className="transition-all duration-500 ease-in-out"
             style={{
               width: index === active ? "28px" : "10px",
               height: "10px",
@@ -170,103 +256,3 @@ export default function MinimalSections() {
     </section>
   );
 }
-
-// Separate component per section so each has its own scroll-progress tracking
-import { forwardRef } from "react";
-
-const PinnedSection = forwardRef(({ section, route }, ref) => {
-  const wrapperRef = useRef(null);
-  const imageRef = useRef(null);
-  const textRef = useRef(null);
-  const rafRef = useRef(null);
-
-  const updateProgress = () => {
-    const wrapper = wrapperRef.current;
-    if (!wrapper) return;
-
-    const rect = wrapper.getBoundingClientRect();
-    const totalScrollable = rect.height - window.innerHeight;
-    const scrolled = -rect.top;
-    const progress = Math.min(1, Math.max(0, scrolled / totalScrollable));
-
-    // Image: scales up slightly and loses a bit of blur as you scroll into the section
-    if (imageRef.current) {
-      const scale = 1.05 - progress * 0.05; // 1.05 -> 1.0
-      imageRef.current.style.transform = `scale(${scale})`;
-    }
-
-    // Text: fades and slides up during the first half of the pin, then holds
-    if (textRef.current) {
-      const textProgress = Math.min(1, progress / 0.5); // reach full reveal by halfway through
-      textRef.current.style.opacity = textProgress;
-      textRef.current.style.transform = `translateY(${(1 - textProgress) * 24}px)`;
-    }
-  };
-
-  const handleScroll = () => {
-    if (rafRef.current) return;
-    rafRef.current = requestAnimationFrame(() => {
-      updateProgress();
-      rafRef.current = null;
-    });
-  };
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", handleScroll);
-    updateProgress();
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, []);
-
-  return (
-    <div
-      ref={(el) => {
-        wrapperRef.current = el;
-        if (typeof ref === "function") ref(el);
-        else if (ref) ref.current = el;
-      }}
-      style={{ height: "200vh", position: "relative" }}
-    >
-      <div
-        className="sticky top-0 flex min-h-[100svh] items-center justify-center overflow-hidden py-20"
-      >
-        <div className="flex w-full max-w-6xl flex-col items-center gap-8 px-5 sm:px-8 md:flex-row md:gap-16 md:py-0">
-          <div className="overflow-hidden flex-1 w-full">
-            <img
-              ref={imageRef}
-              src={section.image}
-              alt={section.title}
-              style={{ willChange: "transform" }}
-              className="h-64 w-full object-cover sm:h-80 md:h-[600px]"
-            />
-          </div>
-
-          <div ref={textRef} className="flex-1 w-full" style={{ willChange: "transform, opacity" }}>
-            <div className="w-16 h-1 bg-white/30 mb-4"></div>
-
-            <Link href={route} className="group flex items-center gap-4">
-              <h3 className="pp-fragment text-4xl font-medium uppercase text-white sm:text-6xl">
-                {section.title}
-              </h3>
-              <ArrowRight
-                size={28}
-                color="white"
-                className="-rotate-45 transition-transform duration-300 group-hover:rotate-0"
-              />
-            </Link>
-
-            <p className="mt-5 text-gray-300 text-sm sm:text-base font-light max-w-lg">
-              {section.description}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-});
-
-PinnedSection.displayName = "PinnedSection";
