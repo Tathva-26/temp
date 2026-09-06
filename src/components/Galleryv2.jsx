@@ -30,6 +30,7 @@ const Gallery = forwardRef((props, ref) => {
   const autoplayTimeoutRef = useRef(null);
   const autoScrollRafRef = useRef(null);
   const isAutoScrollingRef = useRef(false);
+  const isHoveredRef = useRef(false);
 
   const measureSingleSetWidth = () => {
     const el = scrollerRef.current;
@@ -156,6 +157,8 @@ const Gallery = forwardRef((props, ref) => {
   };
 
   const autoAdvance = () => {
+    if (isHoveredRef.current) return;
+
     const step = getCardStep();
     if (!step) {
       scheduleAutoplay();
@@ -175,9 +178,26 @@ const Gallery = forwardRef((props, ref) => {
 
     // Only real user scrolling should reset the autoplay countdown —
     // our own programmatic auto-advance shouldn't retrigger itself.
-    if (!isAutoScrollingRef.current) {
+    if (!isAutoScrollingRef.current && !isHoveredRef.current) {
       scheduleAutoplay();
     }
+  };
+
+  const handleMouseEnter = () => {
+    isHoveredRef.current = true;
+    clearAutoplayTimer();
+
+    if (autoScrollRafRef.current) {
+      cancelAnimationFrame(autoScrollRafRef.current);
+      autoScrollRafRef.current = null;
+      isAutoScrollingRef.current = false;
+      scrollerRef.current.style.scrollSnapType = "";
+    }
+  };
+
+  const handleMouseLeave = () => {
+    isHoveredRef.current = false;
+    scheduleAutoplay();
   };
 
   useEffect(() => {
@@ -221,6 +241,8 @@ const Gallery = forwardRef((props, ref) => {
       <div
         ref={scrollerRef}
         onScroll={handleScroll}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         style={{ scrollBehavior: "auto" }}
         className="relative overflow-x-scroll snap-x py-16 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
