@@ -5,8 +5,13 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BellDot } from "lucide-react";
+<<<<<<< HEAD
 // import LetterGlitch from "@/components/LetterGlitch";
 import Galaxy from "@/components/Galaxy";
+=======
+// 1. CHANGE THIS IMPORT
+import Galaxy from "@/components/Galaxy"; 
+>>>>>>> 72b8c3c69b1710a4dc4356428767a226b54964ac
 
 export default function Hero({ refs }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -38,7 +43,7 @@ export default function Hero({ refs }) {
       } else {
         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
         const hours = Math.floor(
-          (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+          (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
         );
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
@@ -61,9 +66,9 @@ export default function Hero({ refs }) {
       process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI ||
       `${process.env.NEXT_PUBLIC_API || "http://localhost:5000"}/api/auth/callback`;
     const url = `https://accounts.google.com/o/oauth2/auth?client_id=${encodeURIComponent(
-      clientId,
+      clientId
     )}&redirect_uri=${encodeURIComponent(
-      redirectUri,
+      redirectUri
     )}&response_type=code&scope=openid%20email%20profile&prompt=consent`;
     window.location.href = url;
   };
@@ -90,8 +95,13 @@ export default function Hero({ refs }) {
       className="relative flex min-h-[100svh] w-full flex-col items-center justify-center overflow-hidden bg-black py-24 text-white sm:py-16"
       style={{ fontFamily: "PPFragment, sans-serif" }}
     >
+      {/* 2. REPLACE LETTERGLITCH WITH GALAXY HERE */}
       <div className="absolute inset-0 z-0">
+<<<<<<< HEAD
       <Galaxy
+=======
+        <Galaxy
+>>>>>>> 72b8c3c69b1710a4dc4356428767a226b54964ac
           density={2.8}
           speed={0.4}
           glowIntensity={0.5}
@@ -101,7 +111,9 @@ export default function Hero({ refs }) {
           rotationSpeed={0.05}
         />
       </div>
+
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-40 bg-gradient-to-b from-transparent to-black sm:h-56" />
+      
       <Image
         src="/images/TATHVA25_LOGO_BLACK.png"
         alt="Tathva Logo"
@@ -109,6 +121,7 @@ export default function Hero({ refs }) {
         height={150}
         className="absolute top-4 left-1/2 -translate-x-1/2 sm:left-auto sm:right-4 sm:translate-x-0 z-10 invert"
       />
+      
       <div className="absolute top-20 right-10 max-[639px]:top-4 max-[639px]:right-3 z-50 group">
         <Link className="p-3" href="/announcements">
           <BellDot size={24} className="text-white" />
@@ -121,19 +134,19 @@ export default function Hero({ refs }) {
           Website Launching IN
         </p>
         <div className="flex items-center justify-center gap-1 px-2 sm:gap-3 md:gap-6">
-          <CountdownBox value={countdown.days} />
+          <CountdownBox value={countdown.days} label="DAYS" />
           <div className="flex items-center text-lg md:text-5xl font-bold text-white">
             :
           </div>
-          <CountdownBox value={countdown.hours} />
+          <CountdownBox value={countdown.hours} label="HOURS" />
           <div className="flex items-center text-lg md:text-5xl font-bold text-white">
             :
           </div>
-          <CountdownBox value={countdown.minutes} />
+          <CountdownBox value={countdown.minutes} label="MINS" />
           <div className="flex items-center text-lg md:text-5xl font-bold text-white">
             :
           </div>
-          <CountdownBox value={countdown.seconds} />
+          <CountdownBox value={countdown.seconds} label="SECS" />
         </div>
       </div>
 
@@ -175,12 +188,6 @@ export default function Hero({ refs }) {
             LECTURES
           </Link>
 
-          {/* <button
-            onClick={() => handleScroll(refs.contact)}
-            className="hover:transition-all duration-300 hover:scale-110"
-          >
-            CONTACT
-          </button> */}
           <Link
             href="/accomodation"
             className="px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110"
@@ -198,24 +205,11 @@ export default function Hero({ refs }) {
         {isLoggedIn ? (
           <button
             onClick={handleVisitDashboard}
-            className="z-10 flex items-center gap-3
-      bg-black/[0.08]
-      backdrop-blur-xl
-      border border-white/40
-      text-white
-      font-semibold
-      py-3 px-6
-      rounded-md
-      transition-all duration-300
-      hover:bg-black/[0.20]
-      hover:scale-105
-      group
-      mt-4 md:mt-6"
+            className="z-10 flex items-center gap-3 bg-black/[0.08] backdrop-blur-xl border border-white/40 text-white font-semibold py-3 px-6 rounded-md transition-all duration-300 hover:bg-black/[0.20] hover:scale-105 group mt-4 md:mt-6"
           >
             <svg
               className="w-5 h-5"
               viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
@@ -225,7 +219,6 @@ export default function Hero({ refs }) {
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
               <polyline points="9 22 9 12 15 12 15 22" />
             </svg>
-
             <span className="monocraft">Visit Dashboard</span>
           </button>
         ) : (
@@ -237,7 +230,6 @@ export default function Hero({ refs }) {
               <svg
                 className="w-5 h-5 group-hover:scale-110 transition-transform"
                 viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
               >
                 <path
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -265,7 +257,6 @@ export default function Hero({ refs }) {
               <svg
                 className="w-5 h-5"
                 viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
