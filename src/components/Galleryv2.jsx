@@ -18,11 +18,19 @@ const GalleryImages = Array.from({ length: baseLength * COPIES }, (_, i) => ({
   id: i,
 }));
 
+const AUTOPLAY_DELAY = 1000; // ms of inactivity before auto-advancing
+const AUTOPLAY_STEP_DURATION = 400; // ms, how long the auto-advance scroll animation takes
+
 const Gallery = forwardRef((props, ref) => {
   const scrollerRef = useRef(null);
   const singleSetWidthRef = useRef(0);
   const rafRef = useRef(null);
   const isWrappingRef = useRef(false);
+
+  const autoplayTimeoutRef = useRef(null);
+  const autoScrollRafRef = useRef(null);
+  const isAutoScrollingRef = useRef(false);
+  const isHoveredRef = useRef(false);
 
   const measureSingleSetWidth = () => {
     const el = scrollerRef.current;
@@ -30,6 +38,14 @@ const Gallery = forwardRef((props, ref) => {
     const cards = el.querySelectorAll("[data-gallery-item]");
     if (cards.length < baseLength * 2) return 0;
     return cards[baseLength].offsetLeft - cards[0].offsetLeft;
+  };
+
+  const getCardStep = () => {
+    const el = scrollerRef.current;
+    if (!el) return 0;
+    const cards = el.querySelectorAll("[data-gallery-item]");
+    if (cards.length < 2) return 0;
+    return cards[1].offsetLeft - cards[0].offsetLeft;
   };
 
   const updateVisuals = () => {
@@ -60,16 +76,14 @@ const Gallery = forwardRef((props, ref) => {
     }
 
     // --- Batch all reads first, then all writes (avoids forced reflow per card) ---
-    const rect = el.getBoundingClientRect();
-    const center = rect.left + rect.width / 2;
-    const maxDist = rect.width / 2;
+    const center = el.scrollLeft + el.clientWidth / 2;
+    const maxDist = el.clientWidth / 2;
 
     const cards = el.querySelectorAll("[data-gallery-item]");
     const updates = [];
 
     cards.forEach((card) => {
-      const cardRect = card.getBoundingClientRect(); // read
-      const cardCenter = cardRect.left + cardRect.width / 2;
+      const cardCenter = card.offsetLeft + card.offsetWidth / 2;
       const distance = Math.abs(cardCenter - center);
       const factor = 1 - Math.min(1, distance / maxDist);
       updates.push({
@@ -85,6 +99,75 @@ const Gallery = forwardRef((props, ref) => {
     });
   };
 
+  // --- Autoplay ---
+
+  const clearAutoplayTimer = () => {
+    if (autoplayTimeoutRef.current) {
+      clearTimeout(autoplayTimeoutRef.current);
+      autoplayTimeoutRef.current = null;
+    }
+  };
+
+  const scheduleAutoplay = () => {
+    clearAutoplayTimer();
+    autoplayTimeoutRef.current = setTimeout(() => {
+      autoAdvance();
+    }, AUTOPLAY_DELAY);
+  };
+
+  // Manually tween scrollLeft so we control exact duration and know precisely
+  // when it finishes (more reliable than guessing native smooth-scroll timing).
+    // Manually tween scrollLeft so we control exact duration and know precisely
+  // when it finishes (more reliable than guessing native smooth-scroll timing).
+  const animateScrollBy = (delta, duration) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+
+    if (autoScrollRafRef.current) {
+      cancelAnimationFrame(autoScrollRafRef.current);
+      autoScrollRafRef.current = null;
+    }
+
+    // Disable CSS scroll-snap for the duration of the tween — otherwise the
+    // browser yanks scrollLeft to the nearest snap point mid-animation,
+    // which looks like an instant swap instead of a smooth glide.
+    el.style.scrollSnapType = "none";
+
+    const start = el.scrollLeft;
+    const startTime = performance.now();
+    const easeInOutQuad = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+
+    const step = (now) => {
+      const elapsed = now - startTime;
+      const t = Math.min(1, elapsed / duration);
+      el.scrollLeft = start + delta * easeInOutQuad(t);
+      updateVisuals();
+
+      if (t < 1) {
+        autoScrollRafRef.current = requestAnimationFrame(step);
+      } else {
+        autoScrollRafRef.current = null;
+        isAutoScrollingRef.current = false;
+        el.style.scrollSnapType = ""; // restore snap now that we've landed exactly on the card
+        scheduleAutoplay();
+      }
+    };
+
+    autoScrollRafRef.current = requestAnimationFrame(step);
+  };
+
+  const autoAdvance = () => {
+    if (isHoveredRef.current) return;
+
+    const step = getCardStep();
+    if (!step) {
+      scheduleAutoplay();
+      return;
+    }
+    isAutoScrollingRef.current = true;
+    animateScrollBy(step, AUTOPLAY_STEP_DURATION);
+  };
+
   const handleScroll = () => {
     // Throttle to animation frames instead of running on every native scroll tick
     if (rafRef.current) return;
@@ -92,6 +175,29 @@ const Gallery = forwardRef((props, ref) => {
       updateVisuals();
       rafRef.current = null;
     });
+
+    // Only real user scrolling should reset the autoplay countdown —
+    // our own programmatic auto-advance shouldn't retrigger itself.
+    if (!isAutoScrollingRef.current && !isHoveredRef.current) {
+      scheduleAutoplay();
+    }
+  };
+
+  const handleMouseEnter = () => {
+    isHoveredRef.current = true;
+    clearAutoplayTimer();
+
+    if (autoScrollRafRef.current) {
+      cancelAnimationFrame(autoScrollRafRef.current);
+      autoScrollRafRef.current = null;
+      isAutoScrollingRef.current = false;
+      scrollerRef.current.style.scrollSnapType = "";
+    }
+  };
+
+  const handleMouseLeave = () => {
+    isHoveredRef.current = false;
+    scheduleAutoplay();
   };
 
   useEffect(() => {
@@ -102,6 +208,7 @@ const Gallery = forwardRef((props, ref) => {
       singleSetWidthRef.current = measureSingleSetWidth();
       el.scrollLeft = singleSetWidthRef.current;
       updateVisuals();
+      scheduleAutoplay();
     };
 
     setup();
@@ -109,6 +216,8 @@ const Gallery = forwardRef((props, ref) => {
     return () => {
       window.removeEventListener("resize", setup);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (autoScrollRafRef.current) cancelAnimationFrame(autoScrollRafRef.current);
+      clearAutoplayTimer();
     };
   }, []);
 
@@ -132,6 +241,10 @@ const Gallery = forwardRef((props, ref) => {
       <div
         ref={scrollerRef}
         onScroll={handleScroll}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onTouchStart={handleMouseEnter}
+        onTouchEnd={handleMouseLeave}
         style={{ scrollBehavior: "auto" }}
         className="relative overflow-x-scroll snap-x py-16 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
@@ -142,10 +255,11 @@ const Gallery = forwardRef((props, ref) => {
               data-gallery-item
               className="shrink-0 snap-center"
               style={{
-                width: "40vw",
-                maxWidth: "520px",
-                minWidth: "280px",
+                width: "55vw",       // was 70vw — too wide, ate up the peek space
+                maxWidth: "420px",
                 willChange: "transform",
+                
+                
               }}
             >
               <img
