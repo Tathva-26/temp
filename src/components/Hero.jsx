@@ -5,13 +5,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BellDot } from "lucide-react";
-<<<<<<< HEAD
-// import LetterGlitch from "@/components/LetterGlitch";
-import Galaxy from "@/components/Galaxy";
-=======
 // 1. CHANGE THIS IMPORT
 import Galaxy from "@/components/Galaxy"; 
->>>>>>> 72b8c3c69b1710a4dc4356428767a226b54964ac
 
 export default function Hero({ refs }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -97,11 +92,7 @@ export default function Hero({ refs }) {
     >
       {/* 2. REPLACE LETTERGLITCH WITH GALAXY HERE */}
       <div className="absolute inset-0 z-0">
-<<<<<<< HEAD
-      <Galaxy
-=======
         <Galaxy
->>>>>>> 72b8c3c69b1710a4dc4356428767a226b54964ac
           density={2.8}
           speed={0.4}
           glowIntensity={0.5}
@@ -130,7 +121,7 @@ export default function Hero({ refs }) {
 
       {/* Countdown Timer */}
       <div className="z-10 flex flex-col items-center">
-        <p className="mb-3 text-center text-base font-black uppercase tracking-wide text-white sm:text-lg md:mb-4 md:text-2xl lg:text-3xl xl:text-4xl">
+        <p className="mb-3 text-center text-sm font-black uppercase tracking-wide text-white sm:text-base md:mb-4 md:text-xl">
           Website Launching IN
         </p>
         <div className="flex items-center justify-center gap-1 px-2 sm:gap-3 md:gap-6">
@@ -151,9 +142,8 @@ export default function Hero({ refs }) {
       </div>
 
       <div className="z-10 mt-8 flex flex-col items-center px-4 text-center md:mt-16">
-        <p className="text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-bold">2026</p>
+        <p className="text-lg md:text-2xl xl:text-3xl">2026</p>
         <h1 className="tathva-heading relative text-[clamp(2.5rem,13vw,12rem)] tracking-widest">
-
           TATHVA&apos;26
         </h1>
         <p className="mt-2 text-lg md:text-2xl xl:text-3xl">OCT 9, 10, 11</p>
