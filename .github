@@ -1,0 +1,9 @@
+* @Tathva-26/core-leads
+
+# All frontend source files & assets
+/src/    @Tathva-26/frontend-leads @Tathva-26/core-leads
+/public/ @Tathva-26/frontend-leads @Tathva-26/core-leads
+
+# Backend / Server files
+/server/ @Tathva-26/backend-leads @Tathva-26/core-leads
+/api/    @Tathva-26/backend-leads @Tathva-26/core-leads
