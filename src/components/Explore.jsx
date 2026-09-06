@@ -3,270 +3,180 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
-export default function MinimalSections() {
-  const exploreRef = useRef(null);
-  const sectionRefs = useRef([]);
-  const previousScrollY = useRef(0);
+const sections = [
+  {
+    image: "/images/workshops.jpg",
+    title: "Workshops",
+    description:
+      "Hands-on sessions covering topics like robotics, AI, and sustainable tech. These workshops provide students with the opportunity to gain practical knowledge, work on real-world problems, and interact with industry professionals.",
+  },
+  {
+    image: "/images/events.jpg",
+    title: "Competitions",
+    description:
+      "Over 65 events including coding competitions, gaming, and cultural showcases. From technical battles of skill to fun informal events, Tathva's events are designed to inspire innovation, teamwork, and creativity.",
+  },
+  {
+    image: "/images/lecture.jpg",
+    title: "Lectures",
+    description:
+      "Industry experts and academicians share insights on emerging technologies. The lecture series bridges the gap between academia and industry, inspiring students to think beyond classrooms and pursue cutting-edge innovations.",
+  },
+];
+
+export default function Explore() {
   const [active, setActive] = useState(0);
-  const [isExploreVisible, setIsExploreVisible] = useState(true);
-  const [isNavVisible, setIsNavVisible] = useState(false);
+  const sectionRef = useRef(null);
 
-  const sections = [
-    {
-      image: "/images/workshops.jpg",
-      title: "Workshops",
-      description:
-        "Hands-on sessions covering topics like robotics, AI, and sustainable tech. These workshops provide students with the opportunity to gain practical knowledge, work on real-world problems, and interact with industry professionals.",
-    },
-    {
-      image: "/images/events.jpg",
-      title: "Competitions",
-      description:
-        "Over 65 events including coding competitions, gaming, and cultural showcases. From technical battles of skill to fun informal events, Tathva’s events are designed to inspire innovation, teamwork, and creativity.",
-    },
-    {
-      image: "/images/lecture.jpg",
-      title: "Lectures",
-      description:
-        "Industry experts and academicians share insights on emerging technologies. The lecture series bridges the gap between academia and industry, inspiring students to think beyond classrooms and pursue cutting-edge innovations.",
-    },
-  ];
-
-  // Track active section for the side-dot nav (same idea as before, using scroll position instead of IntersectionObserver
-  // since sections are now pinned/sticky rather than simple full-height blocks)
   useEffect(() => {
     let rafId = null;
-
     const handleScroll = () => {
+      if (!sectionRef.current) return;
+      
+      const rect = sectionRef.current.getBoundingClientRect();
+      const totalTravel = rect.height - window.innerHeight;
+      
+      // Calculate how far we have scrolled into the section
+      const travel = -rect.top;
+      
+      if (travel < 0 || totalTravel <= 0) {
+        // Before the section reaches the top
+        if (travel < 0 && active !== 0) setActive(0);
+        return;
+      }
+
+      // Progress from 0.0 to 1.0
+      const progress = Math.max(0, Math.min(1, travel / totalTravel));
+      
+      // Perfectly uniform mapping: divide the 1.0 progress by number of sections
+      // Use Math.min to ensure it doesn't exceed the last index if progress exactly hits 1.0
+      const activeIndex = Math.min(
+        sections.length - 1,
+        Math.floor(progress * sections.length)
+      );
+      
+      setActive(activeIndex);
+    };
+
+    const onScroll = () => {
       if (rafId) return;
       rafId = requestAnimationFrame(() => {
-        const currentScrollY = window.scrollY;
-        const scrollDirection =
-          currentScrollY >= previousScrollY.current ? "down" : "up";
-        previousScrollY.current = currentScrollY;
-        let closestIndex = 0;
-        let closestDist = Infinity;
-
-        sectionRefs.current.forEach((el, i) => {
-          if (!el) return;
-          const rect = el.getBoundingClientRect();
-          // Consider a section "active" while its pinned range covers the viewport center
-          if (rect.top <= 0 && rect.bottom >= window.innerHeight) {
-            closestIndex = i;
-            closestDist = 0;
-          } else {
-            const dist = Math.min(Math.abs(rect.top), Math.abs(rect.bottom - window.innerHeight));
-            if (dist < closestDist) {
-              closestDist = dist;
-              closestIndex = i;
-            }
-          }
-        });
-
-        setActive(closestIndex);
-        const firstSection = sectionRefs.current[0];
-        const firstRect = firstSection?.getBoundingClientRect();
-        const firstProgress = firstRect
-          ? Math.min(
-              1,
-              Math.max(
-                0,
-                -firstRect.top / (firstRect.height - window.innerHeight),
-              ),
-            )
-          : 0;
-        const lastSection = sectionRefs.current[2];
-        const lastRect = lastSection?.getBoundingClientRect();
-        const lastProgress = lastRect
-          ? Math.min(
-              1,
-              Math.max(
-                0,
-                -lastRect.top / (lastRect.height - window.innerHeight),
-              ),
-            )
-          : 1;
-
-        setIsNavVisible(
-          closestIndex === 1 ||
-            (closestIndex === 0 && firstProgress >= 0.75) ||
-            (closestIndex === 2 &&
-              scrollDirection === "up" &&
-              lastProgress <= 0.25),
-        );
+        handleScroll();
         rafId = null;
       });
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
+    // Initial check
     handleScroll();
+
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", onScroll);
       if (rafId) cancelAnimationFrame(rafId);
     };
-  }, []);
-
-  useEffect(() => {
-    const explore = exploreRef.current;
-    if (!explore) return undefined;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsExploreVisible(entry.isIntersecting),
-      { threshold: 0 },
-    );
-
-    observer.observe(explore);
-    return () => observer.disconnect();
-  }, []);
-
-  const scrollTo = (index) => {
-    sectionRefs.current[index]?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  };
+  }, [active]);
 
   return (
-    <section ref={exploreRef} className="relative bg-black">
-      {sections.map((section, index) => {
-        const route = `/${section.title.toLowerCase()}`;
+    <section 
+      ref={sectionRef}
+      className="relative bg-black w-full text-white"
+      // Height is 100vh for the sticky viewport + 100vh of travel per section
+      style={{ height: `${(sections.length + 1) * 100}vh` }} 
+    >
+      
+      {/* Sticky Viewport */}
+      <div className="sticky top-0 h-[100svh] w-full overflow-hidden flex flex-col md:flex-row max-w-6xl mx-auto px-5 sm:px-8 z-10">
+        
+        {/* Left Side: Image Container */}
+        <div className="md:w-1/2 h-full flex items-center justify-center py-10 md:py-0 pointer-events-auto">
+          <div className="relative w-full h-[40vh] sm:h-80 md:h-[600px] rounded-xl overflow-hidden bg-white/5 shadow-2xl">
+            {/* Sliding track for images */}
+            <div
+              className="absolute top-0 left-0 w-full h-full transition-transform duration-[1000ms]"
+              style={{
+                transform: `translateY(-${active * 100}%)`,
+                transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
+              }}
+            >
+              {sections.map((section, index) => (
+                <div key={index} className="w-full h-full relative overflow-hidden">
+                  <img
+                    src={section.image}
+                    alt={section.title}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1500ms]"
+                    style={{
+                      transform: active === index ? "scale(1)" : "scale(1.15)",
+                      transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
+                    }}
+                  />
+                  {/* Subtle darkening overlay for unselected state */}
+                  <div 
+                    className={`absolute inset-0 bg-black transition-opacity duration-[1000ms] ${
+                      active === index ? 'opacity-0' : 'opacity-50'
+                    }`}
+                    style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
 
-        return (
-          <PinnedSection
-            key={index}
-            ref={(el) => {
-              sectionRefs.current[index] = el;
-            }}
-            section={section}
-            route={route}
-          />
-        );
-      })}
+        {/* Right Side: Text Blocks */}
+        <div className="md:w-1/2 h-full relative flex flex-col justify-center md:pl-16 pointer-events-auto">
+          {/* Container matching image height roughly, to contain text animation */}
+          <div className="relative w-full h-[40vh] sm:h-80 md:h-[600px] flex items-center">
+            {sections.map((section, index) => {
+              const route = `/${section.title.toLowerCase()}`;
+              const isActive = active === index;
+              const isPast = active > index;
+              
+              return (
+                <div
+                  key={index}
+                  className={`absolute left-0 right-0 transition-all duration-[800ms] flex flex-col justify-center ${
+                    isActive 
+                      ? 'opacity-100 translate-y-0 pointer-events-auto' 
+                      : isPast 
+                        ? 'opacity-0 -translate-y-16 pointer-events-none' 
+                        : 'opacity-0 translate-y-16 pointer-events-none'
+                  }`}
+                  style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
+                >
+                  <div 
+                    className={`w-16 h-1 mb-6 transition-all duration-[800ms] delay-100 ${
+                      isActive ? 'bg-white/80 scale-x-100 origin-left' : 'bg-white/20 scale-x-50 origin-left'
+                    }`}
+                    style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
+                  />
 
-      <div
-        className={`fixed right-4 top-1/2 z-10 flex -translate-y-1/2 flex-col gap-3 transition-opacity duration-300 sm:right-8 ${
-          isExploreVisible && isNavVisible
-            ? "opacity-100"
-            : "pointer-events-none opacity-0"
-        }`}
-        aria-hidden={!isExploreVisible || !isNavVisible}
-      >
-        {sections.map((section, index) => (
-          <button
-            key={index}
-            onClick={() => scrollTo(index)}
-            className="transition-all duration-300"
-            style={{
-              width: index === active ? "28px" : "10px",
-              height: "10px",
-              borderRadius: "9999px",
-              backgroundColor:
-                index === active ? "#ffffff" : "rgba(255,255,255,0.3)",
-            }}
-            aria-label={`Scroll to ${section.title}`}
-          />
-        ))}
+                  <Link href={route} className="group flex items-center gap-4 w-fit">
+                    <h3 className="pp-fragment text-4xl font-medium uppercase text-white sm:text-6xl tracking-wide">
+                      {section.title}
+                    </h3>
+                    <ArrowRight
+                      size={32}
+                      color="white"
+                      className={`-rotate-45 transition-all duration-300 group-hover:rotate-0 group-hover:translate-x-1 ${
+                        isActive ? 'opacity-100' : 'opacity-0'
+                      }`}
+                    />
+                  </Link>
+
+                  <p 
+                    className={`mt-6 text-gray-400 text-sm sm:text-base font-light max-w-lg leading-relaxed transition-all duration-[800ms] delay-150 ${
+                      isActive ? 'opacity-100 translate-y-0' : isPast ? 'opacity-0 -translate-y-4' : 'opacity-0 translate-y-4'
+                    }`}
+                    style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
+                  >
+                    {section.description}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </section>
   );
 }
-
-// Separate component per section so each has its own scroll-progress tracking
-import { forwardRef } from "react";
-
-const PinnedSection = forwardRef(({ section, route }, ref) => {
-  const wrapperRef = useRef(null);
-  const imageRef = useRef(null);
-  const textRef = useRef(null);
-  const rafRef = useRef(null);
-
-  const updateProgress = () => {
-    const wrapper = wrapperRef.current;
-    if (!wrapper) return;
-
-    const rect = wrapper.getBoundingClientRect();
-    const totalScrollable = rect.height - window.innerHeight;
-    const scrolled = -rect.top;
-    const progress = Math.min(1, Math.max(0, scrolled / totalScrollable));
-
-    // Image: scales up slightly and loses a bit of blur as you scroll into the section
-    if (imageRef.current) {
-      const scale = 1.05 - progress * 0.05; // 1.05 -> 1.0
-      imageRef.current.style.transform = `scale(${scale})`;
-    }
-
-    // Text: fades and slides up during the first half of the pin, then holds
-    if (textRef.current) {
-      const textProgress = Math.min(1, progress / 0.5); // reach full reveal by halfway through
-      textRef.current.style.opacity = textProgress;
-      textRef.current.style.transform = `translateY(${(1 - textProgress) * 24}px)`;
-    }
-  };
-
-  const handleScroll = () => {
-    if (rafRef.current) return;
-    rafRef.current = requestAnimationFrame(() => {
-      updateProgress();
-      rafRef.current = null;
-    });
-  };
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", handleScroll);
-    updateProgress();
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, []);
-
-  return (
-    <div
-      ref={(el) => {
-        wrapperRef.current = el;
-        if (typeof ref === "function") ref(el);
-        else if (ref) ref.current = el;
-      }}
-      style={{ height: "200vh", position: "relative" }}
-    >
-      <div
-        className="sticky top-0 flex min-h-[100svh] items-center justify-center overflow-hidden py-20"
-      >
-        <div className="flex w-full max-w-6xl flex-col items-center gap-8 px-5 sm:px-8 md:flex-row md:gap-16 md:py-0">
-          <div className="overflow-hidden flex-1 w-full">
-            <img
-              ref={imageRef}
-              src={section.image}
-              alt={section.title}
-              style={{ willChange: "transform" }}
-              className="h-64 w-full object-cover sm:h-80 md:h-[600px]"
-            />
-          </div>
-
-          <div ref={textRef} className="flex-1 w-full" style={{ willChange: "transform, opacity" }}>
-            <div className="w-16 h-1 bg-white/30 mb-4"></div>
-
-            <Link href={route} className="group flex items-center gap-4">
-              <h3 className="pp-fragment text-4xl font-medium uppercase text-white sm:text-6xl">
-                {section.title}
-              </h3>
-              <ArrowRight
-                size={28}
-                color="white"
-                className="-rotate-45 transition-transform duration-300 group-hover:rotate-0"
-              />
-            </Link>
-
-            <p className="mt-5 text-gray-300 text-sm sm:text-base font-light max-w-lg">
-              {section.description}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-});
-
-PinnedSection.displayName = "PinnedSection";
