@@ -1,9 +1,21 @@
 * @Tathva-26/core-leads
 
 # All frontend source files & assets
-/src/    @Tathva-26/frontend-leads @Tathva-26/core-leads
-/public/ @Tathva-26/frontend-leads @Tathva-26/core-leads
+/src/    @Tathva-26/frontend-leads
+/public/ @Tathva-26/frontend-leads
+
+#core-lead review required.
+.example.env @Tathva-26/core-leads
+.github @Tathva-26/frontend-leads
+.gitignore @Tathva-26/frontend-leads
+README.md @Tathva-26/frontend-leads
+components.json @Tathva-26/frontend-leads
+jsconfig.json @Tathva-26/frontend-leads
+next.config.json @Tathva-26/frontend-leads
+package-lock.josn @Tathva-26/frontend-leads
+package.json @Tathva-26/frontend-leads
+postcss.config.mjs @Tathva-26/frontend-leads
 
 # Backend / Server files
-/server/ @Tathva-26/backend-leads @Tathva-26/core-leads
-/api/    @Tathva-26/backend-leads @Tathva-26/core-leads
+/server/ @Tathva-26/backend-leads
+/api/    @Tathva-26/backend-leads
