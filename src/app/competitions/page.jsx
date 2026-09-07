@@ -62,7 +62,7 @@ export default function EventsPage() {
   // Loading state UI
   if (loading) {
     return (
-      <div className="bg-black min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center">
+      <div className="bg-transparent min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-white border-r-transparent"></div>
           <p className="mt-4 text-gray-300">Loading competitions...</p>
@@ -74,7 +74,7 @@ export default function EventsPage() {
   // Error state UI
   if (error) {
     return (
-      <div className="bg-black min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center">
+      <div className="bg-transparent min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center">
         <div className="text-center text-red-500">
           <p className="text-xl font-semibold">Error loading competitions</p>
           <p className="mt-2">{error}</p>
@@ -84,7 +84,7 @@ export default function EventsPage() {
   }
 
   return (
-    <div className="bg-black min-h-screen py-4 sm:py-10 px-4 sm:px-8 text-white">
+    <div className="bg-transparent min-h-screen py-4 sm:py-10 px-4 sm:px-8 text-white">
       {/* Heading and Search Bar Section */}
       <div className="mb-12">
         <Link

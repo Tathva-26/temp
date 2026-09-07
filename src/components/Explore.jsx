@@ -32,13 +32,13 @@ export default function Explore() {
     let rafId = null;
     const handleScroll = () => {
       if (!sectionRef.current) return;
-      
+
       const rect = sectionRef.current.getBoundingClientRect();
       const totalTravel = rect.height - window.innerHeight;
-      
+
       // Calculate how far we have scrolled into the section
       const travel = -rect.top;
-      
+
       if (travel < 0 || totalTravel <= 0) {
         // Before the section reaches the top
         if (travel < 0 && active !== 0) setActive(0);
@@ -47,14 +47,14 @@ export default function Explore() {
 
       // Progress from 0.0 to 1.0
       const progress = Math.max(0, Math.min(1, travel / totalTravel));
-      
+
       // Perfectly uniform mapping: divide the 1.0 progress by number of sections
       // Use Math.min to ensure it doesn't exceed the last index if progress exactly hits 1.0
       const activeIndex = Math.min(
         sections.length - 1,
         Math.floor(progress * sections.length)
       );
-      
+
       setActive(activeIndex);
     };
 
@@ -77,16 +77,16 @@ export default function Explore() {
   }, [active]);
 
   return (
-    <section 
+    <section
       ref={sectionRef}
-      className="relative bg-black w-full text-white"
+      className="relative bg-transparent w-full text-white"
       // Height is 100vh for the sticky viewport + 100vh of travel per section
-      style={{ height: `${(sections.length + 1) * 100}vh` }} 
+      style={{ height: `${(sections.length + 1) * 100}vh` }}
     >
-      
+
       {/* Sticky Viewport */}
       <div className="sticky top-0 h-[100svh] w-full overflow-hidden flex flex-col md:flex-row max-w-6xl mx-auto px-5 sm:px-8 z-10">
-        
+
         {/* Left Side: Image Container */}
         <div className="md:w-1/2 h-full flex items-center justify-center py-10 md:py-0 pointer-events-auto">
           <div className="relative w-full h-[40vh] sm:h-80 md:h-[600px] rounded-xl overflow-hidden bg-white/5 shadow-2xl">
@@ -110,10 +110,9 @@ export default function Explore() {
                     }}
                   />
                   {/* Subtle darkening overlay for unselected state */}
-                  <div 
-                    className={`absolute inset-0 bg-black transition-opacity duration-[1000ms] ${
-                      active === index ? 'opacity-0' : 'opacity-50'
-                    }`}
+                  <div
+                    className={`absolute inset-0 bg-black transition-opacity duration-[1000ms] ${active === index ? 'opacity-0' : 'opacity-50'
+                      }`}
                     style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
                   />
                 </div>
@@ -130,23 +129,21 @@ export default function Explore() {
               const route = `/${section.title.toLowerCase()}`;
               const isActive = active === index;
               const isPast = active > index;
-              
+
               return (
                 <div
                   key={index}
-                  className={`absolute left-0 right-0 transition-all duration-[800ms] flex flex-col justify-center ${
-                    isActive 
-                      ? 'opacity-100 translate-y-0 pointer-events-auto' 
-                      : isPast 
-                        ? 'opacity-0 -translate-y-16 pointer-events-none' 
+                  className={`absolute left-0 right-0 transition-all duration-[800ms] flex flex-col justify-center ${isActive
+                      ? 'opacity-100 translate-y-0 pointer-events-auto'
+                      : isPast
+                        ? 'opacity-0 -translate-y-16 pointer-events-none'
                         : 'opacity-0 translate-y-16 pointer-events-none'
-                  }`}
+                    }`}
                   style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
                 >
-                  <div 
-                    className={`w-16 h-1 mb-6 transition-all duration-[800ms] delay-100 ${
-                      isActive ? 'bg-white/80 scale-x-100 origin-left' : 'bg-white/20 scale-x-50 origin-left'
-                    }`}
+                  <div
+                    className={`w-16 h-1 mb-6 transition-all duration-[800ms] delay-100 ${isActive ? 'bg-white/80 scale-x-100 origin-left' : 'bg-white/20 scale-x-50 origin-left'
+                      }`}
                     style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
                   />
 
@@ -157,16 +154,14 @@ export default function Explore() {
                     <ArrowRight
                       size={32}
                       color="white"
-                      className={`-rotate-45 transition-all duration-300 group-hover:rotate-0 group-hover:translate-x-1 ${
-                        isActive ? 'opacity-100' : 'opacity-0'
-                      }`}
+                      className={`-rotate-45 transition-all duration-300 group-hover:rotate-0 group-hover:translate-x-1 ${isActive ? 'opacity-100' : 'opacity-0'
+                        }`}
                     />
                   </Link>
 
-                  <p 
-                    className={`mt-6 text-gray-400 text-sm sm:text-base font-light max-w-lg leading-relaxed transition-all duration-[800ms] delay-150 ${
-                      isActive ? 'opacity-100 translate-y-0' : isPast ? 'opacity-0 -translate-y-4' : 'opacity-0 translate-y-4'
-                    }`}
+                  <p
+                    className={`mt-6 text-gray-400 text-sm sm:text-base font-light max-w-lg leading-relaxed transition-all duration-[800ms] delay-150 ${isActive ? 'opacity-100 translate-y-0' : isPast ? 'opacity-0 -translate-y-4' : 'opacity-0 translate-y-4'
+                      }`}
                     style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
                   >
                     {section.description}

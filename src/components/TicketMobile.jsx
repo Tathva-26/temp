@@ -36,7 +36,7 @@ function TicketMobile({ day, date, ticketId, eventId, price }) {
           <p
             className={`${mi.className} text-center pb-1 sm:pb-1 font-bold text-[#252527] text-[0.7rem] sm:text-[0.7rem] border-b-1 w-full border-[#C8AD73]`}
           >
-            2025
+            2026
           </p>
           <p
             className={`${mi.className} text-[#D2B078] text-center text-[0.45rem] sm:text-[0.45rem] mt-2`}
@@ -62,7 +62,7 @@ function TicketMobile({ day, date, ticketId, eventId, price }) {
         <p
           className={`${mi.className} text-xs sm:text-xs text-center font-bold text-[#3E3E3B]`}
         >
-          {`OCT ${date} 2025`}
+          {`OCT ${date} 2026`}
         </p>
         <p
           className={`${mi.className} text-[0.2rem] scale-140 sm:text-[0.3rem] text-center text-[#3E3E3B]`}

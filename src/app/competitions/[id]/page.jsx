@@ -60,11 +60,11 @@ export default async function EventPage({ params }) {
   const formatDate = (dateString) =>
     dateString
       ? new Date(dateString).toLocaleDateString("en-IN", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-          timeZone: "Asia/Kolkata",
-        })
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        timeZone: "Asia/Kolkata",
+      })
       : "TBA";
 
   const formatTime = (timeString) => {
@@ -132,7 +132,7 @@ export default async function EventPage({ params }) {
   }
 
   return (
-    <div className="bg-black min-h-screen py-4 sm:py-10 px-4 sm:px-8 text-white">
+    <div className="bg-transparent min-h-screen py-4 sm:py-10 px-4 sm:px-8 text-white">
       <div className="max-w-6xl mx-auto">
         {/* Header Section */}
         <div className="mb-12">

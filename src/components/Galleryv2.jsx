@@ -10,7 +10,7 @@ const baseGalleryImages = [
   { src: "/images/proshow1.jpeg", alt: "Event activities and performances." },
 ];
 
-const COPIES = 3;
+const COPIES = 7;
 const baseLength = baseGalleryImages.length;
 
 const GalleryImages = Array.from({ length: baseLength * COPIES }, (_, i) => ({
@@ -31,13 +31,14 @@ const Gallery = forwardRef((props, ref) => {
   const autoScrollRafRef = useRef(null);
   const isAutoScrollingRef = useRef(false);
   const isHoveredRef = useRef(false);
+  const idleWrapTimerRef = useRef(null);
 
   const measureSingleSetWidth = () => {
     const el = scrollerRef.current;
     if (!el) return 0;
     const cards = el.querySelectorAll("[data-gallery-item]");
     if (cards.length < baseLength * 2) return 0;
-    return cards[baseLength].offsetLeft - cards[0].offsetLeft;
+    return cards[baseLength].getBoundingClientRect().left - cards[0].getBoundingClientRect().left;
   };
 
   const getCardStep = () => {
@@ -45,37 +46,44 @@ const Gallery = forwardRef((props, ref) => {
     if (!el) return 0;
     const cards = el.querySelectorAll("[data-gallery-item]");
     if (cards.length < 2) return 0;
-    return cards[1].offsetLeft - cards[0].offsetLeft;
+    return cards[1].getBoundingClientRect().left - cards[0].getBoundingClientRect().left;
   };
 
-  const updateVisuals = () => {
+  const wrapIfNeeded = () => {
     const el = scrollerRef.current;
     if (!el) return;
-
     const singleSetWidth = singleSetWidthRef.current;
 
-    // --- Handle wrap FIRST, before any reads, to avoid layout thrash ---
+    // Boundaries placed at perfect integer multiples (2.0 and 4.0) to align EXACTLY
+    // with CSS scroll snap points, eliminating mid-card phasing snapping bugs.
     if (!isWrappingRef.current && singleSetWidth > 0) {
-      if (el.scrollLeft < singleSetWidth * 0.5) {
+      if (el.scrollLeft < singleSetWidth * 2.0) {
         isWrappingRef.current = true;
-        el.style.scrollSnapType = "none"; // temporarily disable snap so the jump is instant
+        el.style.scrollSnapType = "none";
         el.scrollLeft += singleSetWidth;
+        el.offsetHeight; // Force layout flush so browser processes the jump while snap is OFF
         requestAnimationFrame(() => {
           el.style.scrollSnapType = "";
           isWrappingRef.current = false;
         });
-      } else if (el.scrollLeft >= singleSetWidth * 1.5) {
+      } else if (el.scrollLeft >= singleSetWidth * 4.0) {
         isWrappingRef.current = true;
         el.style.scrollSnapType = "none";
         el.scrollLeft -= singleSetWidth;
+        el.offsetHeight; // Force layout flush
         requestAnimationFrame(() => {
           el.style.scrollSnapType = "";
           isWrappingRef.current = false;
         });
       }
     }
+  };
 
-    // --- Batch all reads first, then all writes (avoids forced reflow per card) ---
+  const updateVisuals = () => {
+    const el = scrollerRef.current;
+    if (!el) return;
+
+    // --- Batch all reads first, then all writes ---
     const center = el.scrollLeft + el.clientWidth / 2;
     const maxDist = el.clientWidth / 2;
 
@@ -117,7 +125,7 @@ const Gallery = forwardRef((props, ref) => {
 
   // Manually tween scrollLeft so we control exact duration and know precisely
   // when it finishes (more reliable than guessing native smooth-scroll timing).
-    // Manually tween scrollLeft so we control exact duration and know precisely
+  // Manually tween scrollLeft so we control exact duration and know precisely
   // when it finishes (more reliable than guessing native smooth-scroll timing).
   const animateScrollBy = (delta, duration) => {
     const el = scrollerRef.current;
@@ -128,19 +136,25 @@ const Gallery = forwardRef((props, ref) => {
       autoScrollRafRef.current = null;
     }
 
-    // Disable CSS scroll-snap for the duration of the tween — otherwise the
-    // browser yanks scrollLeft to the nearest snap point mid-animation,
-    // which looks like an instant swap instead of a smooth glide.
+    // Disable CSS scroll-snap for the duration of the tween
     el.style.scrollSnapType = "none";
 
-    const start = el.scrollLeft;
     const startTime = performance.now();
+    let lastEase = 0;
     const easeInOutQuad = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
 
     const step = (now) => {
       const elapsed = now - startTime;
       const t = Math.min(1, elapsed / duration);
-      el.scrollLeft = start + delta * easeInOutQuad(t);
+
+      // Calculate relative delta for this frame rather than absolute position
+      // This prevents a tug-of-war if updateVisuals teleports scrollLeft mid-tween
+      const currentEase = easeInOutQuad(t);
+      const frameDelta = delta * (currentEase - lastEase);
+
+      el.scrollLeft += frameDelta;
+      lastEase = currentEase;
+
       updateVisuals();
 
       if (t < 1) {
@@ -149,6 +163,7 @@ const Gallery = forwardRef((props, ref) => {
         autoScrollRafRef.current = null;
         isAutoScrollingRef.current = false;
         el.style.scrollSnapType = ""; // restore snap now that we've landed exactly on the card
+        wrapIfNeeded(); // Wrap between automated tweens safely while idle
         scheduleAutoplay();
       }
     };
@@ -176,10 +191,14 @@ const Gallery = forwardRef((props, ref) => {
       rafRef.current = null;
     });
 
-    // Only real user scrolling should reset the autoplay countdown —
-    // our own programmatic auto-advance shouldn't retrigger itself.
-    if (!isAutoScrollingRef.current && !isHoveredRef.current) {
-      scheduleAutoplay();
+    // Only real user scrolling should reset the autoplay countdown.
+    if (!isAutoScrollingRef.current) {
+      if (idleWrapTimerRef.current) clearTimeout(idleWrapTimerRef.current);
+      idleWrapTimerRef.current = setTimeout(() => {
+        // Once the native physical scroll completely stops, we check boundaries.
+        wrapIfNeeded();
+        if (!isHoveredRef.current) scheduleAutoplay();
+      }, 150); // 150ms of physical standstill
     }
   };
 
@@ -206,7 +225,7 @@ const Gallery = forwardRef((props, ref) => {
 
     const setup = () => {
       singleSetWidthRef.current = measureSingleSetWidth();
-      el.scrollLeft = singleSetWidthRef.current;
+      el.scrollLeft = singleSetWidthRef.current * 3.0; // Start at the middle set
       updateVisuals();
       scheduleAutoplay();
     };
@@ -217,6 +236,7 @@ const Gallery = forwardRef((props, ref) => {
       window.removeEventListener("resize", setup);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       if (autoScrollRafRef.current) cancelAnimationFrame(autoScrollRafRef.current);
+      if (idleWrapTimerRef.current) clearTimeout(idleWrapTimerRef.current);
       clearAutoplayTimer();
     };
   }, []);
@@ -258,8 +278,8 @@ const Gallery = forwardRef((props, ref) => {
                 width: "55vw",       // was 70vw — too wide, ate up the peek space
                 maxWidth: "420px",
                 willChange: "transform",
-                
-                
+
+
               }}
             >
               <img
