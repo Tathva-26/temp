@@ -27,11 +27,11 @@ export default function WorkshopsPage() {
   const formatDate = (dateString) =>
     dateString
       ? new Date(dateString).toLocaleDateString("en-IN", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-          timeZone: "Asia/Kolkata",
-        })
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        timeZone: "Asia/Kolkata",
+      })
       : "TBA";
 
   useEffect(() => {
@@ -59,7 +59,7 @@ export default function WorkshopsPage() {
 
   if (loading) {
     return (
-      <div className="bg-black min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center">
+      <div className="bg-transparent min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-white border-r-transparent"></div>
           <p className="mt-4 text-gray-300">Loading workshops...</p>
@@ -70,7 +70,7 @@ export default function WorkshopsPage() {
 
   if (error) {
     return (
-      <div className="bg-black min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center">
+      <div className="bg-transparent min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center">
         <div className="text-center text-red-500">
           <p className="text-xl font-semibold">Error loading workshops</p>
           <p className="mt-2">{error}</p>
@@ -97,7 +97,7 @@ export default function WorkshopsPage() {
   ];
 
   return (
-    <div className="bg-black min-h-screen py-4 sm:py-10 px-4 sm:px-8 text-white">
+    <div className="bg-transparent min-h-screen py-4 sm:py-10 px-4 sm:px-8 text-white">
       {/* Heading and home */}
       <div className="mb-12">
         <Link
@@ -153,9 +153,8 @@ export default function WorkshopsPage() {
                     price={price / 100 ?? "N/A"}
                     image={picture}
                     date={formatDate(datetime)}
-                    extraInfo={`${datetime ?? ""} ${time ?? ""} @ ${
-                      venue ?? ""
-                    }`}
+                    extraInfo={`${datetime ?? ""} ${time ?? ""} @ ${venue ?? ""
+                      }`}
                   />
                 </Link>
               );

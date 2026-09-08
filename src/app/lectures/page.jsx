@@ -37,7 +37,7 @@ export default async function LecturesPage() {
   const lectures = wlectures.filter((w) => !w.isFull);
 
   return (
-    <div className="bg-black min-h-screen py-4 sm:py-10 px-4 sm:px-8 text-white">
+    <div className="bg-transparent min-h-screen py-4 sm:py-10 px-4 sm:px-8 text-white">
       {/* Heading */}
       <div className="mb-12">
         <Link

@@ -1,6 +1,7 @@
 import "./globals.css";
 import Footer from "@/components/Footer";
 import { Toaster } from "react-hot-toast";
+import AsteriaBackground from "@/components/AsteriaBackground";
 
 export const metadata = {
   metadataBase: new URL("https://tathva.org"), // ✅ set your production domain here
@@ -47,6 +48,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body style={{ overflowX: "clip" }}>
+        <AsteriaBackground />
         <Toaster />
         {children}
       </body>
