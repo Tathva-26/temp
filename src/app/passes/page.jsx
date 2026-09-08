@@ -305,7 +305,7 @@ function Page() {
       </div>
 
       {/* Bottom navigation */}
-      <div className="w-screen h-[80px] sm:h-[110px] md:h-[130px] lg:h-[160px] top-20 relative flex items-center justify-between px-4 sm:px-8 md:px-12 lg:px-16">
+      <div className="w-full h-[80px] sm:h-[110px] md:h-[130px] lg:h-[160px] top-20 relative flex items-center justify-between px-4 sm:px-8 md:px-12 lg:px-16">
         {/* LEFT */}
         <div className="flex items-center ">
           <div

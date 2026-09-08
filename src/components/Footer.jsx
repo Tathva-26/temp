@@ -54,7 +54,7 @@ export default function Footer({ refs }) {
           </div>
 
           {/* Navigation */}
-          <ul className='grid grid-cols-2 sm:flex sm:flex-row gap-4 sm:gap-10 md:gap-16 justify-items-center sm:justify-center items-center mt-10'>
+          <ul className='grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-row gap-4 sm:gap-10 md:gap-16 justify-items-center sm:justify-center items-center mt-10'>
             <li className="font-['pp-fragment'] text-white">
               <Link
                 href='/competitions'

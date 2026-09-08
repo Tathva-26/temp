@@ -80,8 +80,8 @@ export default function Explore() {
     <section
       ref={sectionRef}
       className="relative bg-transparent w-full text-white"
-      // Height is 100vh for the sticky viewport + 100vh of travel per section
-      style={{ height: `${(sections.length + 1) * 100}vh` }}
+      // Height is 100vh for the sticky viewport + 60vh of travel per section
+      style={{ height: `${(sections.length + 1) * 60}vh` }}
     >
 
       {/* Sticky Viewport */}

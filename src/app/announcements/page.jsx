@@ -135,14 +135,14 @@ export default function AnnouncementsPage() {
                 className="border-l-4 border-white/20 pl-6 lg:pr-8 py-4 bg-black/30 rounded-r-lg shadow-sm border border-white/10"
               >
                 <div className="flex justify-between items-baseline mb-2 flex-wrap">
-                  <h2 className="text-2xl font-bold text-white pp-fragment">
+                  <h2 className="text-2xl font-bold text-white pp-fragment break-words max-w-full">
                     {announcement.title}
                   </h2>
                   <p className="text-sm text-gray-400 sm:ml-4 mt-2 whitespace-nowrap">
                     {formatDate(announcement.createdAt)}
                   </p>
                 </div>
-                <p className="text-gray-300 leading-relaxed">
+                <p className="text-gray-300 leading-relaxed break-words">
                   {announcement.content}
                 </p>
               </div>

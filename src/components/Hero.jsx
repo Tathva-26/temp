@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { BellDot } from 'lucide-react'
+import { BellDot, Menu, X } from 'lucide-react'
 import Particles from '@/components/Particles'
 
 const particlesOptions = {
@@ -79,6 +79,7 @@ const particlesOptions = {
 
 export default function Hero({ refs }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [countdown, setCountdown] = useState({
     days: 0,
     hours: 0,
@@ -174,11 +175,24 @@ export default function Hero({ refs }) {
         className='absolute top-4 left-1/2 -translate-x-1/2 sm:left-auto sm:right-4 sm:translate-x-0 z-10 invert'
       />
 
-      <div className='absolute top-20 right-10 max-[639px]:top-4 max-[639px]:right-3 z-50 group'>
-        <Link className='p-3' href='/announcements'>
+      <div className='absolute top-20 right-10 max-[639px]:top-4 max-[639px]:right-3 z-50 flex items-center gap-2'>
+        <Link className='p-2' href='/announcements'>
           <BellDot size={24} className='text-white' />
         </Link>
+        <button className='md:hidden p-2 text-white bg-black/20 rounded-md' onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
       </div>
+
+      {isMobileMenuOpen && (
+        <div className='absolute top-20 left-4 right-4 z-40 flex flex-col gap-2 rounded-xl bg-zinc-900/90 p-4 backdrop-blur-md md:hidden border border-zinc-800 shadow-2xl'>
+          <Link href='/workshops' onClick={() => setIsMobileMenuOpen(false)} className='w-full text-center py-3 bg-white/5 rounded-md border border-white/10'>WORKSHOPS</Link>
+          <Link href='/competitions' onClick={() => setIsMobileMenuOpen(false)} className='w-full text-center py-3 bg-white/5 rounded-md border border-white/10'>COMPETITIONS</Link>
+          <Link href='/passes' onClick={() => setIsMobileMenuOpen(false)} className='w-full text-center py-3 bg-white/5 rounded-md border border-white/10'>PASSES</Link>
+          <Link href='/lectures' onClick={() => setIsMobileMenuOpen(false)} className='w-full text-center py-3 bg-white/5 rounded-md border border-white/10'>LECTURES</Link>
+          <Link href='/accomodation' onClick={() => setIsMobileMenuOpen(false)} className='w-full text-center py-3 bg-white/5 rounded-md border border-white/10'>ACCOMMODATION</Link>
+        </div>
+      )}
 
       {/* Countdown Timer */}
       <div className='z-10 flex flex-col items-center'>
@@ -204,14 +218,14 @@ export default function Hero({ refs }) {
 
       <div className='z-10 mt-8 flex flex-col items-center px-4 text-center md:mt-16'>
         <p className='text-lg md:text-2xl xl:text-3xl'>2026</p>
-        <h1 className='tathva-heading relative text-[clamp(2.5rem,13vw,12rem)] tracking-widest'>
+        <h1 className='tathva-heading relative text-[clamp(3rem,9vw,9rem)] tracking-wider'>
           TATHVA&apos;26
         </h1>
         <p className='mt-2 text-lg md:text-2xl xl:text-3xl'>OCT 9, 10, 11</p>
       </div>
 
       <div className='z-10 mt-8 flex w-full flex-col items-center gap-6 px-4 md:mt-12'>
-        <div className='grid w-full max-w-4xl grid-cols-2 items-center justify-center gap-3 text-center text-sm sm:flex sm:flex-wrap sm:gap-4 md:text-xl xl:gap-8 xl:text-2xl'>
+        <div className='hidden md:flex w-full max-w-4xl items-center justify-center flex-wrap gap-4 md:text-xl xl:gap-8 xl:text-2xl text-center'>
           <Link
             href='/workshops'
             className='px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110'
