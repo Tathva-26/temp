@@ -5,6 +5,7 @@ import { PerformanceProvider } from "@/context/PerformanceContext";
 import PowerToggle from "@/components/PowerToggle";
 import CavaVisualizer from "@/components/CavaVisualizer";
 import DynamicBackground from "@/components/DynamicBackground";
+import CommandPalette from "@/components/CommandPalette";
 import { Plus_Jakarta_Sans } from 'next/font/google';
 
 const plusJakarta = Plus_Jakarta_Sans({ 
@@ -64,6 +65,7 @@ export default function RootLayout({ children }) {
           <DynamicBackground />
           <Toaster />
           <SmoothScrolling>{children}</SmoothScrolling>
+          <CommandPalette />
           <CavaVisualizer />
           <PowerToggle />
         </PerformanceProvider>
