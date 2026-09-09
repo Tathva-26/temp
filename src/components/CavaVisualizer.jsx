@@ -45,6 +45,30 @@ export default function CavaVisualizer() {
   };
 
   useEffect(() => {
+    const handleFirstInteraction = () => {
+      if (audioRef.current && audioRef.current.paused) {
+        audioRef.current.play()
+          .then(() => setIsPlaying(true))
+          .catch(console.warn);
+      }
+      // Clean up listeners immediately after first interaction
+      ["click", "keydown", "touchstart"].forEach(evt => 
+        document.removeEventListener(evt, handleFirstInteraction)
+      );
+    };
+
+    ["click", "keydown", "touchstart"].forEach(evt => 
+      document.addEventListener(evt, handleFirstInteraction, { once: true })
+    );
+
+    return () => {
+      ["click", "keydown", "touchstart"].forEach(evt => 
+        document.removeEventListener(evt, handleFirstInteraction)
+      );
+    };
+  }, []);
+
+  useEffect(() => {
     if (lowPowerMode || !isPlaying || !analyzerRef.current) {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       return;
@@ -59,15 +83,16 @@ export default function CavaVisualizer() {
     const draw = () => {
       rafRef.current = requestAnimationFrame(draw);
       analyzer.getByteFrequencyData(dataArray);
+      window.globalAudioData = dataArray;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const barWidth = (canvas.width / bufferLength) * 2;
       let x = 0;
 
       for (let i = 0; i < bufferLength; i++) {
-        const barHeight = dataArray[i] / 2;
+        const barHeight = (dataArray[i] / 255) * canvas.height;
         // CAVA terminal aesthetic: vibrant cyan
-        ctx.fillStyle = `rgb(0, ${Math.floor(barHeight + 100)}, 255)`;
+        ctx.fillStyle = `rgba(0, 255, 255, ${0.3 + (barHeight / canvas.height)})`;
         ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
         x += barWidth + 2;
       }
@@ -75,6 +100,7 @@ export default function CavaVisualizer() {
     draw();
 
     return () => {
+      window.globalAudioData = null;
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, [isPlaying, lowPowerMode]);

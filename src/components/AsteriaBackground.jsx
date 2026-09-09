@@ -47,23 +47,13 @@ export default function AsteriaBackground() {
         };
 
         const createStars = () => {
-            stars = [];
-            const numStars = width < 768 ? 120 : 250;
-            for (let i = 0; i < numStars; i++) {
-                // depth: 0 (far/dim) to 1 (near/bright)
-                const depth = Math.random();
-                stars.push({
-                    x: Math.random() * width,
-                    y: Math.random() * height,
-                    radius: (depth * 0.8 + 0.2) + Math.random() * 0.5,
-                    baseOpacity: depth * 0.4 + 0.1,
-                    twinkleSpeed: Math.random() * 0.02 + 0.005,
-                    twinklePhase: Math.random() * Math.PI * 2,
-                    vx: (Math.random() - 0.5) * 0.05 * (depth + 0.2),
-                    vy: (Math.random() * 0.04 + 0.01) * (depth + 0.2), // gentle falling 
-                    depth: depth
-                });
-            }
+            stars = Array.from({ length: 800 }, () => ({
+                x: (Math.random() - 0.5) * 2500,
+                y: (Math.random() - 0.5) * 2500,
+                z: Math.random() * 2000,
+                baseRadius: Math.random() * 2 + 1,
+                opacity: Math.random() * 0.8 + 0.2
+            }));
         };
 
         let lastMeteorTime = 0;
@@ -168,13 +158,70 @@ export default function AsteriaBackground() {
 
             ctx.clearRect(0, 0, width, height);
 
-            let mouseParallaxX = 0;
-            let mouseParallaxY = 0;
-            if (mouse.x !== null && !reducedMotion) {
-                // Extremely subtle shift
-                mouseParallaxX = (mouse.x - width / 2) * 0.05;
-                mouseParallaxY = (mouse.y - height / 2) * 0.05;
+            let bass = 0;
+            if (window.globalAudioData) {
+                let sum = 0;
+                for (let i = 0; i < 8; i++) sum += window.globalAudioData[i];
+                bass = (sum / 8) / 255;
+                bass = Math.pow(bass, 3); // Exponential curve so only hard beats trigger the warp
             }
+
+            // Center of the screen
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const FOV = 300; // Field of view constant
+            
+            stars.forEach(star => {
+              // 1. Continuous forward movement + Bass Warp
+              const baseSpeed = 2; // Ambient forward flight
+              const currentSpeed = baseSpeed + (bass * 50);
+              star.z -= currentSpeed;
+
+              // 2. Respawn stars that fly past the camera
+              if (star.z <= 1) {
+                star.z = 2000; // Send back to the abyss
+                star.x = (Math.random() - 0.5) * 2500;
+                star.y = (Math.random() - 0.5) * 2500;
+              }
+
+              // 3. 3D-to-2D Perspective Projection
+              const scale = FOV / star.z;
+              const projX = centerX + (star.x * scale);
+              const projY = centerY + (star.y * scale);
+              
+              const trailZ = star.z + (currentSpeed * 2.5); // Trail length scales dynamically with speed
+              const trailScale = FOV / trailZ;
+              const trailX = centerX + (star.x * trailScale);
+              const trailY = centerY + (star.y * trailScale);
+
+              // 4. Render the star
+              // Only draw if within screen bounds to save GPU cycles
+              if (projX > 0 && projX < canvas.width && projY > 0 && projY < canvas.height) {
+                const radius = star.baseRadius * scale;
+                
+                // Fade in smoothly from the dark abyss
+                const depthOpacity = Math.min(1, 1 - (star.z / 2000));
+                const finalOpacity = star.opacity * depthOpacity;
+
+                ctx.beginPath();
+                if (bass > 0.15) {
+                  // Draw 3D Motion Blur Streak
+                  ctx.moveTo(trailX, trailY);
+                  ctx.lineTo(projX, projY);
+                  ctx.strokeStyle = `rgba(0, 255, 255, ${finalOpacity})`;
+                  ctx.lineWidth = radius;
+                  ctx.stroke();
+                  ctx.shadowBlur = 15;
+                  ctx.shadowColor = "cyan";
+                } else {
+                  // Draw Solid Dots
+                  ctx.arc(projX, projY, Math.max(radius, 1.5), 0, Math.PI * 2);
+                  ctx.fillStyle = `rgba(255, 255, 255, ${finalOpacity})`;
+                  ctx.fill();
+                  ctx.shadowBlur = 0;
+                }
+              }
+            });
 
             // Handle meteors logic
             if (!reducedMotion && time - lastMeteorTime > nextMeteorDelay) {
@@ -182,36 +229,6 @@ export default function AsteriaBackground() {
                 lastMeteorTime = time;
                 nextMeteorDelay = Math.random() * 4000 + 4000;
             }
-
-            stars.forEach(star => {
-                // Move stars
-                if (!reducedMotion) {
-                    star.x += star.vx;
-                    star.y += star.vy;
-
-                    // Wrap around bounds
-                    // Add a buffer so pop-in isn't visible
-                    if (star.x < -40) star.x = width + 40;
-                    else if (star.x > width + 40) star.x = -40;
-                    if (star.y < -40) star.y = height + 40;
-                    else if (star.y > height + 40) star.y = -40;
-                }
-
-                // Render with parallax offset
-                const px = star.x - mouseParallaxX * star.depth;
-                const py = star.y - mouseParallaxY * star.depth;
-
-                const twinkleOpacity = reducedMotion
-                    ? star.baseOpacity
-                    : star.baseOpacity + Math.sin(time * star.twinkleSpeed + star.twinklePhase) * star.baseOpacity * 0.5;
-
-                ctx.beginPath();
-                ctx.arc(px, py, star.radius, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0.05, Math.min(1, twinkleOpacity))})`;
-                ctx.fill();
-            });
-
-            drawConstellations(mouseParallaxX, mouseParallaxY);
 
             if (!reducedMotion) {
                 drawMeteors();
