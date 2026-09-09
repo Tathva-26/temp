@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { BellDot, Menu, X } from 'lucide-react'
 import Particles from '@/components/Particles'
+import HeroTitle from '@/components/HeroTitle'
 
 const particlesOptions = {
   particles: {
@@ -157,11 +158,11 @@ export default function Hero({ refs }) {
 
   return (
     <header
-      className='relative flex min-h-[100svh] w-full flex-col items-center justify-center overflow-hidden bg-black py-24 text-white sm:py-16'
+      className='relative flex min-h-[100svh] w-full flex-col items-center justify-center overflow-hidden bg-transparent py-24 text-white sm:py-16'
       style={{ fontFamily: 'PPFragment, sans-serif' }}
     >
       {/* 2. REPLACE GALAXY WITH PARTICLES HERE */}
-      <div className='absolute inset-0 z-0'>
+      <div className='absolute inset-0 z-0 mix-blend-screen'>
         <Particles options={particlesOptions} />
       </div>
 
@@ -218,9 +219,7 @@ export default function Hero({ refs }) {
 
       <div className='z-10 mt-8 flex flex-col items-center px-4 text-center md:mt-16'>
         <p className='text-lg md:text-2xl xl:text-3xl'>2026</p>
-        <h1 className='tathva-heading relative text-[clamp(3rem,9vw,9rem)] tracking-wider'>
-          TATHVA&apos;26
-        </h1>
+        <HeroTitle />
         <p className='mt-2 text-lg md:text-2xl xl:text-3xl'>OCT 9, 10, 11</p>
       </div>
 

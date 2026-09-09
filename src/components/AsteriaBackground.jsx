@@ -161,9 +161,9 @@ export default function AsteriaBackground() {
             let bass = 0;
             if (window.globalAudioData) {
                 let sum = 0;
-                for (let i = 0; i < 8; i++) sum += window.globalAudioData[i];
-                bass = (sum / 8) / 255;
-                bass = Math.pow(bass, 3); // Exponential curve so only hard beats trigger the warp
+                for (let i = 0; i < 16; i++) sum += window.globalAudioData[i];
+                const rawBass = (sum / 16) / 255;
+                bass = rawBass * rawBass;
             }
 
             // Center of the screen
@@ -174,7 +174,7 @@ export default function AsteriaBackground() {
             stars.forEach(star => {
               // 1. Continuous forward movement + Bass Warp
               const baseSpeed = 2; // Ambient forward flight
-              const currentSpeed = baseSpeed + (bass * 50);
+              const currentSpeed = baseSpeed + (bass * 80);
               star.z -= currentSpeed;
 
               // 2. Respawn stars that fly past the camera
@@ -204,21 +204,18 @@ export default function AsteriaBackground() {
                 const finalOpacity = star.opacity * depthOpacity;
 
                 ctx.beginPath();
-                if (bass > 0.15) {
+                if (bass > 0.05) {
                   // Draw 3D Motion Blur Streak
                   ctx.moveTo(trailX, trailY);
                   ctx.lineTo(projX, projY);
                   ctx.strokeStyle = `rgba(0, 255, 255, ${finalOpacity})`;
                   ctx.lineWidth = radius;
                   ctx.stroke();
-                  ctx.shadowBlur = 15;
-                  ctx.shadowColor = "cyan";
                 } else {
                   // Draw Solid Dots
                   ctx.arc(projX, projY, Math.max(radius, 1.5), 0, Math.PI * 2);
                   ctx.fillStyle = `rgba(255, 255, 255, ${finalOpacity})`;
                   ctx.fill();
-                  ctx.shadowBlur = 0;
                 }
               }
             });
