@@ -5,11 +5,11 @@ import AsteriaBackground from "@/components/AsteriaBackground";
 
 export const metadata = {
   metadataBase: new URL("https://tathva.org"), // ✅ set your production domain here
-  title: "Tathva ’25 | National Techno-Management Fest",
+  title: "Tathva ’26 | National Techno-Management Fest",
   description:
-    "Official website of Tathva ’25, the annual techno-management festival of NIT Calicut. Explore events, workshops, and exhibitions.",
+    "Official website of Tathva ’26, the annual techno-management festival of NIT Calicut. Explore events, workshops, and exhibitions.",
   keywords: [
-    "Tathva 25",
+    "Tathva 26",
     "NIT Calicut",
     "Techno-Management Fest",
     "College Fest",
@@ -18,9 +18,9 @@ export const metadata = {
   ],
   authors: [{ name: "Tathva Team" }],
   openGraph: {
-    title: "Tathva ’25 | National Techno-Management Fest",
+    title: "Tathva ’26 | National Techno-Management Fest",
     description:
-      "Join us at Tathva ’25, NIT Calicut’s annual techno-management fest. Explore events, competitions, workshops, and exhibitions.",
+      "Join us at Tathva ’26, NIT Calicut’s annual techno-management fest. Explore events, competitions, workshops, and exhibitions.",
     url: "https://tathva.org",
     siteName: "Tathva 25",
     images: [
@@ -36,9 +36,9 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tathva ’25 | National Techno-Management Fest",
+    title: "Tathva ’26 | National Techno-Management Fest",
     description:
-      "The official website of Tathva ’25, NIT Calicut’s annual techno-management festival.",
+      "The official website of Tathva ’26, NIT Calicut’s annual techno-management festival.",
     images: ["/tathva25.svg"],
     creator: "@tathva",
   },
