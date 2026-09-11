@@ -3,17 +3,18 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { BellDot, Menu, X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function ScrollHeader() {
   const [isVisible, setIsVisible] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => {
-      // Show header after scrolling down 300px
-      if (window.scrollY > 300) {
+      // Show header after scrolling down 300px OR if we are not on the homepage
+      if (pathname !== '/' || window.scrollY > 300) {
         setIsVisible(true);
       } else {
         setIsVisible(false);
@@ -21,9 +22,10 @@ export default function ScrollHeader() {
       }
     };
 
+    handleScroll(); // Trigger immediately on mount/path change
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [pathname]);
 
   return (
     <>

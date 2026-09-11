@@ -154,8 +154,7 @@ export default function Explore() {
                     <ArrowRight
                       size={32}
                       color="white"
-                      className={`-rotate-45 transition-all duration-300 group-hover:rotate-0 group-hover:translate-x-1 ${isActive ? 'opacity-100' : 'opacity-0'
-                        }`}
+                      className={`shrink-0 -rotate-45 transition-all duration-300 group-hover:rotate-0 group-hover:translate-x-1 opacity-100`}
                     />
                   </Link>
 
