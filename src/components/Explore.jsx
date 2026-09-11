@@ -85,10 +85,10 @@ export default function Explore() {
     >
 
       {/* Sticky Viewport */}
-      <div className="sticky top-0 h-[100svh] w-full overflow-hidden flex flex-col md:flex-row max-w-6xl mx-auto px-5 sm:px-8 z-10">
+      <div className="sticky top-0 h-[100svh] w-full overflow-hidden flex flex-col md:flex-row justify-center md:justify-start max-w-6xl mx-auto px-5 sm:px-8 z-10 gap-8 md:gap-0">
 
         {/* Left Side: Image Container */}
-        <div className="md:w-1/2 h-full flex items-center justify-center py-10 md:py-0 pointer-events-auto">
+        <div className="md:w-1/2 h-auto md:h-full flex items-end md:items-center justify-center pt-20 md:pt-0 pointer-events-auto">
           <div className="relative w-full h-[40vh] sm:h-80 md:h-[600px] rounded-xl overflow-hidden bg-white/5 shadow-2xl">
             {/* Sliding track for images */}
             <div
@@ -122,9 +122,9 @@ export default function Explore() {
         </div>
 
         {/* Right Side: Text Blocks */}
-        <div className="md:w-1/2 h-full relative flex flex-col justify-center md:pl-16 pointer-events-auto">
+        <div className="md:w-1/2 h-auto md:h-full relative flex flex-col justify-start md:justify-center md:pl-16 pointer-events-auto">
           {/* Container matching image height roughly, to contain text animation */}
-          <div className="relative w-full h-[40vh] sm:h-80 md:h-[600px] flex items-center">
+          <div className="relative w-full h-[40vh] sm:h-80 md:h-[600px] flex items-start md:items-center">
             {sections.map((section, index) => {
               const route = `/${section.title.toLowerCase()}`;
               const isActive = active === index;
