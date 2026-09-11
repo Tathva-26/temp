@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+
 export default function BackendStatus({
   title = "Coming soon",
   message = "This feature will be available soon.",
@@ -20,11 +23,17 @@ export default function BackendStatus({
         <p className="monocraft mt-10 text-[10px] uppercase tracking-[0.24em] text-white/35">
           Website launching in 2026
         </p>
-        {children && (
-          <div className="mt-12 flex justify-center w-full">
-            {children}
-          </div>
-        )}
+        <div className="mt-12 flex justify-center w-full">
+          {children || (
+            <Link 
+              href="/" 
+              className="group flex items-center justify-center gap-3 px-8 py-4 border border-white/20 rounded-sm bg-transparent text-white/80 hover:bg-white hover:text-black transition-all duration-300 tracking-widest text-sm uppercase poppins"
+            >
+              <ArrowLeft size={16} className="group-hover:-translate-x-2 transition-transform duration-300" />
+              Return to Home
+            </Link>
+          )}
+        </div>
       </div>
     </main>
   );
