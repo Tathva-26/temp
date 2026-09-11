@@ -12,7 +12,7 @@ export default function Home() {
   const contactRef = useRef (null);
 
   return (
-    <div className="">
+    <div className="relative">
       {/* ✅ Pass the refs to the Hero component */}
       <Hero refs={{ gallery: galleryRef, contact: contactRef }} />
 

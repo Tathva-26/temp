@@ -80,15 +80,15 @@ export default function Explore() {
     <section
       ref={sectionRef}
       className="relative bg-transparent w-full text-white"
-      // Height is 100vh for the sticky viewport + 100vh of travel per section
-      style={{ height: `${(sections.length + 1) * 100}vh` }}
+      // Height is 100vh for the sticky viewport + 60vh of travel per section
+      style={{ height: `${(sections.length + 1) * 60}vh` }}
     >
 
       {/* Sticky Viewport */}
-      <div className="sticky top-0 h-[100svh] w-full overflow-hidden flex flex-col md:flex-row max-w-6xl mx-auto px-5 sm:px-8 z-10">
+      <div className="sticky top-0 h-[100svh] w-full overflow-hidden flex flex-col md:flex-row justify-center md:justify-start max-w-6xl mx-auto px-5 sm:px-8 z-10 gap-8 md:gap-0">
 
         {/* Left Side: Image Container */}
-        <div className="md:w-1/2 h-full flex items-center justify-center py-10 md:py-0 pointer-events-auto">
+        <div className="md:w-1/2 h-auto md:h-full flex items-end md:items-center justify-center pt-20 md:pt-0 pointer-events-auto">
           <div className="relative w-full h-[40vh] sm:h-80 md:h-[600px] rounded-xl overflow-hidden bg-white/5 shadow-2xl">
             {/* Sliding track for images */}
             <div
@@ -122,9 +122,9 @@ export default function Explore() {
         </div>
 
         {/* Right Side: Text Blocks */}
-        <div className="md:w-1/2 h-full relative flex flex-col justify-center md:pl-16 pointer-events-auto">
+        <div className="md:w-1/2 h-auto md:h-full relative flex flex-col justify-start md:justify-center md:pl-16 pointer-events-auto">
           {/* Container matching image height roughly, to contain text animation */}
-          <div className="relative w-full h-[40vh] sm:h-80 md:h-[600px] flex items-center">
+          <div className="relative w-full h-[40vh] sm:h-80 md:h-[600px] flex items-start md:items-center">
             {sections.map((section, index) => {
               const route = `/${section.title.toLowerCase()}`;
               const isActive = active === index;
@@ -133,7 +133,7 @@ export default function Explore() {
               return (
                 <div
                   key={index}
-                  className={`absolute left-0 right-0 transition-all duration-[800ms] flex flex-col justify-center ${isActive
+                  className={`absolute left-0 right-0 md:right-8 lg:right-16 transition-all duration-[800ms] flex flex-col justify-center ${isActive
                       ? 'opacity-100 translate-y-0 pointer-events-auto'
                       : isPast
                         ? 'opacity-0 -translate-y-16 pointer-events-none'
@@ -141,26 +141,25 @@ export default function Explore() {
                     }`}
                   style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
                 >
+                  {/* Creative "Dark Nebula" Fade - No UI borders, just atmospheric darkness */}
+                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(0,0,0,0.85)_0%,_rgba(0,0,0,0.5)_40%,_transparent_70%)] pointer-events-none -z-10" />
                   <div
-                    className={`w-16 h-1 mb-6 transition-all duration-[800ms] delay-100 ${isActive ? 'bg-white/80 scale-x-100 origin-left' : 'bg-white/20 scale-x-50 origin-left'
+                    className={`w-16 h-1 mb-6 transition-all duration-[800ms] delay-100 ${isActive ? 'bg-cyan-400 scale-x-100 origin-left' : 'bg-white/20 scale-x-50 origin-left'
                       }`}
                     style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
                   />
 
-                  <Link href={route} className="group flex items-center gap-4 w-fit">
-                    <h3 className="pp-fragment text-4xl font-medium uppercase text-white sm:text-6xl tracking-wide">
+                  <Link href={route} className="group flex items-center gap-3 sm:gap-4 w-fit whitespace-nowrap">
+                    <h3 className="pp-fragment text-4xl sm:text-5xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl font-medium uppercase text-white tracking-wide drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
                       {section.title}
                     </h3>
                     <ArrowRight
-                      size={32}
-                      color="white"
-                      className={`-rotate-45 transition-all duration-300 group-hover:rotate-0 group-hover:translate-x-1 ${isActive ? 'opacity-100' : 'opacity-0'
-                        }`}
+                      className="shrink-0 w-8 h-8 md:w-6 md:h-6 lg:w-8 lg:h-8 -rotate-45 transition-all duration-300 group-hover:rotate-0 group-hover:translate-x-1 opacity-100 text-cyan-400"
                     />
                   </Link>
 
                   <p
-                    className={`mt-6 text-gray-400 text-sm sm:text-base font-light max-w-lg leading-relaxed transition-all duration-[800ms] delay-150 ${isActive ? 'opacity-100 translate-y-0' : isPast ? 'opacity-0 -translate-y-4' : 'opacity-0 translate-y-4'
+                    className={`mt-6 text-white/80 text-sm sm:text-base font-light max-w-lg leading-relaxed transition-all duration-[800ms] delay-150 drop-shadow-md ${isActive ? 'opacity-100 translate-y-0' : isPast ? 'opacity-0 -translate-y-4' : 'opacity-0 translate-y-4'
                       }`}
                     style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
                   >

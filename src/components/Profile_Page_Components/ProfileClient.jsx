@@ -50,6 +50,23 @@ export default function ProfileClient({ user }) {
       setIsLoading(true);
       setError(null);
 
+      const applyMockData = () => {
+        console.warn("Backend unreachable or disabled: using mock data for UI development.");
+        setAllBookings([]);
+        setConfirmedBookings([]);
+        setAccommodationBookings([]);
+        setReferrals([]);
+        setPendingReferrals([]);
+        setConfirmedReferralsList([]);
+        setConfirmReferrals(0);
+      };
+
+      if (process.env.NEXT_PUBLIC_BACKEND_ENABLED === 'false') {
+        applyMockData();
+        setIsLoading(false);
+        return;
+      }
+
       try {
         const token = localStorage.getItem("jwt");
         if (!token) throw new Error("Authentication token not found.");
@@ -118,10 +135,11 @@ export default function ProfileClient({ user }) {
           console.error("Failed to fetch referrals:", refErr);
         }
       } catch (err) {
+        applyMockData();
         const message =
           err?.response?.data?.message || err.message || "Failed to fetch";
-        setError(message);
-        console.error(err);
+        // Do not set error state so the UI gracefully falls back instead of breaking
+        console.error("Fetch failed:", message);
       } finally {
         setIsLoading(false);
       }

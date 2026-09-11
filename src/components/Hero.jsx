@@ -4,78 +4,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { BellDot } from 'lucide-react'
-import Particles from '@/components/Particles'
-
-const particlesOptions = {
-  particles: {
-    number: {
-      value: 60,
-      density: { enable: true, value_area: 800 },
-      limit: 100,
-    },
-    color: { value: '#ffffff' },
-    shape: {
-      type: 'circle',
-      stroke: { width: 0, color: '#000000' },
-      polygon: { nb_sides: 5 },
-      image: { src: 'img/github.svg', width: 100, height: 100 },
-    },
-    opacity: {
-      value: 0.5,
-      random: false,
-      anim: { enable: false, speed: 1, opacity_min: 0.1, sync: false },
-    },
-    size: {
-      value: 3,
-      random: true,
-      anim: { enable: false, speed: 40, size_min: 0.1, sync: false },
-    },
-    line_linked: {
-      enable: true,
-      distance: 150,
-      color: '#ffffff',
-      opacity: 0.4,
-      width: 1,
-    },
-    move: {
-      enable: true,
-      speed: 3.2,
-      direction: 'none',
-      random: false,
-      straight: false,
-      out_mode: 'out',
-      bounce: false,
-      attract: {
-        enable: false,
-        rotateX: 3866.8234439981356,
-        rotateY: 5918.607312242045,
-      },
-    },
-  },
-  interactivity: {
-    detect_on: 'canvas',
-    events: {
-      onhover: { enable: true, mode: 'repulse' },
-      onclick: { enable: true, mode: 'push' },
-      resize: true,
-    },
-    modes: {
-      grab: { distance: 400, line_linked: { opacity: 0.534278844986279 } },
-      bubble: {
-        distance: 194.89853095232286,
-        size: 381.6762897816322,
-        duration: 2,
-        opacity: 8,
-        speed: 3,
-      },
-      repulse: { distance: 111.8881118881119, duration: 0.4 },
-      push: { particles_nb: 4 },
-      remove: { particles_nb: 2 },
-    },
-  },
-  retina_detect: false,
-}
+import { BellDot, Menu, X } from 'lucide-react'
+import HeroTitle from '@/components/HeroTitle'
 
 export default function Hero({ refs }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -90,11 +20,6 @@ export default function Hero({ refs }) {
   const handleScroll = (ref) => {
     ref.current?.scrollIntoView({ behavior: 'smooth' })
   }
-
-  useEffect(() => {
-    const jwt = localStorage.getItem('jwt') || localStorage.getItem('token')
-    setIsLoggedIn(!!jwt)
-  }, [])
 
   useEffect(() => {
     const updateCountdown = () => {
@@ -122,21 +47,6 @@ export default function Hero({ refs }) {
     return () => clearInterval(timer)
   }, [])
 
-  const handleGoogleSignIn = () => {
-    const clientId =
-      process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
-      '783776933631-jdor6jdgf8qvmmbbj4hrtt9con1no8ue.apps.googleusercontent.com'
-    const redirectUri =
-      process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI ||
-      `${process.env.NEXT_PUBLIC_API || 'http://localhost:5000'}/api/auth/callback`
-    const url = `https://accounts.google.com/o/oauth2/auth?client_id=${encodeURIComponent(
-      clientId,
-    )}&redirect_uri=${encodeURIComponent(
-      redirectUri,
-    )}&response_type=code&scope=openid%20email%20profile&prompt=consent`
-    window.location.href = url
-  }
-
   const handleVisitDashboard = () => {
     router.push('/profile')
   }
@@ -156,32 +66,28 @@ export default function Hero({ refs }) {
 
   return (
     <header
-      className='relative flex min-h-[100svh] w-full flex-col items-center justify-center overflow-hidden bg-black py-24 text-white sm:py-16'
+      className='relative flex min-h-[100svh] w-full flex-col items-center justify-center overflow-hidden bg-transparent py-24 text-white sm:py-16 pointer-events-none'
       style={{ fontFamily: 'PPFragment, sans-serif' }}
     >
-      {/* 2. REPLACE GALAXY WITH PARTICLES HERE */}
-      <div className='absolute inset-0 z-0'>
-        <Particles options={particlesOptions} />
-      </div>
 
-      <div className='pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-40 bg-gradient-to-b from-transparent to-black sm:h-56' />
+
 
       <Image
         src='/images/TATHVA25_LOGO_BLACK.png'
         alt='Tathva Logo'
         width={150}
         height={150}
-        className='absolute top-4 left-1/2 -translate-x-1/2 sm:left-auto sm:right-4 sm:translate-x-0 z-10 invert'
+        className='absolute top-4 left-1/2 -translate-x-1/2 sm:left-auto sm:right-4 sm:translate-x-0 z-10 invert pointer-events-none'
       />
 
-      <div className='absolute top-20 right-10 max-[639px]:top-4 max-[639px]:right-3 z-50 group'>
-        <Link className='p-3' href='/announcements'>
-          <BellDot size={24} className='text-white' />
+      <div className='absolute top-20 right-10 max-[639px]:top-4 max-[639px]:right-3 z-50 flex items-center gap-2 pointer-events-auto'>
+        <Link className='p-2' href='/announcements'>
+          <BellDot size={24} className='text-white hover:text-cyan-400 transition-colors' />
         </Link>
       </div>
 
       {/* Countdown Timer */}
-      <div className='z-10 flex flex-col items-center'>
+      <div className='z-10 flex flex-col items-center pointer-events-auto'>
         <p className='mb-3 text-center text-sm font-black uppercase tracking-wide text-white sm:text-base md:mb-4 md:text-xl'>
           Website Launching IN
         </p>
@@ -202,125 +108,66 @@ export default function Hero({ refs }) {
         </div>
       </div>
 
-      <div className='z-10 mt-8 flex flex-col items-center px-4 text-center md:mt-16'>
+      <div className='z-10 mt-8 flex flex-col items-center px-4 text-center md:mt-16 pointer-events-none'>
         <p className='text-lg md:text-2xl xl:text-3xl'>2026</p>
-        <h1 className='tathva-heading relative text-[clamp(2.5rem,13vw,12rem)] tracking-widest'>
-          TATHVA&apos;26
-        </h1>
+        <HeroTitle />
         <p className='mt-2 text-lg md:text-2xl xl:text-3xl'>OCT 9, 10, 11</p>
       </div>
 
-      <div className='z-10 mt-8 flex w-full flex-col items-center gap-6 px-4 md:mt-12'>
-        <div className='grid w-full max-w-4xl grid-cols-2 items-center justify-center gap-3 text-center text-sm sm:flex sm:flex-wrap sm:gap-4 md:text-xl xl:gap-8 xl:text-2xl'>
-          <Link
-            href='/workshops'
-            className='px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110'
-          >
+      <div className='z-10 mt-8 flex w-full flex-col items-center gap-6 px-4 md:mt-12 pointer-events-none'>
+        {/* Desktop Nav */}
+        <div className='hidden md:flex w-full max-w-4xl items-center justify-center flex-wrap gap-4 md:text-xl xl:gap-8 xl:text-2xl text-center pointer-events-auto'>
+          <Link href='/workshops' className='px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110'>
             WORKSHOPS
           </Link>
-          <Link
-            href='/competitions'
-            className='px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110'
-          >
+          <Link href='/competitions' className='px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110'>
             COMPETITIONS
           </Link>
-
-          <Link
-            href='/passes'
-            className='px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110'
-          >
+          <Link href='/passes' className='px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110'>
             PASSES
           </Link>
-
-          <Link
-            href='/lectures'
-            className='px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110'
-          >
+          <Link href='/lectures' className='px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110'>
             LECTURES
           </Link>
-
-          <Link
-            href='/accomodation'
-            className='px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110'
-          >
+          <Link href='/accomodation' className='px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110'>
             ACCOMODATION
           </Link>
-          <Link
-            href='/announcements'
-            className='px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110'
-          >
+          <Link href='/announcements' className='px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110'>
             ANNOUNCEMENTS
           </Link>
         </div>
 
-        {isLoggedIn ? (
-          <button
-            onClick={handleVisitDashboard}
-            className='z-10 flex items-center gap-3 bg-black/[0.08] backdrop-blur-xl border border-white/40 text-white font-semibold py-3 px-6 rounded-md transition-all duration-300 hover:bg-black/[0.20] hover:scale-105 group mt-4 md:mt-6'
+        {/* Mobile Nav */}
+        <div className='flex md:hidden w-full max-w-4xl items-center justify-center flex-wrap gap-3 text-center poppins pointer-events-auto'>
+          {["Workshops", "Competitions", "Passes", "Lectures", "Accomodation", "Announcements"].map((item) => (
+            <Link
+              key={item}
+              href={`/${item.toLowerCase()}`}
+              className='px-6 py-2.5 sm:px-8 sm:py-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-full text-[10px] sm:text-xs tracking-[0.2em] uppercase transition-all duration-300 hover:bg-white/20 hover:border-white/30 hover:scale-105'
+            >
+              {item}
+            </Link>
+          ))}
+        </div>
+
+        <button
+          onClick={handleVisitDashboard}
+          className='z-10 flex items-center gap-3 bg-black/[0.08] backdrop-blur-xl border border-white/40 text-white font-semibold py-3 px-6 rounded-md transition-all duration-300 hover:bg-black/[0.20] hover:scale-105 group mt-4 md:mt-6 pointer-events-auto'
+        >
+          <svg
+            className='w-5 h-5'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            strokeWidth='2'
+            strokeLinecap='round'
+            strokeLinejoin='round'
           >
-            <svg
-              className='w-5 h-5'
-              viewBox='0 0 24 24'
-              fill='none'
-              stroke='currentColor'
-              strokeWidth='2'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-            >
-              <path d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z' />
-              <polyline points='9 22 9 12 15 12 15 22' />
-            </svg>
-            <span className='monocraft'>Visit Dashboard</span>
-          </button>
-        ) : (
-          <>
-            <button
-              onClick={handleGoogleSignIn}
-              className='font-mono z-10 flex max-[639px]:hidden items-center gap-3 bg-white hover:border-gray-700 text-gray-700 font-semibold py-3 px-6 rounded-full transition-all duration-300 border border-gray-300 group mt-4 md:mt-6'
-            >
-              <svg
-                className='w-5 h-5 group-hover:scale-110 transition-transform'
-                viewBox='0 0 24 24'
-              >
-                <path
-                  d='M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z'
-                  fill='#4285F4'
-                />
-                <path
-                  d='M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z'
-                  fill='#34A853'
-                />
-                <path
-                  d='M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z'
-                  fill='#FBBC05'
-                />
-                <path
-                  d='M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z'
-                  fill='#EA4335'
-                />
-              </svg>
-              <span className='font-plus-jakarta'>Sign in with Google</span>
-            </button>
-            <button
-              onClick={handleVisitDashboard}
-              className='hidden max-[639px]:flex z-10 items-center gap-3 bg-black/[0.08] backdrop-blur-xl border border-white/40 text-white font-semibold py-3 px-6 rounded-md transition-all duration-300 hover:bg-black/[0.20] hover:scale-105 group mt-4 md:mt-6'
-            >
-              <svg
-                className='w-5 h-5'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              >
-                <path d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z' />
-                <polyline points='9 22 9 12 15 12 15 22' />
-              </svg>
-              <span className='monocraft'>Visit Dashboard</span>
-            </button>
-          </>
-        )}
+            <path d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z' />
+            <polyline points='9 22 9 12 15 12 15 22' />
+          </svg>
+          <span className='monocraft'>Visit Dashboard</span>
+        </button>
       </div>
     </header>
   )

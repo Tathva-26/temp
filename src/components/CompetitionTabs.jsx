@@ -53,7 +53,7 @@ export default function CompetitionTabs({ tathvaEvents, preTathvaEvents }) {
 {activeTab === "tathva" && (
             <div id="tathva-content">
               {tathvaEvents.length > 0 ? (
-                <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                   {tathvaEvents.map((event) => (
                     <Link href={`competitions/${event.id}`} key={event.id}>
                       <SectionCard
@@ -79,7 +79,7 @@ export default function CompetitionTabs({ tathvaEvents, preTathvaEvents }) {
           {activeTab === "pretathva" && (
             <div id="pretathva-content">
               {preTathvaEvents.length > 0 ? (
-                <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                   {preTathvaEvents.map((event) => (
                     <Link href={`competitions/${event.id}`} key={event.id}>
                       <SectionCard

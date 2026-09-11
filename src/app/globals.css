@@ -36,12 +36,6 @@ body {
   font-style: normal;
 }
 
-@font-face {
-  font-family: "PlusJakarta";
-  src: url("/fonts/PlusJakartaSans-VariableFont_wght.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-}
 
 @font-face {
   font-family: "Poppins";
@@ -102,7 +96,7 @@ body {
 }
 
 html {
-  scroll-behavior: smooth;
+  /* scroll-behavior: smooth; */
 }
 
 @tailwind utilities;
