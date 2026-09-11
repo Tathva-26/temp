@@ -80,24 +80,27 @@ const ContactPage = forwardRef((props, ref) => {
   return (
     <section
       ref={ref}
-      className='relative w-full bg-transparent px-4 py-24 text-white sm:px-6 lg:px-8 overflow-hidden'
+      className='relative w-full bg-transparent px-4 py-24 text-white sm:px-6 lg:px-8 overflow-hidden z-10'
     >
+      {/* Creative "Dark Nebula" Fade for Contact Section */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(0,0,0,0.9)_0%,_rgba(0,0,0,0.5)_40%,_transparent_70%)] pointer-events-none -z-10" />
+      
       <ToastContainer />
       
       <div className='mx-auto w-full max-w-4xl relative z-10'>
         <div className='mx-auto max-w-2xl text-center mb-12'>
-          <p className='poppins text-xs uppercase tracking-[0.3em] text-cyan-400/80 mb-4 font-medium'>
+          <p className='poppins text-xs uppercase tracking-[0.3em] text-cyan-400 mb-4 font-medium'>
             Get in touch
           </p>
-          <h1 className='text-4xl md:text-5xl lg:text-6xl tracking-wider tathva-heading font-bold text-white drop-shadow-lg'>
+          <h1 className='text-4xl md:text-5xl lg:text-6xl tracking-wider tathva-heading font-bold text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]'>
             CONTACT US
           </h1>
-          <p className='mx-auto mt-6 max-w-xl text-sm font-light leading-relaxed text-white/70 sm:text-base poppins'>
+          <p className='mx-auto mt-6 max-w-xl text-sm font-light leading-relaxed text-white/90 sm:text-base poppins drop-shadow-md'>
             For all Tathva-related enquiries, our team is just a message away. Drop us a line and we'll get back to you shortly.
           </p>
         </div>
 
-        <div className='bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl shadow-black/50'>
+        <div className='p-4 md:p-12'>
           <form
             onSubmit={handleSubmit}
             className='grid grid-cols-1 gap-x-10 gap-y-8 md:grid-cols-2'
@@ -106,7 +109,7 @@ const ContactPage = forwardRef((props, ref) => {
             <div className='group'>
               <label
                 htmlFor='topic'
-                className='poppins block text-[11px] uppercase tracking-[0.2em] text-white/60 mb-3 group-focus-within:text-cyan-400 transition-colors'
+                className='poppins block text-[11px] uppercase tracking-[0.2em] text-white/80 mb-3 group-focus-within:text-cyan-400 transition-colors drop-shadow-md'
               >
                 Topic
               </label>
@@ -117,7 +120,7 @@ const ContactPage = forwardRef((props, ref) => {
                 value={formData.topic}
                 onChange={handleInputChange}
                 placeholder='e.g. Workshops, Sponsorship'
-                className='w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm sm:text-base text-white placeholder-white/20 poppins focus:outline-none focus:border-cyan-400/50 focus:bg-white/10 transition-all duration-300'
+                className='w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-sm sm:text-base text-white placeholder-white/40 poppins focus:outline-none focus:border-cyan-400 focus:bg-white/10 transition-all duration-300'
               />
             </div>
 
@@ -125,7 +128,7 @@ const ContactPage = forwardRef((props, ref) => {
             <div className='group'>
               <label
                 htmlFor='name'
-                className='poppins block text-[11px] uppercase tracking-[0.2em] text-white/60 mb-3 group-focus-within:text-cyan-400 transition-colors'
+                className='poppins block text-[11px] uppercase tracking-[0.2em] text-white/80 mb-3 group-focus-within:text-cyan-400 transition-colors drop-shadow-md'
               >
                 Name
               </label>
@@ -136,7 +139,7 @@ const ContactPage = forwardRef((props, ref) => {
                 value={formData.name}
                 onChange={handleInputChange}
                 placeholder='Full Name'
-                className='w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm sm:text-base text-white placeholder-white/20 poppins focus:outline-none focus:border-cyan-400/50 focus:bg-white/10 transition-all duration-300'
+                className='w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-sm sm:text-base text-white placeholder-white/40 poppins focus:outline-none focus:border-cyan-400 focus:bg-white/10 transition-all duration-300'
               />
             </div>
 
@@ -144,7 +147,7 @@ const ContactPage = forwardRef((props, ref) => {
             <div className='group'>
               <label
                 htmlFor='email'
-                className='poppins block text-[11px] uppercase tracking-[0.2em] text-white/60 mb-3 group-focus-within:text-cyan-400 transition-colors'
+                className='poppins block text-[11px] uppercase tracking-[0.2em] text-white/80 mb-3 group-focus-within:text-cyan-400 transition-colors drop-shadow-md'
               >
                 Email
               </label>
@@ -155,7 +158,7 @@ const ContactPage = forwardRef((props, ref) => {
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder='yourname@example.com'
-                className='w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm sm:text-base text-white placeholder-white/20 poppins focus:outline-none focus:border-cyan-400/50 focus:bg-white/10 transition-all duration-300'
+                className='w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-sm sm:text-base text-white placeholder-white/40 poppins focus:outline-none focus:border-cyan-400 focus:bg-white/10 transition-all duration-300'
               />
             </div>
 
@@ -163,7 +166,7 @@ const ContactPage = forwardRef((props, ref) => {
             <div className='group'>
               <label
                 htmlFor='phone'
-                className='poppins block text-[11px] uppercase tracking-[0.2em] text-white/60 mb-3 group-focus-within:text-cyan-400 transition-colors'
+                className='poppins block text-[11px] uppercase tracking-[0.2em] text-white/80 mb-3 group-focus-within:text-cyan-400 transition-colors drop-shadow-md'
               >
                 Phone
               </label>
@@ -174,7 +177,7 @@ const ContactPage = forwardRef((props, ref) => {
                 value={formData.phone}
                 onChange={handleInputChange}
                 placeholder='+91 00000 00000'
-                className='w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm sm:text-base text-white placeholder-white/20 poppins focus:outline-none focus:border-cyan-400/50 focus:bg-white/10 transition-all duration-300'
+                className='w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-sm sm:text-base text-white placeholder-white/40 poppins focus:outline-none focus:border-cyan-400 focus:bg-white/10 transition-all duration-300'
               />
             </div>
 
@@ -182,7 +185,7 @@ const ContactPage = forwardRef((props, ref) => {
             <div className='group md:col-span-2'>
               <label
                 htmlFor='query'
-                className='poppins block text-[11px] uppercase tracking-[0.2em] text-white/60 mb-3 group-focus-within:text-cyan-400 transition-colors'
+                className='poppins block text-[11px] uppercase tracking-[0.2em] text-white/80 mb-3 group-focus-within:text-cyan-400 transition-colors drop-shadow-md'
               >
                 Query Details
               </label>
@@ -193,7 +196,7 @@ const ContactPage = forwardRef((props, ref) => {
                 onChange={handleInputChange}
                 placeholder='How can we help you?'
                 rows={5}
-                className='w-full resize-none bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm sm:text-base leading-relaxed text-white placeholder-white/20 poppins focus:outline-none focus:border-cyan-400/50 focus:bg-white/10 transition-all duration-300'
+                className='w-full resize-none bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-sm sm:text-base leading-relaxed text-white placeholder-white/40 poppins focus:outline-none focus:border-cyan-400 focus:bg-white/10 transition-all duration-300'
               />
             </div>
 

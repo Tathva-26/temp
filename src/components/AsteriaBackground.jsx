@@ -14,6 +14,7 @@ export default function AsteriaBackground() {
 
         let animationFrameId;
         let stars = [];
+        let staticStars = [];
         let meteors = [];
 
         let width, height;
@@ -47,12 +48,21 @@ export default function AsteriaBackground() {
         };
 
         const createStars = () => {
-            stars = Array.from({ length: 800 }, () => ({
+            stars = Array.from({ length: 200 }, () => ({
                 x: (Math.random() - 0.5) * 2500,
                 y: (Math.random() - 0.5) * 2500,
                 z: Math.random() * 2000,
                 baseRadius: Math.random() * 2 + 1,
                 opacity: Math.random() * 0.8 + 0.2
+            }));
+
+            staticStars = Array.from({ length: 400 }, () => ({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                radius: Math.random() * 1.5,
+                opacity: Math.random(),
+                twinkleSpeed: Math.random() * 0.03 + 0.005,
+                twinkleDir: Math.random() > 0.5 ? 1 : -1
             }));
         };
 
@@ -171,6 +181,24 @@ export default function AsteriaBackground() {
             const centerY = canvas.height / 2;
             const FOV = 300; // Field of view constant
             
+            // Draw static twinkling night sky
+            staticStars.forEach(star => {
+                if (!reducedMotion) {
+                    star.opacity += star.twinkleSpeed * star.twinkleDir;
+                    if (star.opacity >= 1) {
+                        star.opacity = 1;
+                        star.twinkleDir = -1;
+                    } else if (star.opacity <= 0.1) {
+                        star.opacity = 0.1;
+                        star.twinkleDir = 1;
+                    }
+                }
+                
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity * 0.8})`;
+                const size = Math.max(star.radius * 2, 1);
+                ctx.fillRect(star.x - size / 2, star.y - size / 2, size, size);
+            });
+            
             stars.forEach(star => {
               // 1. Continuous forward movement + Bass Warp
               const baseSpeed = 2; // Ambient forward flight
@@ -204,19 +232,19 @@ export default function AsteriaBackground() {
                 const finalOpacity = star.opacity * depthOpacity;
 
                 ctx.beginPath();
-                if (bass > 0.05) {
-                  // Draw 3D Motion Blur Streak
-                  ctx.moveTo(trailX, trailY);
-                  ctx.lineTo(projX, projY);
-                  ctx.strokeStyle = `rgba(0, 255, 255, ${finalOpacity})`;
-                  ctx.lineWidth = radius;
-                  ctx.stroke();
-                } else {
-                  // Draw Solid Dots
-                  ctx.arc(projX, projY, Math.max(radius, 1.5), 0, Math.PI * 2);
-                  ctx.fillStyle = `rgba(255, 255, 255, ${finalOpacity})`;
-                  ctx.fill();
-                }
+                
+                // Always draw 3D Motion Blur Streak so they look distinctly different from static stars
+                ctx.moveTo(trailX, trailY);
+                ctx.lineTo(projX, projY);
+                
+                // Baseline cyan tint, gets brighter and wider with bass
+                const r = Math.floor(100 + (bass * 155));
+                const g = Math.floor(200 + (bass * 55));
+                const b = 255;
+                
+                ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${finalOpacity})`;
+                ctx.lineWidth = radius * (1 + bass * 2);
+                ctx.stroke();
               }
             });
 

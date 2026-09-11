@@ -5,71 +5,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { BellDot, Menu, X } from 'lucide-react'
-import Particles from '@/components/Particles'
 import HeroTitle from '@/components/HeroTitle'
-
-const particlesOptions = {
-  particles: {
-    number: {
-      value: 80,
-      density: { enable: true, value_area: 800 },
-      limit: 150,
-    },
-    color: { value: '#ffffff' },
-    shape: {
-      type: 'circle',
-    },
-    opacity: {
-      value: 0.8,
-      random: true,
-      anim: {
-        enable: true,
-        speed: 1.5,
-        opacity_min: 0.2,
-        sync: false,
-      },
-    },
-    size: {
-      value: 2.5,
-      random: true,
-      anim: {
-        enable: true,
-        speed: 2,
-        size_min: 0.5,
-        sync: false,
-      },
-    },
-    line_linked: {
-      enable: true,
-      distance: 150,
-      color: '#ffffff',
-      opacity: 0.3,
-      width: 1,
-    },
-    move: {
-      enable: true,
-      speed: 1.5,
-      direction: 'none',
-      random: true,
-      straight: false,
-      out_mode: 'out',
-      bounce: false,
-    },
-  },
-  interactivity: {
-    detect_on: 'canvas',
-    events: {
-      onhover: { enable: true, mode: 'repulse' },
-      onclick: { enable: true, mode: 'push' },
-      resize: true,
-    },
-    modes: {
-      repulse: { distance: 100, duration: 0.4 },
-      push: { particles_nb: 4 },
-    },
-  },
-  retina_detect: true,
-}
 
 export default function Hero({ refs }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -133,12 +69,6 @@ export default function Hero({ refs }) {
       className='relative flex min-h-[100svh] w-full flex-col items-center justify-center overflow-hidden bg-transparent py-24 text-white sm:py-16 pointer-events-none'
       style={{ fontFamily: 'PPFragment, sans-serif' }}
     >
-
-
-      {/* 2. Twinkling Stars */}
-      <div className='absolute inset-0 z-0 mix-blend-screen pointer-events-auto'>
-        <Particles options={particlesOptions} />
-      </div>
 
 
 

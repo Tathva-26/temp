@@ -15,16 +15,19 @@ const baseGalleryImages = [
 const Gallery = forwardRef((props, ref) => {
   return (
     <div ref={ref} id="galleryx" className="my-auto mb-14 bg-transparent relative z-10">
-      <div className="flex justify-center items-center px-4 sm:px-8 lg:px-16 sm:py-12">
-        <p className="text-center max-w-3xl text-gray-300 plus-jakarta leading-relaxed tracking-wide font-light">
-          <span className="bg-gradient-to-r pp-fragment from-white via-gray-300 to-white bg-clip-text text-transparent text-4xl tracking-wide sm:text-5xl block mb-6 sm:mb-10 uppercase">
+      <div className="flex justify-center items-center px-4 sm:px-8 lg:px-16 sm:py-12 relative">
+        {/* Creative "Dark Nebula" Fade for Gallery Text */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(0,0,0,0.85)_0%,_rgba(0,0,0,0.5)_40%,_transparent_70%)] pointer-events-none -z-10" />
+        
+        <p className="text-center max-w-3xl text-gray-200 plus-jakarta leading-relaxed tracking-wide font-light drop-shadow-md">
+          <span className="bg-gradient-to-r pp-fragment from-white via-gray-200 to-white bg-clip-text text-transparent text-4xl tracking-wide sm:text-5xl block mb-6 sm:mb-10 uppercase drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
             Tathva Gallery
           </span>
-          <span className="inline-block text-gray-400 font-light mb-5">
+          <span className="inline-block text-white/90 font-light mb-5">
             Scroll through the moments that define Tathva — step into the
             vibrant spirit of{" "}
-            <span className="font-medium text-gray-100">creativity</span> and{" "}
-            <span className="font-medium text-gray-100">unforgettable</span>{" "}
+            <span className="font-medium text-white">creativity</span> and{" "}
+            <span className="font-medium text-white">unforgettable</span>{" "}
             memories.
           </span>
         </p>

@@ -133,7 +133,7 @@ export default function Explore() {
               return (
                 <div
                   key={index}
-                  className={`absolute left-0 right-0 transition-all duration-[800ms] flex flex-col justify-center ${isActive
+                  className={`absolute left-0 right-0 md:right-8 lg:right-16 transition-all duration-[800ms] flex flex-col justify-center ${isActive
                       ? 'opacity-100 translate-y-0 pointer-events-auto'
                       : isPast
                         ? 'opacity-0 -translate-y-16 pointer-events-none'
@@ -141,24 +141,25 @@ export default function Explore() {
                     }`}
                   style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
                 >
+                  {/* Creative "Dark Nebula" Fade - No UI borders, just atmospheric darkness */}
+                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(0,0,0,0.85)_0%,_rgba(0,0,0,0.5)_40%,_transparent_70%)] pointer-events-none -z-10" />
                   <div
-                    className={`w-16 h-1 mb-6 transition-all duration-[800ms] delay-100 ${isActive ? 'bg-white/80 scale-x-100 origin-left' : 'bg-white/20 scale-x-50 origin-left'
+                    className={`w-16 h-1 mb-6 transition-all duration-[800ms] delay-100 ${isActive ? 'bg-cyan-400 scale-x-100 origin-left' : 'bg-white/20 scale-x-50 origin-left'
                       }`}
                     style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
                   />
 
                   <Link href={route} className="group flex items-center gap-3 sm:gap-4 w-fit whitespace-nowrap">
-                    <h3 className="pp-fragment text-4xl sm:text-5xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl font-medium uppercase text-white tracking-wide">
+                    <h3 className="pp-fragment text-4xl sm:text-5xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl font-medium uppercase text-white tracking-wide drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
                       {section.title}
                     </h3>
                     <ArrowRight
-                      className="shrink-0 w-8 h-8 md:w-6 md:h-6 lg:w-8 lg:h-8 -rotate-45 transition-all duration-300 group-hover:rotate-0 group-hover:translate-x-1 opacity-100"
-                      color="white"
+                      className="shrink-0 w-8 h-8 md:w-6 md:h-6 lg:w-8 lg:h-8 -rotate-45 transition-all duration-300 group-hover:rotate-0 group-hover:translate-x-1 opacity-100 text-cyan-400"
                     />
                   </Link>
 
                   <p
-                    className={`mt-6 text-gray-400 text-sm sm:text-base font-light max-w-lg leading-relaxed transition-all duration-[800ms] delay-150 ${isActive ? 'opacity-100 translate-y-0' : isPast ? 'opacity-0 -translate-y-4' : 'opacity-0 translate-y-4'
+                    className={`mt-6 text-white/80 text-sm sm:text-base font-light max-w-lg leading-relaxed transition-all duration-[800ms] delay-150 drop-shadow-md ${isActive ? 'opacity-100 translate-y-0' : isPast ? 'opacity-0 -translate-y-4' : 'opacity-0 translate-y-4'
                       }`}
                     style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
                   >
