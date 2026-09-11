@@ -1,6 +1,7 @@
 export default function BackendStatus({
   title = "Coming soon",
   message = "This feature will be available soon.",
+  children
 }) {
   return (
     <main className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-transparent px-4 md:px-8 py-16 text-center text-white">
@@ -19,6 +20,11 @@ export default function BackendStatus({
         <p className="monocraft mt-10 text-[10px] uppercase tracking-[0.24em] text-white/35">
           Website launching in 2026
         </p>
+        {children && (
+          <div className="mt-12 flex justify-center w-full">
+            {children}
+          </div>
+        )}
       </div>
     </main>
   );
