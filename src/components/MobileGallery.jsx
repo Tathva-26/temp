@@ -235,7 +235,7 @@ const MobileGallery = forwardRef((props, ref) => {
       onTouchStart={handleMouseEnter}
       onTouchEnd={handleMouseLeave}
       style={{ scrollBehavior: "auto" }}
-      className="relative overflow-x-scroll snap-x py-16 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden w-full flex items-center"
+      className="relative overflow-x-scroll snap-x py-8 sm:py-16 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden w-full flex items-center"
     >
       <div className="flex items-center gap-0.1 px-[20vw]">
         {GalleryImages.map((img) => (
@@ -252,7 +252,7 @@ const MobileGallery = forwardRef((props, ref) => {
             <img
               src={img.src}
               alt={img.alt}
-              className="w-full h-80 sm:h-100 object-cover rounded-lg shadow-2xl shadow-black/60 border border-white/10"
+              className="w-full h-56 sm:h-80 object-cover rounded-lg shadow-2xl shadow-black/60 border border-white/10"
               draggable={false}
             />
           </div>
