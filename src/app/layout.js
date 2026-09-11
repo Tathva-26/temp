@@ -65,7 +65,9 @@ export default function RootLayout({ children }) {
         <PerformanceProvider>
           <DynamicBackground />
           <Toaster />
-          <SmoothScrolling>{children}</SmoothScrolling>
+          <div className="relative z-10">
+            <SmoothScrolling>{children}</SmoothScrolling>
+          </div>
           <ScrollHeader />
           <CommandPalette />
           <CavaVisualizer />

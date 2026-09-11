@@ -11,71 +11,64 @@ import HeroTitle from '@/components/HeroTitle'
 const particlesOptions = {
   particles: {
     number: {
-      value: 60,
+      value: 80,
       density: { enable: true, value_area: 800 },
-      limit: 100,
+      limit: 150,
     },
     color: { value: '#ffffff' },
     shape: {
       type: 'circle',
-      stroke: { width: 0, color: '#000000' },
-      polygon: { nb_sides: 5 },
-      image: { src: 'img/github.svg', width: 100, height: 100 },
     },
     opacity: {
-      value: 0.5,
-      random: false,
-      anim: { enable: false, speed: 1, opacity_min: 0.1, sync: false },
+      value: 0.8,
+      random: true,
+      anim: {
+        enable: true,
+        speed: 1.5,
+        opacity_min: 0.2,
+        sync: false,
+      },
     },
     size: {
-      value: 3,
+      value: 2.5,
       random: true,
-      anim: { enable: false, speed: 40, size_min: 0.1, sync: false },
+      anim: {
+        enable: true,
+        speed: 2,
+        size_min: 0.5,
+        sync: false,
+      },
     },
     line_linked: {
       enable: true,
       distance: 150,
       color: '#ffffff',
-      opacity: 0.4,
+      opacity: 0.3,
       width: 1,
     },
     move: {
       enable: true,
-      speed: 3.2,
+      speed: 1.5,
       direction: 'none',
-      random: false,
+      random: true,
       straight: false,
       out_mode: 'out',
       bounce: false,
-      attract: {
-        enable: false,
-        rotateX: 3866.8234439981356,
-        rotateY: 5918.607312242045,
-      },
     },
   },
   interactivity: {
-    detect_on: 'window',
+    detect_on: 'canvas',
     events: {
       onhover: { enable: true, mode: 'repulse' },
       onclick: { enable: true, mode: 'push' },
       resize: true,
     },
     modes: {
-      grab: { distance: 400, line_linked: { opacity: 0.534278844986279 } },
-      bubble: {
-        distance: 194.89853095232286,
-        size: 381.6762897816322,
-        duration: 2,
-        opacity: 8,
-        speed: 3,
-      },
-      repulse: { distance: 111.8881118881119, duration: 0.4 },
+      repulse: { distance: 100, duration: 0.4 },
       push: { particles_nb: 4 },
-      remove: { particles_nb: 2 },
     },
   },
-  retina_detect: false,
+  retina_detect: true,
 }
 
 export default function Hero({ refs }) {
@@ -137,32 +130,34 @@ export default function Hero({ refs }) {
 
   return (
     <header
-      className='relative flex min-h-[100svh] w-full flex-col items-center justify-center overflow-hidden bg-transparent py-24 text-white sm:py-16'
+      className='relative flex min-h-[100svh] w-full flex-col items-center justify-center overflow-hidden bg-transparent py-24 text-white sm:py-16 pointer-events-none'
       style={{ fontFamily: 'PPFragment, sans-serif' }}
     >
-      {/* 2. REPLACE GALAXY WITH PARTICLES HERE */}
-      <div className='absolute inset-0 z-0 mix-blend-screen'>
+
+
+      {/* 2. Twinkling Stars */}
+      <div className='absolute inset-0 z-0 mix-blend-screen pointer-events-auto'>
         <Particles options={particlesOptions} />
       </div>
 
-      <div className='pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-40 bg-gradient-to-b from-transparent to-black sm:h-56' />
+
 
       <Image
         src='/images/TATHVA25_LOGO_BLACK.png'
         alt='Tathva Logo'
         width={150}
         height={150}
-        className='absolute top-4 left-1/2 -translate-x-1/2 sm:left-auto sm:right-4 sm:translate-x-0 z-10 invert'
+        className='absolute top-4 left-1/2 -translate-x-1/2 sm:left-auto sm:right-4 sm:translate-x-0 z-10 invert pointer-events-none'
       />
 
-      <div className='absolute top-20 right-10 max-[639px]:top-4 max-[639px]:right-3 z-50 flex items-center gap-2'>
+      <div className='absolute top-20 right-10 max-[639px]:top-4 max-[639px]:right-3 z-50 flex items-center gap-2 pointer-events-auto'>
         <Link className='p-2' href='/announcements'>
           <BellDot size={24} className='text-white hover:text-cyan-400 transition-colors' />
         </Link>
       </div>
 
       {/* Countdown Timer */}
-      <div className='z-10 flex flex-col items-center'>
+      <div className='z-10 flex flex-col items-center pointer-events-auto'>
         <p className='mb-3 text-center text-sm font-black uppercase tracking-wide text-white sm:text-base md:mb-4 md:text-xl'>
           Website Launching IN
         </p>
@@ -183,15 +178,15 @@ export default function Hero({ refs }) {
         </div>
       </div>
 
-      <div className='z-10 mt-8 flex flex-col items-center px-4 text-center md:mt-16'>
+      <div className='z-10 mt-8 flex flex-col items-center px-4 text-center md:mt-16 pointer-events-none'>
         <p className='text-lg md:text-2xl xl:text-3xl'>2026</p>
         <HeroTitle />
         <p className='mt-2 text-lg md:text-2xl xl:text-3xl'>OCT 9, 10, 11</p>
       </div>
 
-      <div className='z-10 mt-8 flex w-full flex-col items-center gap-6 px-4 md:mt-12'>
+      <div className='z-10 mt-8 flex w-full flex-col items-center gap-6 px-4 md:mt-12 pointer-events-none'>
         {/* Desktop Nav */}
-        <div className='hidden md:flex w-full max-w-4xl items-center justify-center flex-wrap gap-4 md:text-xl xl:gap-8 xl:text-2xl text-center'>
+        <div className='hidden md:flex w-full max-w-4xl items-center justify-center flex-wrap gap-4 md:text-xl xl:gap-8 xl:text-2xl text-center pointer-events-auto'>
           <Link href='/workshops' className='px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110'>
             WORKSHOPS
           </Link>
@@ -213,7 +208,7 @@ export default function Hero({ refs }) {
         </div>
 
         {/* Mobile Nav */}
-        <div className='flex md:hidden w-full max-w-4xl items-center justify-center flex-wrap gap-3 text-center poppins'>
+        <div className='flex md:hidden w-full max-w-4xl items-center justify-center flex-wrap gap-3 text-center poppins pointer-events-auto'>
           {["Workshops", "Competitions", "Passes", "Lectures", "Accomodation", "Announcements"].map((item) => (
             <Link
               key={item}
@@ -227,7 +222,7 @@ export default function Hero({ refs }) {
 
         <button
           onClick={handleVisitDashboard}
-          className='z-10 flex items-center gap-3 bg-black/[0.08] backdrop-blur-xl border border-white/40 text-white font-semibold py-3 px-6 rounded-md transition-all duration-300 hover:bg-black/[0.20] hover:scale-105 group mt-4 md:mt-6'
+          className='z-10 flex items-center gap-3 bg-black/[0.08] backdrop-blur-xl border border-white/40 text-white font-semibold py-3 px-6 rounded-md transition-all duration-300 hover:bg-black/[0.20] hover:scale-105 group mt-4 md:mt-6 pointer-events-auto'
         >
           <svg
             className='w-5 h-5'

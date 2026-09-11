@@ -37,55 +37,55 @@ export default function Footer({ refs }) {
   ]
 
   return (
-    <footer className='bg-black text-white'>
+    <footer className='relative w-full bg-black/40 backdrop-blur-2xl border-t border-white/10 text-white overflow-hidden mt-12'>
       <div className='max-w-7xl mx-auto px-6 sm:px-8 '>
         {/* =========================
             MAIN FOOTER
         ========================== */}
 
-        <div className='relative flex flex-wrap flex-col items-center justify-center min-h-48 sm:min-h-32'>
+        <div className='relative flex flex-wrap flex-col items-center justify-center min-h-48 sm:min-h-32 py-10'>
           {/* Logo - absolutely centered */}
-          <div>
+          <div className='mb-8 md:mb-0'>
             <img
               src='/images/TATHVA25_LOGO_BLACK.png'
               alt='Tathva Logo'
-              className='h-14  sm:h-20 w-auto invert'
+              className='h-14 sm:h-20 w-auto invert opacity-90 hover:opacity-100 transition-opacity duration-300'
             />
           </div>
 
           {/* Navigation */}
-          <ul className='grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-row gap-4 sm:gap-10 md:gap-16 justify-items-center sm:justify-center items-center mt-10'>
-            <li className="font-['pp-fragment'] text-white">
+          <ul className='grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-row gap-6 sm:gap-10 md:gap-16 justify-items-center sm:justify-center items-center md:mt-10'>
+            <li>
               <Link
                 href='/competitions'
-                className='text-lg sm:text-xl leading-7 transition-colors hover:text-gray-500'
+                className='text-lg sm:text-xl font-medium tracking-wider uppercase text-white/80 transition-all duration-300 hover:text-cyan-400 hover:drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] pp-fragment'
               >
                 Events
               </Link>
             </li>
 
-            <li className="font-['pp-fragment'] text-white">
+            <li>
               <Link
                 href='/workshops'
-                className='text-lg sm:text-xl leading-7 transition-colors hover:text-gray-500'
+                className='text-lg sm:text-xl font-medium tracking-wider uppercase text-white/80 transition-all duration-300 hover:text-cyan-400 hover:drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] pp-fragment'
               >
                 Workshops
               </Link>
             </li>
 
-            <li className="font-['pp-fragment'] text-white">
+            <li>
               <Link
                 href='/lectures'
-                className='text-lg sm:text-xl leading-7 transition-colors hover:text-gray-500'
+                className='text-lg sm:text-xl font-medium tracking-wider uppercase text-white/80 transition-all duration-300 hover:text-cyan-400 hover:drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] pp-fragment'
               >
                 Lectures
               </Link>
             </li>
 
-            <li className="font-['pp-fragment'] text-white">
+            <li>
               <button
                 onClick={() => handleScroll(refs.gallery)}
-                className='text-lg sm:text-xl leading-7 transition-colors hover:text-gray-500 cursor-pointer'
+                className='text-lg sm:text-xl font-medium tracking-wider uppercase text-white/80 transition-all duration-300 hover:text-cyan-400 hover:drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] pp-fragment cursor-pointer'
               >
                 Gallery
               </button>
@@ -97,20 +97,20 @@ export default function Footer({ refs }) {
             BOTTOM SECTION
         ========================== */}
 
-        <div className='relative mt-10 flex flex-col sm:flex-row justify-between items-center gap-6 py-6 border-t border-white/20'>
+        <div className='relative flex flex-col sm:flex-row justify-between items-center gap-6 py-8 border-t border-white/10'>
           {/* Terms & Privacy */}
-          <div className='flex gap-4 sm:gap-6 order-2 sm:order-1'>
-            <button className='text-sm sm:text-base text-white hover:text-gray-500 transition-colors cursor-pointer'>
+          <div className='flex gap-6 order-2 sm:order-1'>
+            <button className='text-xs sm:text-sm text-white/50 hover:text-cyan-400 transition-colors duration-300 cursor-pointer poppins uppercase tracking-widest'>
               Terms & Conditions
             </button>
 
-            <button className='text-sm sm:text-base text-white hover:text-gray-500 transition-colors cursor-pointer'>
+            <button className='text-xs sm:text-sm text-white/50 hover:text-cyan-400 transition-colors duration-300 cursor-pointer poppins uppercase tracking-widest'>
               Privacy Policy
             </button>
           </div>
 
           {/* Social Media */}
-          <div className='flex items-center gap-4 order-1 sm:order-2'>
+          <div className='flex items-center gap-5 order-1 sm:order-2'>
             {socialLinks.map((link) => (
               <a
                 key={link.name}
@@ -118,9 +118,9 @@ export default function Footer({ refs }) {
                 target='_blank'
                 rel='noreferrer noopener'
                 aria-label={link.name}
-                className='group flex items-center justify-center w-10 h-10 rounded-full border-2 border-white/20 hover:border-white/40 transition-all duration-200 hover:scale-110'
+                className='group flex items-center justify-center w-10 h-10 rounded-full bg-white/5 border border-white/20 transition-all duration-300 hover:scale-110 hover:border-cyan-400 hover:bg-cyan-400/10 hover:shadow-[0_0_15px_rgba(34,211,238,0.3)]'
               >
-                <span className='text-white/70 group-hover:text-white transition-colors duration-200'>
+                <span className='text-white/70 group-hover:text-cyan-400 transition-colors duration-300'>
                   {link.icon}
                 </span>
               </a>
@@ -128,7 +128,9 @@ export default function Footer({ refs }) {
           </div>
 
           {/* Copyright */}
-          <span className='text-sm text-white order-3'>&copy; TATHVA 2026</span>
+          <span className='text-xs text-white/50 order-3 poppins uppercase tracking-widest'>
+            &copy; TATHVA 2026
+          </span>
         </div>
       </div>
     </footer>

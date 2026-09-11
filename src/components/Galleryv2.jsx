@@ -49,6 +49,7 @@ const Gallery = forwardRef((props, ref) => {
         <div className="block sm:hidden h-full w-full">
           <MobileGallery />
         </div>
+
       </div>
     </div>
   );

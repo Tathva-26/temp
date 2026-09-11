@@ -147,14 +147,13 @@ export default function Explore() {
                     style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
                   />
 
-                  <Link href={route} className="group flex items-center gap-4 w-fit">
-                    <h3 className="pp-fragment text-4xl font-medium uppercase text-white sm:text-6xl tracking-wide">
+                  <Link href={route} className="group flex items-center gap-3 sm:gap-4 w-fit whitespace-nowrap">
+                    <h3 className="pp-fragment text-4xl sm:text-5xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl font-medium uppercase text-white tracking-wide">
                       {section.title}
                     </h3>
                     <ArrowRight
-                      size={32}
+                      className="shrink-0 w-8 h-8 md:w-6 md:h-6 lg:w-8 lg:h-8 -rotate-45 transition-all duration-300 group-hover:rotate-0 group-hover:translate-x-1 opacity-100"
                       color="white"
-                      className={`shrink-0 -rotate-45 transition-all duration-300 group-hover:rotate-0 group-hover:translate-x-1 opacity-100`}
                     />
                   </Link>
 

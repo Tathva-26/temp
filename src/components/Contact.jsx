@@ -80,31 +80,33 @@ const ContactPage = forwardRef((props, ref) => {
   return (
     <section
       ref={ref}
-      className='bg-black px-4 py-20 text-white sm:px-6 lg:px-8'
+      className='relative w-full bg-transparent px-4 py-24 text-white sm:px-6 lg:px-8 overflow-hidden'
     >
       <ToastContainer />
-      <div className='mx-auto w-full max-w-5xl'>
-        <div className='mx-auto max-w-2xl text-center'>
-          <p className='poppins text-xs uppercase tracking-[0.28em] text-white/50'>
+      
+      <div className='mx-auto w-full max-w-4xl relative z-10'>
+        <div className='mx-auto max-w-2xl text-center mb-12'>
+          <p className='poppins text-xs uppercase tracking-[0.3em] text-cyan-400/80 mb-4 font-medium'>
             Get in touch
           </p>
-          <h1 className='mt-3 text-4xl tracking-wide pp-fragment sm:text-5xl'>
+          <h1 className='text-4xl md:text-5xl lg:text-6xl tracking-wider tathva-heading font-bold text-white drop-shadow-lg'>
             CONTACT US
           </h1>
-          <p className='mx-auto mt-5 max-w-xl text-sm font-light leading-7 text-white/60 sm:text-base'>
-            For all Tathva-related enquiries, our team is just a message away.
+          <p className='mx-auto mt-6 max-w-xl text-sm font-light leading-relaxed text-white/70 sm:text-base poppins'>
+            For all Tathva-related enquiries, our team is just a message away. Drop us a line and we'll get back to you shortly.
           </p>
         </div>
 
-        <div className='mt-12 border-y border-white/15 py-8 sm:py-10'>
+        <div className='bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl shadow-black/50'>
           <form
             onSubmit={handleSubmit}
-            className='grid grid-cols-1 gap-x-12 gap-y-8 md:grid-cols-2'
+            className='grid grid-cols-1 gap-x-10 gap-y-8 md:grid-cols-2'
           >
-            <div className='border-b border-white/25 pb-3'>
+            {/* Topic Input */}
+            <div className='group'>
               <label
                 htmlFor='topic'
-                className='poppins block text-[11px] uppercase tracking-[0.2em] text-white/55'
+                className='poppins block text-[11px] uppercase tracking-[0.2em] text-white/60 mb-3 group-focus-within:text-cyan-400 transition-colors'
               >
                 Topic
               </label>
@@ -114,15 +116,16 @@ const ContactPage = forwardRef((props, ref) => {
                 name='topic'
                 value={formData.topic}
                 onChange={handleInputChange}
-                placeholder='ENTER TOPIC'
-                className='mt-3 w-full bg-transparent text-base text-white placeholder-white/25 pp-fragment focus:outline-none'
+                placeholder='e.g. Workshops, Sponsorship'
+                className='w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm sm:text-base text-white placeholder-white/20 poppins focus:outline-none focus:border-cyan-400/50 focus:bg-white/10 transition-all duration-300'
               />
             </div>
 
-            <div className='border-b border-white/25 pb-3'>
+            {/* Name Input */}
+            <div className='group'>
               <label
                 htmlFor='name'
-                className='poppins block text-[11px] uppercase tracking-[0.2em] text-white/55'
+                className='poppins block text-[11px] uppercase tracking-[0.2em] text-white/60 mb-3 group-focus-within:text-cyan-400 transition-colors'
               >
                 Name
               </label>
@@ -132,15 +135,16 @@ const ContactPage = forwardRef((props, ref) => {
                 name='name'
                 value={formData.name}
                 onChange={handleInputChange}
-                placeholder='FULL NAME'
-                className='mt-3 w-full bg-transparent text-base text-white placeholder-white/25 pp-fragment focus:outline-none'
+                placeholder='Full Name'
+                className='w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm sm:text-base text-white placeholder-white/20 poppins focus:outline-none focus:border-cyan-400/50 focus:bg-white/10 transition-all duration-300'
               />
             </div>
 
-            <div className='border-b border-white/25 pb-3'>
+            {/* Email Input */}
+            <div className='group'>
               <label
                 htmlFor='email'
-                className='poppins block text-[11px] uppercase tracking-[0.2em] text-white/55'
+                className='poppins block text-[11px] uppercase tracking-[0.2em] text-white/60 mb-3 group-focus-within:text-cyan-400 transition-colors'
               >
                 Email
               </label>
@@ -151,14 +155,15 @@ const ContactPage = forwardRef((props, ref) => {
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder='yourname@example.com'
-                className='mt-3 w-full bg-transparent text-base text-white placeholder-white/25 pp-fragment focus:outline-none'
+                className='w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm sm:text-base text-white placeholder-white/20 poppins focus:outline-none focus:border-cyan-400/50 focus:bg-white/10 transition-all duration-300'
               />
             </div>
 
-            <div className='border-b border-white/25 pb-3'>
+            {/* Phone Input */}
+            <div className='group'>
               <label
                 htmlFor='phone'
-                className='poppins block text-[11px] uppercase tracking-[0.2em] text-white/55'
+                className='poppins block text-[11px] uppercase tracking-[0.2em] text-white/60 mb-3 group-focus-within:text-cyan-400 transition-colors'
               >
                 Phone
               </label>
@@ -169,38 +174,50 @@ const ContactPage = forwardRef((props, ref) => {
                 value={formData.phone}
                 onChange={handleInputChange}
                 placeholder='+91 00000 00000'
-                className='mt-3 w-full bg-transparent text-base text-white placeholder-white/25 pp-fragment focus:outline-none'
+                className='w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm sm:text-base text-white placeholder-white/20 poppins focus:outline-none focus:border-cyan-400/50 focus:bg-white/10 transition-all duration-300'
               />
             </div>
 
-            <div className='border-b border-white/25 pb-3 md:col-span-2'>
+            {/* Query Input */}
+            <div className='group md:col-span-2'>
               <label
                 htmlFor='query'
-                className='poppins block text-[11px] uppercase tracking-[0.2em] text-white/55'
+                className='poppins block text-[11px] uppercase tracking-[0.2em] text-white/60 mb-3 group-focus-within:text-cyan-400 transition-colors'
               >
-                Query
+                Query Details
               </label>
               <textarea
                 id='query'
                 name='query'
                 value={formData.query}
                 onChange={handleInputChange}
-                placeholder='ENTER DETAILS'
-                rows={4}
-                className='mt-3 w-full resize-none bg-transparent text-base leading-7 text-white placeholder-white/25 pp-fragment focus:outline-none'
+                placeholder='How can we help you?'
+                rows={5}
+                className='w-full resize-none bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm sm:text-base leading-relaxed text-white placeholder-white/20 poppins focus:outline-none focus:border-cyan-400/50 focus:bg-white/10 transition-all duration-300'
               />
             </div>
 
-            <div className='flex justify-center pt-2 md:col-span-2'>
+            {/* Submit Button */}
+            <div className='flex justify-center pt-6 md:col-span-2'>
               <button
                 type='submit'
-                className='group flex items-center gap-3 border border-white/25 px-7 py-3 text-lg text-white pp-fragment transition-colors duration-200 hover:border-white hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-50 sm:text-xl'
+                className='group relative flex items-center justify-center gap-3 w-full sm:w-auto overflow-hidden rounded-full bg-white/10 px-10 py-4 font-semibold text-white backdrop-blur-md border border-white/20 transition-all duration-300 hover:bg-white hover:text-black hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] disabled:cursor-not-allowed disabled:opacity-50'
                 disabled={submitting}
               >
-                {submitting ? 'Submitting...' : 'Submit'}
-                <span className='transform transition-transform duration-300 -rotate-45 group-hover:rotate-0'>
-                  ➤
+                <span className='relative z-10 uppercase tracking-widest text-xs poppins'>
+                  {submitting ? 'Submitting...' : 'Send Message'}
                 </span>
+                {!submitting && (
+                  <svg
+                    className='relative z-10 w-4 h-4 transform transition-transform duration-300 group-hover:translate-x-1'
+                    fill='none'
+                    viewBox='0 0 24 24'
+                    stroke='currentColor'
+                    strokeWidth='2'
+                  >
+                    <path strokeLinecap='round' strokeLinejoin='round' d='M14 5l7 7m0 0l-7 7m7-7H3' />
+                  </svg>
+                )}
               </button>
             </div>
           </form>
