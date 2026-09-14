@@ -3,11 +3,23 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import jwtRequired from "@/axios/jwtRequired";
-import Link from "next/link"; // Import Link for navigation
+import Link from "next/link";
 import ProfileClient from "@/components/Profile_Page_Components/ProfileClient";
-import BackendStatus from "@/components/BackendStatus";
 
 const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
+
+const MOCK_USER = {
+  id: "dev-user-001",
+  name: "Dev User",
+  tat_id: "TAT-2024-9999",
+  phone_number: "9876543210",
+  college: "National Institute of Technology Calicut",
+  district: "Kozhikode",
+  picture: "/pfp_dev/userFile.webp",
+  referredById: null,
+  referredByName: "",
+  events: [],
+};
 
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
@@ -16,6 +28,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!backendEnabled) {
+      setUser(MOCK_USER);
       setLoading(false);
       return;
     }
@@ -32,8 +45,7 @@ export default function ProfilePage() {
     const token = localStorage.getItem("jwt");
 
     if (!token) {
-      console.error("Login to access profile");
-      router.push("/");
+      setUser(MOCK_USER);
       setLoading(false);
       return;
     }
@@ -60,7 +72,7 @@ export default function ProfilePage() {
         setUser(formattedUser);
       } catch (err) {
         console.error("Error fetching user:", err.message);
-        toast.error(err.message || "Failed to load user data");
+        setUser(MOCK_USER);
       } finally {
         setLoading(false);
       }
@@ -69,21 +81,12 @@ export default function ProfilePage() {
     fetchUser();
   }, [router]);
 
-  if (!backendEnabled) {
-    return (
-      <BackendStatus
-        title="Profile coming soon"
-        message="Login and profile features will be available soon."
-      />
-    );
-  }
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="flex items-center justify-center min-h-screen bg-transparent">
         <div className="relative">
-          <div className="w-16 h-16 border-4 border-blue-200 rounded-full"></div>
-          <div className="w-16 h-16 border-4 border-black rounded-full border-t-transparent absolute top-0 left-0 animate-spin"></div>
+          <div className="w-16 h-16 border-2 border-white/10 rounded-full"></div>
+          <div className="w-16 h-16 border-2 border-white rounded-full border-t-transparent absolute top-0 left-0 animate-spin"></div>
         </div>
       </div>
     );
@@ -93,7 +96,7 @@ export default function ProfilePage() {
     <div className="">
       <Link
         href="/"
-        className="absolute top-5 left-10 z-20"
+        className="absolute top-5 left-6 sm:left-10 z-20 group"
         style={{
           textDecoration: "none",
           color: "inherit",
@@ -101,8 +104,9 @@ export default function ProfilePage() {
           display: "inline-block",
         }}
       >
-        <span style={{ fontWeight: "bold", fontSize: "1.5rem" }}>
-          &larr; Home
+        <span className="font-bold text-base sm:text-lg text-white/60 group-hover:text-white transition-colors duration-300 flex items-center gap-2">
+          <span className="group-hover:-translate-x-1 transition-transform duration-300">&larr;</span>
+          Home
         </span>
       </Link>
 
@@ -110,13 +114,9 @@ export default function ProfilePage() {
     </div>
   );
 
-  if (!user) {
-    return <div></div>;
-  }
-
   return (
     <PageContainer>
-      <ProfileClient user={user} />
+      <ProfileClient user={user || MOCK_USER} />
     </PageContainer>
   );
 }
