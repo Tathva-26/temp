@@ -19,6 +19,7 @@ const MOCK_USER = {
   referredById: null,
   referredByName: "",
   events: [],
+  is_ca: false,
 };
 
 export default function ProfilePage() {
@@ -57,6 +58,7 @@ export default function ProfilePage() {
         const userRaw = res.data;
 
         const formattedUser = {
+          ...userRaw,
           id: userRaw.id,
           name: userRaw.name,
           tat_id: userRaw.referral,
@@ -67,6 +69,13 @@ export default function ProfilePage() {
           referredById: userRaw.referredById,
           referredByName: userRaw.referredByName,
           events: userRaw.events ?? [],
+          is_ca: Boolean(
+            userRaw.is_ca ??
+            userRaw.isCa ??
+            userRaw.isCA ??
+            userRaw.ca ??
+            (userRaw.role === "ca" || userRaw.role === "CA")
+          ),
         };
 
         setUser(formattedUser);

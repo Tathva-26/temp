@@ -2,15 +2,13 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { FaEdit, FaShare, FaCheck, FaUser, FaUsers, FaBed } from "react-icons/fa";
+import { FaEdit, FaShare, FaCheck, FaUser, FaBed } from "react-icons/fa";
 import {
   MdEvent,
   MdDateRange,
   MdAccessTime,
   MdDownload,
   MdHistory,
-  MdPending,
-  MdCheckCircle,
 } from "react-icons/md";
 import EditModal from "./EditModal";
 import EventsModal from "./EventsModal";
@@ -29,15 +27,17 @@ export default function ProfileClient({ user }) {
   const [confirmedBookings, setConfirmedBookings] = useState([]);
   const [accommodationBookings, setAccommodationBookings] = useState([]);
 
-  // --- MODIFICATION START ---
-  // State for tab management in BOTH desktop and mobile modal
-  const [activeTab, setActiveTab] = useState("bookings"); // 'bookings' or 'history' or 'confirmedReferrals' or 'pendingReferrals'
-  // Referral states
-  const [referrals, setReferrals] = useState([]);
-  const [confirmReferrals, setConfirmReferrals] = useState(0);
-  const [pendingReferrals, setPendingReferrals] = useState([]);
-  const [confirmedReferralsList, setConfirmedReferralsList] = useState([]);
-  // --- MODIFICATION END ---
+  // State for tab management
+  const [activeTab, setActiveTab] = useState("bookings"); // 'bookings' or 'history' or 'accommodation'
+
+  const isCaUser = Boolean(
+    currentUser?.is_ca ||
+    currentUser?.isCa ||
+    currentUser?.isCA ||
+    currentUser?.ca ||
+    currentUser?.role === "ca" ||
+    currentUser?.role === "CA"
+  );
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -49,7 +49,7 @@ export default function ProfileClient({ user }) {
   const profileCardRef = useRef(null);
 
   useEffect(() => {
-    const fetchBookingsAndReferrals = async () => {
+    const fetchBookingsAndAccommodation = async () => {
       setIsLoading(true);
       setError(null);
 
@@ -58,10 +58,6 @@ export default function ProfileClient({ user }) {
         setAllBookings([]);
         setConfirmedBookings([]);
         setAccommodationBookings([]);
-        setReferrals([]);
-        setPendingReferrals([]);
-        setConfirmedReferralsList([]);
-        setConfirmReferrals(0);
       };
 
       if (process.env.NEXT_PUBLIC_BACKEND_ENABLED === 'false') {
@@ -74,80 +70,50 @@ export default function ProfileClient({ user }) {
         const token = localStorage.getItem("jwt");
         if (!token) throw new Error("Authentication token not found.");
 
-        // fetch bookings
-        const bookingsResp = await axios.get(
-          `${process.env.NEXT_PUBLIC_API}/api/booking/getbooking`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        const data = bookingsResp.data;
-        const fetchedBookings = data.bookings || [];
-
-        setAllBookings(
-          fetchedBookings.filter((booking) => booking.status !== "TIMEOUT")
-        );
-        setConfirmedBookings(
-          fetchedBookings.filter((booking) => booking.status === "CONFIRMED")
-        );
-
-        // fetch referrals
+        // 1. fetch bookings
         try {
-          const refResp = await axios.get(
-            `${process.env.NEXT_PUBLIC_API}/api/referrals/`,
+          const bookingsResp = await axios.get(
+            `${process.env.NEXT_PUBLIC_API}/api/booking/getbooking`,
             {
               headers: { Authorization: `Bearer ${token}` },
             }
           );
 
-          const refData = refResp.data || {};
-          const allReferrals = refData.referrals || [];
+          const data = bookingsResp.data;
+          const fetchedBookings = data.bookings || [];
 
-          // Separate referrals by status - COMPLETED is considered confirmed
-          const pending = allReferrals.filter(
-            (ref) => ref.status === "PENDING"
+          setAllBookings(
+            fetchedBookings.filter((booking) => booking.status !== "TIMEOUT")
           );
-          const confirmed = allReferrals.filter(
-            (ref) => ref.status === "CONFIRMED" || ref.status === "COMPLETED"
+          setConfirmedBookings(
+            fetchedBookings.filter((booking) => booking.status === "CONFIRMED")
           );
+        } catch (bookingErr) {
+          console.error("Failed to fetch bookings:", bookingErr);
+        }
 
-          setReferrals(allReferrals);
-          setPendingReferrals(pending);
-          setConfirmedReferralsList(confirmed);
-          setConfirmReferrals(
-            typeof refData.confirmReferrals === "number"
-              ? refData.confirmReferrals
-              : confirmed.length
+        // 2. fetch accommodation independently
+        try {
+          const accomResp = await jwtRequired.get(
+            `${process.env.NEXT_PUBLIC_API}/api/accomodation/`
           );
-
-          try {
-            const accomResp = await jwtRequired.get(`${process.env.NEXT_PUBLIC_API}/api/accomodation/`);
-            console.log(accomResp);
-            const confirmedBookings = (accomResp.data.roomBookings || []).filter(
-              (booking) => booking.status === "CONFIRMED"
-            );
-            setAccommodationBookings(confirmedBookings);
-          } catch (accomErr) {
-            // Non-fatal: log error but don't block the UI
-            console.error("Failed to fetch accommodation:", accomErr);
-          }
-
-        } catch (refErr) {
-          // Non-fatal: keep bookings but surface referral fetch error in console
-          console.error("Failed to fetch referrals:", refErr);
+          const bookings = (accomResp.data?.roomBookings || []).filter(
+            (booking) => booking.status === "CONFIRMED"
+          );
+          setAccommodationBookings(bookings);
+        } catch (accomErr) {
+          console.error("Failed to fetch accommodation:", accomErr);
         }
       } catch (err) {
         applyMockData();
         const message =
           err?.response?.data?.message || err.message || "Failed to fetch";
-        // Do not set error state so the UI gracefully falls back instead of breaking
         console.error("Fetch failed:", message);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchBookingsAndReferrals();
+    fetchBookingsAndAccommodation();
   }, []);
 
   const router = useRouter();
@@ -234,10 +200,6 @@ export default function ProfileClient({ user }) {
     }
   };
 
-  const getRefferalDetails = () => {
-    // return cached referrals fetched from API
-    return referrals;
-  };
 
   // --- MODIFICATION: Updated getStatusBadge to handle context ---
   const getStatusBadge = (status, context = "default") => {
@@ -387,7 +349,7 @@ export default function ProfileClient({ user }) {
       );
     }
     return (
-      <div className="text-center py-16">
+      <div className="h-full flex-1 flex flex-col items-center justify-center text-center py-16">
         <div className="bg-white/[0.05] rounded-full w-24 h-24 mx-auto flex items-center justify-center mb-5 border border-white/[0.08]">
           <MdDateRange className="text-white/30" size={36} />
         </div>
@@ -403,79 +365,6 @@ export default function ProfileClient({ user }) {
     );
   };
 
-  // NEW: Render referral lists
-  const renderReferralsList = (referralsToRender, type) => {
-    if (referralsToRender.length > 0) {
-      return (
-        <div className="space-y-4">
-          {referralsToRender.map((referral, index) => {
-            return (
-              <div
-                key={index}
-                className="group bg-white/[0.04] backdrop-blur-sm rounded-xl overflow-hidden border border-white/[0.08] hover:border-white/20 hover:bg-white/[0.07] transition-all duration-500"
-                style={{
-                  animation: `profileSlideUp 0.4s ease-out ${index * 80}ms backwards`,
-                }}
-              >
-                <div className="p-5">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-white tracking-tight flex items-center gap-2.5">
-                      <div className="bg-white/10 rounded-lg p-2">
-                        <FaUser className="text-white/70" size={14} />
-                      </div>
-                      {referral.referredUser.name}
-                      {getStatusBadge(referral.status, "referral")}
-                    </h3>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                    <div className="flex items-center bg-white/[0.05] rounded-lg p-3 border border-white/[0.06] hover:border-white/15 transition-all">
-                      <div>
-                        <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wider">
-                          Email
-                        </p>
-                        <p className="text-sm font-medium text-white/80 truncate">
-                          {referral.referredUser.email}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center bg-white/[0.05] rounded-lg p-3 border border-white/[0.06] hover:border-white/15 transition-all">
-                      <div>
-                        <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wider">
-                          Tathva ID
-                        </p>
-                        <p className="text-sm font-medium text-white/80">
-                          {referral.referredUser.referral}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      );
-    }
-
-    // Empty state for referrals
-    return (
-      <div className="text-center py-16">
-        <div className="bg-white/[0.05] rounded-full w-24 h-24 mx-auto flex items-center justify-center mb-5 border border-white/[0.08]">
-          <FaUsers className="text-white/30" size={36} />
-        </div>
-        <p className="text-white/70 text-lg font-bold mb-2">
-          {type === "confirmed"
-            ? "No confirmed referrals yet"
-            : "No pending referrals"}
-        </p>
-        <p className="text-white/40 text-sm">
-          Share your referral code with friends to earn rewards!
-        </p>
-      </div>
-    );
-  };
 
   const renderAccommodationList = (bookingsToRender) => {
     if (bookingsToRender.length > 0) {
@@ -605,7 +494,7 @@ export default function ProfileClient({ user }) {
 
     // Empty state for accommodation
     return (
-      <div className="text-center py-16">
+      <div className="h-full flex-1 flex flex-col items-center justify-center text-center py-16">
         <div className="bg-white/[0.05] rounded-full w-24 h-24 mx-auto flex items-center justify-center mb-5 border border-white/[0.08]">
           <FaBed className="text-white/30" size={36} />
         </div>
@@ -643,10 +532,6 @@ export default function ProfileClient({ user }) {
         return renderBookingList(confirmedBookings);
       case "history":
         return renderBookingList(allBookings);
-      case "pendingReferrals":
-        return renderReferralsList(pendingReferrals, "pending");
-      case "confirmedReferrals":
-        return renderReferralsList(confirmedReferralsList, "confirmed");
       case "accommodation":
         return renderAccommodationList(accommodationBookings);
       default:
@@ -657,8 +542,6 @@ export default function ProfileClient({ user }) {
   const tabItems = [
     { key: "bookings", label: "Bookings", icon: <MdEvent size={16} /> },
     { key: "history", label: "History", icon: <MdHistory size={16} /> },
-    { key: "confirmedReferrals", label: "Confirmed Refs", icon: <MdCheckCircle size={16} /> },
-    { key: "pendingReferrals", label: "Pending Refs", icon: <MdPending size={16} /> },
     { key: "accommodation", label: "Accommodation", icon: <FaBed size={16} /> },
   ];
 
@@ -671,13 +554,13 @@ export default function ProfileClient({ user }) {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-white/[0.04] to-transparent rounded-full blur-[100px]"></div>
         <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-gradient-to-tl from-zinc-800/20 to-transparent rounded-full blur-[120px]"></div>
 
-        <div className="mt-16 max-w-7xl mx-auto flex flex-col lg:flex-row gap-6 lg:gap-8 relative z-10">
+        <div className="mt-16 max-w-7xl mx-auto flex flex-col lg:flex-row items-stretch gap-6 lg:gap-8 relative z-10">
 
           {/* ═══════════════════════════════════════════ */}
           {/* LEFT COLUMN - Profile Card */}
           {/* ═══════════════════════════════════════════ */}
-          <div className="w-full lg:w-[42%] xl:w-[38%]" ref={profileCardRef}>
-            <div className="bg-white/[0.02] backdrop-blur-md rounded-2xl overflow-hidden border border-white/[0.06] shadow-2xl shadow-black/50">
+          <div className="w-full lg:w-1/2 flex flex-col" ref={profileCardRef}>
+            <div className="h-full bg-white/[0.02] backdrop-blur-md rounded-2xl overflow-hidden border border-white/[0.06] shadow-2xl shadow-black/50 flex flex-col">
 
               {/* ── Profile Header with Avatar ── */}
               <div className="relative p-6 sm:p-8 pb-0">
@@ -708,35 +591,28 @@ export default function ProfileClient({ user }) {
                     {currentUser.tat_id}
                   </p>
 
-                  {/* Action Buttons */}
-                  <div className="flex gap-3 mb-6 w-full max-w-xs">
-                    <button
-                      onClick={handleCopyReferral}
-                      className={`flex-1 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2 border ${copied
-                        ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
-                        : "bg-white/[0.06] hover:bg-white/[0.1] text-white/80 hover:text-white border-white/[0.08] hover:border-white/20"
-                        }`}
-                    >
-                      {copied ? (
-                        <>
-                          <FaCheck size={12} /> Copied!
-                        </>
-                      ) : (
-                        <>
-                          <FaShare size={12} /> Refer
-                        </>
-                      )}
-                    </button>
-                    <button
-                      onClick={() => {
-                        localStorage.removeItem("jwt");
-                        router.push("/");
-                      }}
-                      className="flex-1 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-white/[0.06] hover:bg-red-500/20 text-white/80 hover:text-red-400 border border-white/[0.08] hover:border-red-500/30 transition-all duration-300 flex items-center justify-center gap-2"
-                    >
-                      Logout
-                    </button>
-                  </div>
+                  {/* Action Buttons: Only show Refer button if user is CA; no logout button */}
+                  {isCaUser && (
+                    <div className="flex justify-center mb-6 w-full max-w-xs">
+                      <button
+                        onClick={handleCopyReferral}
+                        className={`w-full px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2 border ${copied
+                          ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
+                          : "bg-white/[0.06] hover:bg-white/[0.1] text-white/80 hover:text-white border-white/[0.08] hover:border-white/20"
+                          }`}
+                      >
+                        {copied ? (
+                          <>
+                            <FaCheck size={12} /> Copied!
+                          </>
+                        ) : (
+                          <>
+                            <FaShare size={12} /> Refer
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -844,64 +720,18 @@ export default function ProfileClient({ user }) {
                   ))}
                 </div>
 
-                {/* Mobile buttons for all sections */}
-                <div className="w-full lg:hidden mt-5 grid grid-cols-2 gap-2.5">
-                  <button
-                    onClick={() => handleOpenModal("bookings")}
-                    className="bg-white/[0.06] hover:bg-white/[0.1] text-white/80 py-3 rounded-xl font-semibold text-xs transition-all border border-white/[0.08] hover:border-white/20 flex items-center justify-center gap-2"
-                  >
-                    <MdEvent size={18} />
-                    My Bookings
-                  </button>
-                  <button
-                    onClick={() => handleOpenModal("history")}
-                    className="bg-white/[0.06] hover:bg-white/[0.1] text-white/80 py-3 rounded-xl font-semibold text-xs transition-all border border-white/[0.08] hover:border-white/20 flex items-center justify-center gap-2"
-                  >
-                    <MdHistory size={18} />
-                    History
-                  </button>
-                </div>
-
-                {/* New mobile buttons for referrals */}
-                <div className="w-full lg:hidden mt-2.5 grid grid-cols-2 gap-2.5">
-                  <button
-                    onClick={() => handleOpenModal("confirmedReferrals")}
-                    className="bg-white/[0.06] hover:bg-white/[0.1] text-white/80 py-3 rounded-xl font-semibold text-xs transition-all border border-white/[0.08] hover:border-white/20 flex items-center justify-center gap-2"
-                  >
-                    <MdCheckCircle size={18} />
-                    Confirmed Refs
-                  </button>
-                  <button
-                    onClick={() => handleOpenModal("pendingReferrals")}
-                    className="bg-white/[0.06] hover:bg-white/[0.1] text-white/80 py-3 rounded-xl font-semibold text-xs transition-all border border-white/[0.08] hover:border-white/20 flex items-center justify-center gap-2"
-                  >
-                    <MdPending size={18} />
-                    Pending Refs
-                  </button>
-                </div>
-
-                <div className="w-full lg:hidden mt-2.5">
-                  <button
-                    onClick={() => handleOpenModal("accommodation")}
-                    className="bg-white/[0.06] hover:bg-white/[0.1] text-white/80 w-full py-3 rounded-xl font-semibold text-xs transition-all border border-white/[0.08] hover:border-white/20 flex items-center justify-center gap-2"
-                  >
-                    <FaBed size={18} />
-                    Accommodation
-                  </button>
-                </div>
-
               </div>
             </div>
           </div>
 
           {/* ═══════════════════════════════════════════ */}
-          {/* RIGHT COLUMN - Events & Referrals (Desktop) */}
+          {/* RIGHT / MAIN CONTENT - Bookings & Accommodation */}
           {/* ═══════════════════════════════════════════ */}
-          <div className="hidden lg:flex w-full lg:w-[58%] xl:w-[62%] relative">
-            <div className="w-full bg-white/[0.02] backdrop-blur-md rounded-2xl overflow-hidden border border-white/[0.06] shadow-2xl shadow-black/50">
+          <div id="content-section" className="w-full lg:w-1/2 flex flex-col relative scroll-mt-20">
+            <div className="h-full w-full bg-white/[0.02] backdrop-blur-md rounded-2xl overflow-hidden border border-white/[0.06] shadow-2xl shadow-black/50 flex flex-col">
 
               {/* ── Header ── */}
-              <div className="p-6 relative overflow-hidden">
+              <div className="p-6 relative overflow-hidden flex-shrink-0">
                 <div className="absolute top-0 left-0 right-0 h-full bg-gradient-to-b from-white/[0.03] to-transparent"></div>
                 <div className="relative z-10">
                   <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
@@ -909,36 +739,18 @@ export default function ProfileClient({ user }) {
                       ? "My Bookings"
                       : activeTab === "history"
                         ? "Booking History"
-                        : activeTab === "pendingReferrals"
-                          ? "Pending Referrals"
-                          : activeTab === "accommodation"
-                            ? "My Accommodation"
-                            : "Confirmed Referrals"}
+                        : "My Accommodation"}
                   </h2>
                   <p className="text-white/40 text-xs mt-1.5 font-mono tracking-wider">
                     {activeTab === "bookings"
                       ? confirmedBookings.length
                       : activeTab === "history"
                         ? allBookings.length
-                        : activeTab === "pendingReferrals"
-                          ? pendingReferrals.length
-                          : activeTab === "accommodation"
-                            ? accommodationBookings.length
-                            : confirmedReferralsList.length}{" "}
-                    {activeTab === "pendingReferrals" ||
-                      activeTab === "confirmedReferrals"
-                      ? "referral"
-                      : activeTab === "accommodation"
-                        ? "booking"
-                        : "event"}
-                    {(activeTab === "bookings" && confirmedBookings.length !== 1) ||
+                        : accommodationBookings.length}{" "}
+                    {activeTab === "accommodation" ? "booking" : "event"}
+                    {((activeTab === "bookings" && confirmedBookings.length !== 1) ||
                       (activeTab === "history" && allBookings.length !== 1) ||
-                      (activeTab === "pendingReferrals" &&
-                        pendingReferrals.length !== 1) ||
-                      (activeTab === "confirmedReferrals" &&
-                        confirmedReferralsList.length !== 1) ||
-                      (activeTab === "accommodation" &&
-                        accommodationBookings.length !== 1)
+                      (activeTab === "accommodation" && accommodationBookings.length !== 1))
                       ? "s"
                       : ""}{" "}
                     Total
@@ -947,12 +759,12 @@ export default function ProfileClient({ user }) {
               </div>
 
               {/* ── Tabs ── */}
-              <div className="flex border-b border-white/[0.06] px-6 overflow-x-auto scrollbar-hide">
+              <div className="flex border-b border-white/[0.06] px-4 sm:px-6 overflow-x-auto scrollbar-hide flex-shrink-0">
                 {tabItems.map((tab) => (
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
-                    className={`py-3 px-4 text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 relative ${activeTab === tab.key
+                    className={`py-3 px-3 sm:px-4 text-xs sm:text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 relative ${activeTab === tab.key
                       ? "text-white"
                       : "text-white/35 hover:text-white/60"
                       }`}
@@ -967,7 +779,7 @@ export default function ProfileClient({ user }) {
               </div>
 
               {/* ── Content ── */}
-              <div className="overflow-y-auto max-h-[70vh] p-6">
+              <div className="overflow-y-auto flex-1 min-h-[400px] p-4 sm:p-6 flex flex-col">
                 {renderActiveContent()}
               </div>
             </div>
@@ -983,7 +795,6 @@ export default function ProfileClient({ user }) {
         userId={currentUser.id}
         onSuccess={() => window.location.reload()}
       />
-      {/* --- MODIFICATION: Pass new props to EventsModal --- */}
       <EventsModal
         isOpen={eventsModalOpen}
         onClose={() => setEventsModalOpen(false)}
@@ -991,11 +802,7 @@ export default function ProfileClient({ user }) {
         setActiveView={setActiveTab}
         confirmedBookings={confirmedBookings}
         allBookings={allBookings}
-        referrals={referrals}
-        pendingReferrals={pendingReferrals}
-        confirmedReferralsList={confirmedReferralsList}
-        confirmReferrals={confirmReferrals}
-        accommodationBookings={accommodationBookings} // Add this prop
+        accommodationBookings={accommodationBookings}
       />
       <style jsx>{`
         @keyframes profileSlideUp {
