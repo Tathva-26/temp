@@ -14,8 +14,8 @@ const baseGalleryImages = [
 
 const Gallery = forwardRef((props, ref) => {
   return (
-    <div ref={ref} id="galleryx" className="my-auto mb-14 bg-transparent relative z-10">
-      <div className="flex justify-center items-center px-4 sm:px-8 lg:px-16 sm:py-12 relative">
+    <div ref={ref} id="galleryx" className="my-auto mb-6 sm:mb-14 bg-transparent relative z-10">
+      <div className="flex justify-center items-center px-4 sm:px-8 lg:px-16 py-4 sm:py-12 relative">
         {/* Creative "Dark Nebula" Fade for Gallery Text */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(0,0,0,0.85)_0%,_rgba(0,0,0,0.5)_40%,_transparent_70%)] pointer-events-none -z-10" />
         
