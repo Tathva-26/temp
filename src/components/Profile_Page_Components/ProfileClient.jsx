@@ -293,13 +293,6 @@ export default function ProfileClient({ user }) {
     { key: "phone_number", label: "Phone Number", editable: true },
     { key: "college", label: "College", editable: true },
     { key: "district", label: "District", editable: true },
-    {
-      key: "referredByName",
-      label: "Referred By",
-      editable:
-        !currentUser.referredByName || currentUser.referredByName.trim() === "",
-    },
-    { key: "confReferral", label: "Confirmed Referrals", editable: false },
   ];
 
   const renderBookingList = (bookingsToRender) => {
@@ -752,6 +745,31 @@ export default function ProfileClient({ user }) {
 
               {/* ── Personal Information ── */}
               <div className="p-5 sm:p-6 lg:p-7">
+                {/* ── QR Code Section ── */}
+                <div className="mb-6">
+                  <h2 className="text-sm font-bold text-white/60 mb-4 flex items-center gap-2 tracking-widest uppercase">
+                    <span className="w-1 h-5 bg-white/30 rounded-full"></span>
+                    QR Code
+                  </h2>
+                  <div className="bg-white/[0.02] hover:bg-white/[0.04] border border-white/[0.06] hover:border-white/[0.12] rounded-2xl p-5 flex flex-col items-center justify-center transition-all duration-300">
+                    <div className="relative p-3 bg-white rounded-xl shadow-xl shadow-black/50 transition-transform duration-300 hover:scale-[1.02]">
+                      <Image
+                        src={currentUser?.qrCode || currentUser?.qr || "/qr.png"}
+                        alt="QR Code"
+                        width={150}
+                        height={150}
+                        className="object-contain w-32 h-32 sm:w-36 sm:h-36 rounded-lg"
+                        priority
+                      />
+                    </div>
+                    <p className="text-[11px] text-white/40 mt-3 font-mono tracking-wider text-center">
+                      {currentUser?.tat_id || "Scan to verify"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mb-6 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+
                 <h2 className="text-sm font-bold text-white/60 mb-4 flex items-center gap-2 tracking-widest uppercase">
                   <span className="w-1 h-5 bg-white/30 rounded-full"></span>
                   Personal Information
@@ -807,11 +825,7 @@ export default function ProfileClient({ user }) {
                             </div>
                           ) : (
                             <p className="text-sm font-semibold text-white/85 truncate">
-                              {field.key === "confReferral"
-                                ? confirmReferrals
-                                : field.key === "referredByName"
-                                  ? currentUser.referredByName || ""
-                                  : currentUser[field.key]}
+                              {currentUser[field.key]}
                             </p>
                           )}
                         </div>
