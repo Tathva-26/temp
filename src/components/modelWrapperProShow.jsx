@@ -33,9 +33,9 @@ export default function ModalWrapper({ eventId, ticketId, price }) {
     <div className="flex items-center justify-center">
       <button
         onClick={handleClick}
-        className={`${mi.className} bg-[#3E3E3B] cursor-pointer rounded-xs text-[0.5rem] sm:text-[0.4rem] md:text-[0.5rem] lg:text-[0.65rem] hover:bg-black w-12 h-3 sm:w-16 sm:h-4 md:w-18 md:h-4 lg:w-23 lg:h-5 text-white`}
+        className={`${mi.className} bg-white/20 cursor-pointer rounded-xs text-[0.5rem] sm:text-[0.4rem] md:text-[0.5rem] lg:text-[0.65rem] hover:bg-white/30 px-2 sm:px-3 h-4 sm:h-5 text-white/90 whitespace-nowrap`}
       >
-        {isLoggedIn ? "BOOK" : "LOGIN TO REGISTER"}
+        {isLoggedIn ? "BOOK" : "REGISTER"}
       </button>
 
       {/* Modal */}
