@@ -137,12 +137,6 @@ const MOCK_LECTURES = {
   },
 };
 
-// ── Scramble / decode effect constants ──
-const SCRAMBLE_CHARS =
-  "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*_-+=<>/\\|[]{}";
-const DECODE_SPEED = 35; // ms per tick
-const STAGGER_PER_CHAR = 0.6; // higher = more sequential resolve
-
 // MAIN PAGE COMPONENT
 export default function EventPage() {
   const params = useParams();
@@ -150,184 +144,228 @@ export default function EventPage() {
 
   const event = MOCK_LECTURES[id] || MOCK_LECTURES[1]; // fallback to first lecture
 
-  // ── Refs for decode-animated text elements ──
-  const titleRef = useRef(null);
-  const dateRef = useRef(null);
-  const venueRef = useRef(null);
-  const priceRef = useRef(null);
-  const descRef = useRef(null);
-  const catchyRef = useRef(null);
-  const speakerRef = useRef(null);
-  const speakerTitleRef = useRef(null);
-  const aboutHeadingRef = useRef(null);
+  // Only trigger warp if user explicitly navigated by clicking a lecture card
+  const [shouldWarp] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return sessionStorage.getItem("lecture_warp_nav") === String(id);
+    } catch (_) {
+      return false;
+    }
+  });
 
-  const [decodeComplete, setDecodeComplete] = useState(false);
+  const [warpDone, setWarpDone] = useState(() => {
+    if (typeof window === "undefined") return true;
+    try {
+      return sessionStorage.getItem("lecture_warp_nav") !== String(id);
+    } catch (_) {
+      return true;
+    }
+  });
+  const warpCanvasRef = useRef(null);
+  const contentRef = useRef(null);
 
-  // ── Scramble decode engine ──
-  // Uses requestAnimationFrame for smooth animation and tracks all timers
-  // for proper cleanup (critical for React strict mode double-mount in dev).
-
-  const randomChar = () =>
-    SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
-
-  const decodeElement = (el, finalText, delay, abortSignal) => {
-    if (!el || !finalText) return;
-    const len = finalText.length;
-
-    // Build per-character resolve thresholds (staggered left→right with jitter)
-    const thresholds = Array.from({ length: len }, (_, i) => {
-      const base = len > 1 ? i / (len - 1) : 0;
-      return Math.min(
-        base * STAGGER_PER_CHAR + Math.random() * (1 - STAGGER_PER_CHAR),
-        1
-      );
-    });
-
-    const totalDuration = 1200; // fixed ms — all elements finish together
-    let startTime = null;
-
-    // Immediately show scrambled text
-    el.textContent = Array.from({ length: len }, (_, i) =>
-      finalText[i] === " " ? " " : randomChar()
-    ).join("");
-
-    const animate = (timestamp) => {
-      if (abortSignal.aborted) return;
-
-      if (!startTime) startTime = timestamp;
-      const elapsed = timestamp - startTime;
-      const progress = Math.min(elapsed / totalDuration, 1);
-
-      let out = "";
-      for (let i = 0; i < len; i++) {
-        const ch = finalText[i];
-        if (ch === " ") {
-          out += ch;
-        } else if (progress >= thresholds[i]) {
-          out += ch;
-        } else {
-          // Cycle through random chars (re-scramble each frame for the "cycling" look)
-          out += randomChar();
-        }
-      }
-      el.textContent = out;
-
-      if (progress >= 1) {
-        el.textContent = finalText;
-      } else {
-        requestAnimationFrame(animate);
-      }
-    };
-
-    // Delay before starting the animation
-    const timer = setTimeout(() => {
-      if (!abortSignal.aborted) {
-        requestAnimationFrame(animate);
-      }
-    }, delay);
-
-    // Return a cleanup that cancels the delay timer
-    // (rAF is cancelled via the abortSignal check)
-    return () => clearTimeout(timer);
-  };
-
-  // ── Run scramble text decode on mount ──
+  // ── Cinematic, 60fps Time-warp entrance animation ──
   useEffect(() => {
-    // AbortController lets us cancel all in-flight rAF loops on cleanup
-    const controller = new AbortController();
-    const timers = [];
-
-    // Title
-    timers.push(
-      decodeElement(
-        titleRef.current,
-        event.heading.toUpperCase(),
-        100,
-        controller.signal
-      )
-    );
-
-    // Info items
-    const formattedDate = new Date(event.datetime).toLocaleDateString("en-IN", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-      timeZone: "Asia/Kolkata",
-    });
-    timers.push(
-      decodeElement(dateRef.current, formattedDate, 100, controller.signal)
-    );
-    timers.push(
-      decodeElement(
-        venueRef.current,
-        event.venue || "TBA",
-        100,
-        controller.signal
-      )
-    );
-    const priceText = event.price === 0 ? "Free" : `₹${event.price / 100}`;
-    timers.push(
-      decodeElement(priceRef.current, priceText, 100, controller.signal)
-    );
-
-    // Speaker
-    timers.push(
-      decodeElement(
-        speakerRef.current,
-        event.speaker || "TBA",
-        100,
-        controller.signal
-      )
-    );
-    timers.push(
-      decodeElement(
-        speakerTitleRef.current,
-        event.speakerTitle || "",
-        100,
-        controller.signal
-      )
-    );
-
-    // Description
-    timers.push(
-      decodeElement(
-        descRef.current,
-        event.description,
-        100,
-        controller.signal
-      )
-    );
-
-    // About heading + catchy para
-    if (event.catchyPara) {
-      timers.push(
-        decodeElement(
-          aboutHeadingRef.current,
-          "ABOUT THIS EVENT",
-          100,
-          controller.signal
-        )
-      );
-      timers.push(
-        decodeElement(
-          catchyRef.current,
-          event.catchyPara,
-          100,
-          controller.signal
-        )
-      );
+    if (!shouldWarp) {
+      setWarpDone(true);
+      return;
     }
 
-    // Mark decode complete
-    const doneTimer = setTimeout(() => setDecodeComplete(true), 3500);
+    // Immediately consume the navigation flag so subsequent refreshes won't warp
+    try {
+      sessionStorage.removeItem("lecture_warp_nav");
+    } catch (_) { }
+
+    const canvas = warpCanvasRef.current;
+    const content = contentRef.current;
+    if (!canvas || !content) {
+      setWarpDone(true);
+      return;
+    }
+
+    const ctx = canvas.getContext("2d");
+    let w = (canvas.width = window.innerWidth);
+    let h = (canvas.height = window.innerHeight);
+    let cx = w / 2;
+    let cy = h / 2;
+    let maxR = Math.hypot(w, h) / 2;
+
+    // Palette for realistic sci-fi hyperspace streaks
+    const COLORS = [
+      "255, 255, 255", // brilliant white
+      "125, 211, 252", // ice cyan
+      "147, 197, 253", // bright blue
+      "199, 210, 254", // pale violet
+    ];
+
+    const NUM_STARS = 70;
+    const stars = Array.from({ length: NUM_STARS }, () => ({
+      angle: Math.random() * Math.PI * 2,
+      dist: 0.02 + Math.random() * 0.95,
+      speed: 0.005 + Math.random() * 0.009,
+      length: 0.8 + Math.random() * 0.8,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      width: 1.2 + Math.random() * 1.8,
+    }));
+
+    const TOTAL_DURATION = 380; // ms (fast, snappy deceleration before reaching details)
+    let startTime = null;
+    let animId = null;
+    let aborted = false;
+
+    // Keep canvas fully transparent so the website's dynamic background stays visible
+    ctx.clearRect(0, 0, w, h);
+
+    const draw = (timestamp) => {
+      if (aborted) return;
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const totalProgress = Math.min(elapsed / TOTAL_DURATION, 1);
+
+      // Clear transparently on every frame to preserve the underlying background
+      ctx.clearRect(0, 0, w, h);
+
+      // ── Hyper-speed deceleration curve ──
+      // Starts fast and rapidly brakes down to a gentle drift
+      const decel = Math.pow(1 - totalProgress, 3);
+      const speedMultiplier = 0.5 + decel * 45;
+
+      // Group stars by color for batched draw calls (huge performance boost)
+      const groups = {};
+      for (const col of COLORS) groups[col] = [];
+
+      for (let i = 0; i < NUM_STARS; i++) {
+        const star = stars[i];
+        star.dist += star.speed * speedMultiplier;
+
+        if (star.dist > 1.05) {
+          star.dist = 0.02;
+          star.angle = Math.random() * Math.PI * 2;
+        }
+
+        // Streak tail visibly shrinks from long beams into pinpoint stars as it decelerates
+        const tailLen = (0.006 + decel * 0.35) * star.length;
+        const tailDist = Math.max(0.005, star.dist - tailLen);
+
+        const cos = Math.cos(star.angle);
+        const sin = Math.sin(star.angle);
+
+        const x1 = cx + cos * tailDist * maxR;
+        const y1 = cy + sin * tailDist * maxR;
+        const x2 = cx + cos * star.dist * maxR;
+        const y2 = cy + sin * star.dist * maxR;
+
+        groups[star.color].push({
+          x1,
+          y1,
+          x2,
+          y2,
+          width: star.width * (0.8 + decel * 0.9),
+          alpha: Math.min(1, 0.2 + decel * 0.8),
+        });
+      }
+
+      // Draw batched streaks
+      for (const col of COLORS) {
+        const batch = groups[col];
+        if (batch.length === 0) continue;
+        ctx.lineCap = "round";
+        for (let j = 0; j < batch.length; j++) {
+          const b = batch[j];
+          ctx.beginPath();
+          ctx.moveTo(b.x1, b.y1);
+          ctx.lineTo(b.x2, b.y2);
+          ctx.strokeStyle = `rgba(${col}, ${b.alpha})`;
+          ctx.lineWidth = b.width;
+          ctx.stroke();
+        }
+      }
+
+      // Central singularity core (hyperspace glow shrinking and fading as speed drops)
+      if (decel > 0.02) {
+        const coreRadius = 16 + decel * 140;
+        const coreAlpha = decel * 0.5;
+        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreRadius);
+        grad.addColorStop(0, `rgba(224, 242, 254, ${coreAlpha})`);
+        grad.addColorStop(0.35, `rgba(96, 165, 250, ${coreAlpha * 0.5})`);
+        grad.addColorStop(1, "rgba(96, 165, 250, 0)");
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, coreRadius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Shockwave ring pulsing outward as the ship brakes out of warp
+      if (totalProgress < 0.35) {
+        const ringT = totalProgress / 0.35;
+        const ringR = ringT * maxR * 0.85;
+        ctx.beginPath();
+        ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(186, 230, 253, ${(1 - ringT) * 0.35})`;
+        ctx.lineWidth = 2 * (1 - ringT);
+        ctx.stroke();
+      }
+
+      // ── Content Reveal & Fade: reaches the details as warp slows down ──
+      if (totalProgress < 0.35) {
+        // Warp is rapidly decelerating in full view before reaching the details
+        content.style.opacity = "0";
+        content.style.transform = "scale(0.97)";
+        canvas.style.opacity = "1";
+      } else {
+        // As warping slows down to near-halt, details of the lecture emerge smoothly
+        const revealProgress = Math.min(1, (totalProgress - 0.35) / 0.65);
+        const easedReveal = 1 - Math.pow(1 - revealProgress, 2.5);
+        content.style.opacity = String(easedReveal);
+        content.style.transform = `scale(${0.97 + easedReveal * 0.03})`;
+
+        // Canvas fades out gently towards the end of the deceleration
+        if (totalProgress > 0.6) {
+          canvas.style.opacity = String(Math.max(0, 1 - (totalProgress - 0.6) / 0.4));
+        } else {
+          canvas.style.opacity = "1";
+        }
+      }
+
+      if (totalProgress < 1) {
+        animId = requestAnimationFrame(draw);
+      } else {
+        // Warp deceleration complete: reveal details fully and trigger scramble decode
+        content.style.opacity = "1";
+        content.style.transform = "scale(1)";
+        content.style.filter = "none";
+        canvas.style.display = "none";
+        setWarpDone(true);
+      }
+    };
+
+    animId = requestAnimationFrame(draw);
+
+    const handleResize = () => {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+      cx = w / 2;
+      cy = h / 2;
+      maxR = Math.hypot(w, h) / 2;
+      ctx.clearRect(0, 0, w, h);
+    };
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      // Abort all rAF loops + clear all delay timers
-      controller.abort();
-      timers.forEach((fn) => fn && fn());
-      clearTimeout(doneTimer);
+      aborted = true;
+      if (animId) cancelAnimationFrame(animId);
+      window.removeEventListener("resize", handleResize);
+      if (canvas) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      if (content) {
+        content.style.opacity = "1";
+        content.style.transform = "scale(1)";
+        content.style.filter = "none";
+      }
     };
-  }, [event]);
+  }, [shouldWarp]);
 
   const formatTime = (timeString) => {
     if (!timeString) return "TBA";
@@ -340,12 +378,24 @@ export default function EventPage() {
     });
   };
 
+  const formatDate = (timeString) => {
+    if (!timeString) return "TBA";
+    const date = new Date(timeString);
+    return date.toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      timeZone: "Asia/Kolkata",
+    });
+  };
+
   // Prepare event data
   const eventData = {
     id: event.id,
     name: event.heading,
+    date: formatDate(event.datetime),
     time: formatTime(event.datetime),
-    venue: event.venue || null,
+    venue: event.venue || "TBA",
     price: event.price === 0 ? "Free" : `₹${event.price / 100}`,
     description: event.description || "No description available",
     catchyPara: event.catchyPara || null,
@@ -358,6 +408,20 @@ export default function EventPage() {
 
   return (
     <div className="bg-transparent min-h-screen py-4 sm:py-10 px-4 sm:px-8 text-white" style={{ position: "relative", overflow: "hidden" }}>
+      {/* Time-warp canvas overlay */}
+      <canvas
+        ref={warpCanvasRef}
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 50,
+          pointerEvents: "none",
+          width: "100vw",
+          height: "100vh",
+          display: shouldWarp ? "block" : "none",
+        }}
+      />
+
       <style jsx>{`
         .scramble-text {
           font-family: "PP Fragment", monospace;
@@ -564,7 +628,19 @@ export default function EventPage() {
         }
       `}</style>
 
-      <div className="max-w-6xl mx-auto">
+      <div
+        ref={contentRef}
+        className="max-w-6xl mx-auto"
+        style={
+          shouldWarp && !warpDone
+            ? {
+              opacity: 0,
+              transform: "scale(0.96)",
+              willChange: "opacity, transform",
+            }
+            : undefined
+        }
+      >
         {/* Header Section */}
         <div className="mb-12">
           <Link href="/lectures" className="back-link">
@@ -573,11 +649,8 @@ export default function EventPage() {
           </Link>
           <h1
             className="text-4xl sm:text-5xl md:text-6xl pp-fragment font-medium tracking-wide mt-4 text-white uppercase"
-            style={{ minHeight: "1.2em" }}
           >
-            <span ref={titleRef} className="scramble-text">
-              &nbsp;
-            </span>
+            {eventData.name}
           </h1>
         </div>
 
@@ -602,9 +675,7 @@ export default function EventPage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-6">
               <div>
                 <p className="info-label">Date</p>
-                <p className="info-value">
-                  <span ref={dateRef}>&nbsp;</span>
-                </p>
+                <p className="info-value">{eventData.date}</p>
               </div>
               <div>
                 <p className="info-label">Time</p>
@@ -612,15 +683,11 @@ export default function EventPage() {
               </div>
               <div>
                 <p className="info-label">Venue</p>
-                <p className="info-value">
-                  <span ref={venueRef}>&nbsp;</span>
-                </p>
+                <p className="info-value">{eventData.venue}</p>
               </div>
               <div>
                 <p className="info-label">Price</p>
-                <p className="info-value">
-                  <span ref={priceRef}>&nbsp;</span>
-                </p>
+                <p className="info-value">{eventData.price}</p>
               </div>
             </div>
 
@@ -632,14 +699,16 @@ export default function EventPage() {
                   <span className="speaker-dot" />
                   <div>
                     <p className="info-value text-sm" style={{ minHeight: "auto" }}>
-                      <span ref={speakerRef}>&nbsp;</span>
+                      {eventData.speaker}
                     </p>
-                    <p
-                      className="text-xs text-gray-400"
-                      style={{ fontFamily: "Inter, sans-serif" }}
-                    >
-                      <span ref={speakerTitleRef}>&nbsp;</span>
-                    </p>
+                    {eventData.speakerTitle && (
+                      <p
+                        className="text-xs text-gray-400"
+                        style={{ fontFamily: "Inter, sans-serif" }}
+                      >
+                        {eventData.speakerTitle}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -652,9 +721,8 @@ export default function EventPage() {
             <div>
               <p
                 className="text-base leading-relaxed text-gray-300 whitespace-pre-line break-words"
-                style={{ minHeight: "3em" }}
               >
-                <span ref={descRef}>&nbsp;</span>
+                {eventData.description}
               </p>
 
               {eventData.catchyPara && (
@@ -719,17 +787,16 @@ export default function EventPage() {
               className="text-2xl font-medium pp-fragment text-white mb-4 pb-3"
               style={{
                 borderBottom: "1px solid rgba(255,255,255,0.1)",
-                minHeight: "1.2em",
               }}
             >
-              <span ref={aboutHeadingRef}>&nbsp;</span>
+              ABOUT THIS EVENT
             </h2>
             <div className="prose prose-invert max-w-none">
               <p
                 className="text-base leading-relaxed text-gray-300 whitespace-pre-line break-words"
-                style={{ fontFamily: "PP Fragment, sans-serif", minHeight: "3em" }}
+                style={{ fontFamily: "PP Fragment, sans-serif" }}
               >
-                <span ref={catchyRef}>&nbsp;</span>
+                {eventData.catchyPara}
               </p>
             </div>
           </div>

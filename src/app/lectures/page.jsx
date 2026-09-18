@@ -217,6 +217,7 @@ export default function LecturesPage() {
   const pageRef = useRef(null);
   const transitionOverlayRef = useRef(null);
   const transitionImgRef = useRef(null);
+  const transitionWarpCanvasRef = useRef(null);
   const transitionTlRef = useRef(null);
 
   useEffect(() => {
@@ -1446,6 +1447,11 @@ export default function LecturesPage() {
       return;
     }
 
+    // Record that navigation originated from an explicit card click
+    try {
+      sessionStorage.setItem("lecture_warp_nav", String(id));
+    } catch (_) {}
+
     // Step 17: Reduced motion check
     if (prefersReducedMotion.current) {
       isNavigatingRef.current = true;
@@ -1511,13 +1517,14 @@ export default function LecturesPage() {
     });
   };
 
-  // ── Zoom Animation Effect ──
+  // ── Zoom & Warp Animation Effect: Warp runs simultaneously DURING image enlargement ──
   useEffect(() => {
     if (!activeTransition) return;
 
     const { id, href } = activeTransition;
     const overlayEl = transitionOverlayRef.current;
     const imgEl = transitionImgRef.current;
+    const canvas = transitionWarpCanvasRef.current;
     const clickedCard = cardRefs.current[id];
 
     if (!overlayEl) return;
@@ -1527,24 +1534,164 @@ export default function LecturesPage() {
       gsap.set(clickedCard, { opacity: 0 });
     }
 
+    // ── 1. Setup Warp Canvas (transparent, polar coordinates, 60fps) ──
+    let animId = null;
+    let aborted = false;
+
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      let w = (canvas.width = window.innerWidth);
+      let h = (canvas.height = window.innerHeight);
+      let cx = w / 2;
+      let cy = h / 2;
+      let maxR = Math.hypot(w, h) / 2;
+
+      ctx.clearRect(0, 0, w, h);
+
+      const COLORS = [
+        "255, 255, 255", // brilliant white
+        "125, 211, 252", // ice cyan
+        "147, 197, 253", // bright blue
+        "199, 210, 254", // pale violet
+      ];
+
+      const NUM_STARS = 70;
+      const stars = Array.from({ length: NUM_STARS }, () => ({
+        angle: Math.random() * Math.PI * 2,
+        dist: 0.02 + Math.random() * 0.95,
+        speed: 0.005 + Math.random() * 0.01,
+        length: 0.8 + Math.random() * 0.8,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        width: 1.2 + Math.random() * 1.8,
+      }));
+
+      const WARP_DURATION = 360; // ms (fast snappy hyper-jump)
+      let startTime = null;
+
+      const drawWarp = (timestamp) => {
+        if (aborted) return;
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+        const progress = Math.min(elapsed / WARP_DURATION, 1);
+
+        ctx.clearRect(0, 0, w, h);
+
+        // Smooth cubic acceleration curve that accelerates as image expands
+        const accel = progress * progress * progress;
+
+        // Group stars by color for batched draw calls
+        const groups = {};
+        for (const col of COLORS) groups[col] = [];
+
+        for (let i = 0; i < NUM_STARS; i++) {
+          const star = stars[i];
+          star.dist += star.speed * (1 + accel * 32);
+
+          if (star.dist > 1.05) {
+            star.dist = 0.02;
+            star.angle = Math.random() * Math.PI * 2;
+          }
+
+          const tailLen = (0.02 + accel * 0.35) * star.length;
+          const tailDist = Math.max(0.01, star.dist - tailLen);
+
+          const cos = Math.cos(star.angle);
+          const sin = Math.sin(star.angle);
+
+          const x1 = cx + cos * tailDist * maxR;
+          const y1 = cy + sin * tailDist * maxR;
+          const x2 = cx + cos * star.dist * maxR;
+          const y2 = cy + sin * star.dist * maxR;
+
+          groups[star.color].push({
+            x1,
+            y1,
+            x2,
+            y2,
+            width: star.width * (1 + accel * 0.9),
+            alpha: Math.min(1, 0.45 + accel * 0.55),
+          });
+        }
+
+        // Draw batched streaks
+        for (const col of COLORS) {
+          const batch = groups[col];
+          if (batch.length === 0) continue;
+          ctx.lineCap = "round";
+          for (let j = 0; j < batch.length; j++) {
+            const b = batch[j];
+            ctx.beginPath();
+            ctx.moveTo(b.x1, b.y1);
+            ctx.lineTo(b.x2, b.y2);
+            ctx.strokeStyle = `rgba(${col}, ${b.alpha})`;
+            ctx.lineWidth = b.width;
+            ctx.stroke();
+          }
+        }
+
+        // Central singularity glow
+        const coreRadius = 24 + accel * 160;
+        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreRadius);
+        grad.addColorStop(0, `rgba(224, 242, 254, ${0.4 + accel * 0.5})`);
+        grad.addColorStop(0.35, `rgba(96, 165, 250, ${0.2 + accel * 0.3})`);
+        grad.addColorStop(1, "rgba(96, 165, 250, 0)");
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, coreRadius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Expanding shockwave rings as warp peaks
+        if (accel > 0.35) {
+          const ringT = (accel - 0.35) / 0.65;
+          const ringR = ringT * maxR * 0.85;
+          ctx.beginPath();
+          ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(186, 230, 253, ${(1 - ringT) * 0.45})`;
+          ctx.lineWidth = 2 + ringT * 3;
+          ctx.stroke();
+        }
+
+        // Radiant lens flash towards the climax (from 72% to 100%)
+        if (progress > 0.72) {
+          const flashT = (progress - 0.72) / 0.28;
+          const flashAlpha = Math.sin(flashT * Math.PI) * 0.55;
+          if (flashAlpha > 0.01) {
+            const flashGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
+            flashGrad.addColorStop(0, `rgba(224, 242, 254, ${flashAlpha})`);
+            flashGrad.addColorStop(0.4, `rgba(147, 197, 253, ${flashAlpha * 0.6})`);
+            flashGrad.addColorStop(1, "rgba(147, 197, 253, 0)");
+            ctx.fillStyle = flashGrad;
+            ctx.fillRect(0, 0, w, h);
+          }
+        }
+
+        if (!aborted) {
+          animId = requestAnimationFrame(drawWarp);
+        }
+      };
+
+      animId = requestAnimationFrame(drawWarp);
+    }
+
+    // ── 2. GSAP Timeline for the Card Enlargement ──
     const tl = gsap.timeline();
     transitionTlRef.current = tl;
 
-    // 1. Surrounding UI and page text fade to 0 opacity while receding back in 3D space
+    // Surrounding page elements fade out quickly
     if (pageRef.current) {
       tl.to(
         pageRef.current,
         {
           opacity: 0,
-          scale: 0.94,
-          duration: 0.8,
-          ease: "power3.inOut",
+          scale: 0.96,
+          duration: 0.28,
+          ease: "power2.inOut",
         },
         0
       );
     }
 
-    // 2. Smoothly expand image overlay to fill viewport edge-to-edge
+    // Image card expands smoothly to fill viewport
     tl.to(
       overlayEl,
       {
@@ -1554,65 +1701,62 @@ export default function LecturesPage() {
         height: window.innerHeight,
         borderRadius: "0px",
         boxShadow: "0 0 0px rgba(0,0,0,0)",
-        duration: 0.8,
-        ease: "power3.inOut",
+        duration: 0.38,
+        ease: "power2.out",
       },
       0
     );
+
+    // Card background/shadow fades out cleanly so only the zooming image and warp are prominent
     tl.to(
-      imgEl,
+      overlayEl,
       {
         opacity: 0,
         duration: 0.22,
-        ease: "power2.in",
+        ease: "power1.inOut",
       },
-      0.18
+      0.16
     );
 
-    // 3. Subtle camera-push scale on inner image to reinforce moving into the space
+    // Inner image zooms in and dissolves into the warp tunnel
     if (imgEl) {
       tl.to(
         imgEl,
         {
-          scale: 1.08,
-          duration: 0.8,
-          ease: "power3.inOut",
+          scale: 1.22,
+          duration: 0.38,
+          ease: "power2.out",
         },
         0
       );
+      tl.to(
+        imgEl,
+        {
+          opacity: 0,
+          duration: 0.28,
+          ease: "power2.out",
+        },
+        0.1
+      );
     }
 
-    // 4. Trigger Next.js navigation cleanly at 85% of timeline completion
-    tl.to(
-      imgEl,
-      {
-        opacity: 0,
-        duration: 0.25,
-        ease: "power2.inOut",
-      },
-      0.8
-    );
-
+    // Navigate right at peak warp climax (at 0.34s)
     tl.add(() => {
       router.push(href);
-      // B1/B4 fix: release the navigation lock and restore normal pointer
-      // interaction once the push has actually been issued, so an
-      // interrupted/failed navigation can't leave hover and click
-      // handling permanently disabled.
       isNavigatingRef.current = false;
       if (gridRef.current) {
         gridRef.current.style.pointerEvents = "";
         gridRef.current.style.cursor = "";
       }
-    }, 1.05);
+    }, 0.34);
 
     return () => {
+      aborted = true;
+      if (animId) cancelAnimationFrame(animId);
       if (transitionTlRef.current) {
         transitionTlRef.current.kill();
         transitionTlRef.current = null;
       }
-      // B1/B4 fix: also release the lock/pointer-block if this effect is
-      // cleaned up before reaching the push above (e.g. an early unmount).
       isNavigatingRef.current = false;
       if (gridRef.current) {
         gridRef.current.style.pointerEvents = "";
@@ -2134,40 +2278,55 @@ export default function LecturesPage() {
         )}
       </div>
 
-      {/* ── Temporary Transition Portal Element ── */}
+      {/* ── Temporary Transition Portal Element: Enlarging Image + Warp Overlay ── */}
       {mounted &&
         activeTransition &&
         createPortal(
-          <div
-            ref={transitionOverlayRef}
-            style={{
-              position: "fixed",
-              left: `${activeTransition.rect.left}px`,
-              top: `${activeTransition.rect.top}px`,
-              width: `${activeTransition.rect.width}px`,
-              height: `${activeTransition.rect.height}px`,
-              zIndex: 99999,
-              overflow: "hidden",
-              borderRadius: "6px",
-              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.7)",
-              pointerEvents: "none",
-              willChange: "left, top, width, height, border-radius",
-            }}
-          >
-            <img
-              ref={transitionImgRef}
-              src={activeTransition.displayImage}
-              alt="Transitioning Lecture"
+          <>
+            <div
+              ref={transitionOverlayRef}
               style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                display: "block",
-                transformOrigin: "center center",
-                willChange: "transform",
+                position: "fixed",
+                left: `${activeTransition.rect.left}px`,
+                top: `${activeTransition.rect.top}px`,
+                width: `${activeTransition.rect.width}px`,
+                height: `${activeTransition.rect.height}px`,
+                zIndex: 99998,
+                overflow: "hidden",
+                borderRadius: "6px",
+                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.7)",
+                pointerEvents: "none",
+                willChange: "left, top, width, height, border-radius",
+              }}
+            >
+              <img
+                ref={transitionImgRef}
+                src={activeTransition.displayImage}
+                alt="Transitioning Lecture"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  display: "block",
+                  transformOrigin: "center center",
+                  willChange: "transform",
+                }}
+              />
+            </div>
+
+            {/* Hyperspace warp canvas running DURING image enlargement */}
+            <canvas
+              ref={transitionWarpCanvasRef}
+              style={{
+                position: "fixed",
+                inset: 0,
+                zIndex: 99999,
+                pointerEvents: "none",
+                width: "100vw",
+                height: "100vh",
               }}
             />
-          </div>,
+          </>,
           document.body
         )}
 
