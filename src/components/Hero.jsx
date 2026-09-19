@@ -66,7 +66,7 @@ export default function Hero({ refs }) {
 
   return (
     <header
-      className='relative flex min-h-[100svh] w-full flex-col items-center justify-center overflow-hidden bg-transparent py-24 text-white sm:py-16 pointer-events-none'
+      className='relative flex min-h-[100svh] w-full flex-col items-center justify-center overflow-hidden bg-transparent py-10 text-white sm:py-16 pointer-events-none'
       style={{ fontFamily: 'PPFragment, sans-serif' }}
     >
 

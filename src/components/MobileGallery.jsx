@@ -82,7 +82,7 @@ const MobileGallery = forwardRef((props, ref) => {
     if (!el) return;
 
     const center = el.scrollLeft + el.clientWidth / 2;
-    const maxDist = el.clientWidth / 2;
+    const maxDist = el.clientWidth * 0.4;
 
     const cards = el.querySelectorAll("[data-gallery-item]");
     const updates = [];
@@ -90,17 +90,21 @@ const MobileGallery = forwardRef((props, ref) => {
     cards.forEach((card) => {
       const cardCenter = card.offsetLeft + card.offsetWidth / 2;
       const distance = Math.abs(cardCenter - center);
-      const factor = 1 - Math.min(1, distance / maxDist);
+      // Sharper falloff: pow(2) makes it drop off faster from center
+      const rawFactor = 1 - Math.min(1, distance / maxDist);
+      const factor = Math.pow(rawFactor, 2);
       updates.push({
         card,
-        scale: 0.5 + factor * 0.5,
-        opacity: 0.3 + factor * 0.7,
+        scale: 0.75 + factor * 0.25,
+        opacity: 0.5 + factor * 0.5,
+        blur: (1 - factor) * 1.2,
       });
     });
 
-    updates.forEach(({ card, scale, opacity }) => {
-      card.style.transform = `scale(${scale})`; 
+    updates.forEach(({ card, scale, opacity, blur }) => {
+      card.style.transform = `scale(${scale})`;
       card.style.opacity = opacity;
+      card.style.filter = blur > 0.1 ? `blur(${blur}px)` : 'none';
     });
   };
 
@@ -235,24 +239,25 @@ const MobileGallery = forwardRef((props, ref) => {
       onTouchStart={handleMouseEnter}
       onTouchEnd={handleMouseLeave}
       style={{ scrollBehavior: "auto" }}
-      className="relative overflow-x-scroll snap-x py-16 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden w-full flex items-center"
+      className="relative overflow-x-scroll snap-x snap-mandatory py-4 sm:py-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden w-full flex items-center"
     >
-      <div className="flex items-center gap-4 px-[15vw]">
+      <div className="flex items-center gap-3 px-[20vw]">
         {GalleryImages.map((img) => (
           <div
             key={img.id}
             data-gallery-item
             className="shrink-0 snap-center"
             style={{
-              width: "70vw",
+              width: "60vw",
               maxWidth: "420px",
-              willChange: "transform",
+              willChange: "transform, opacity, filter",
+              transition: "transform 0.4s ease-out, opacity 0.4s ease-out, filter 0.4s ease-out",
             }}
           >
             <img
               src={img.src}
               alt={img.alt}
-              className="w-full h-80 sm:h-100 object-cover rounded-lg shadow-2xl shadow-black/60 border border-white/10"
+              className="w-full h-80 sm:h-100 object-cover rounded-xl shadow-2xl shadow-black/60 border border-white/10"
               draggable={false}
             />
           </div>
