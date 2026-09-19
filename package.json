@@ -12,6 +12,7 @@
     "@react-three/drei": "^10.7.6",
     "@react-three/fiber": "^9.4.0",
     "axios": "^1.12.2",
+    "better-auth": "^1.7.5",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.2.5",
     "gsap": "^3.13.0",

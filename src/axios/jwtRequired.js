@@ -1,48 +1,10 @@
-import axios from "axios";
-import { toast } from "react-hot-toast";
-
-
-
-const isTokenExpired = (token) => {
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    const currentTime = Math.floor(Date.now() / 1000);
-    return payload.exp < currentTime;
-  } catch (error) {
-    console.error("Error decoding token:", error);
-    return true; // Assume expired if there's an error
-  }
-};
-
-const jwtRequired = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API || "http://localhost:5000",
-});
-
-jwtRequired.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("jwt");
-
-    if (!token || isTokenExpired(token)) {
-      localStorage.removeItem("jwt");
-      toast.error("Session expired. Please login again.");
-
-      // 2. USE window.location to redirect.
-      // This forces a full page reload to the homepage.
-      if (typeof window !== "undefined") {
-        setTimeout(() => {
-          window.location.href = "/";
-        }, 2000);
-      }
-
-      return Promise.reject(new Error("Session expired"));
-    }
-
-    config.headers["Authorization"] = `Bearer ${token}`;
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
+// DEAD CODE — nothing imports this any more.
+//
+// Auth moved to better-auth: the session is an httpOnly cookie the browser
+// attaches itself, so there is no token for JS to read, decode or expire.
+// Use `@/lib/api` (axios with `withCredentials: true`) instead.
+//
+// This file is kept only so the deletion shows up as a deliberate commit.
+throw new Error(
+  "jwtRequired has been removed — import `@/lib/api` instead (cookie-based auth).",
 );
-
-export default jwtRequired;

@@ -1,122 +1,48 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import jwtRequired from "@/axios/jwtRequired";
-import Link from "next/link"; // Import Link for navigation
-import ProfileClient from "@/components/Profile_Page_Components/ProfileClient";
-import BackendStatus from "@/components/BackendStatus";
-
-const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
+import Link from "next/link";
+import ProfileSummary from "@/components/Profile_Page_Components/ProfileSummary";
+import { useUserContext } from "@/context/UserContext";
 
 export default function ProfilePage() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { user, isLoggedIn, authLoading } = useUserContext();
   const router = useRouter();
 
   useEffect(() => {
-    if (!backendEnabled) {
-      setLoading(false);
-      return;
-    }
+    if (authLoading) return;
+    if (!isLoggedIn) router.replace("/");
+  }, [authLoading, isLoggedIn, router]);
 
-    const tokenFromQuery = new URLSearchParams(window.location.search).get(
-      "token",
-    );
-
-    if (tokenFromQuery) {
-      localStorage.setItem("jwt", tokenFromQuery);
-      window.history.replaceState({}, "", "/profile");
-    }
-
-    const token = localStorage.getItem("jwt");
-
-    if (!token) {
-      console.error("Login to access profile");
-      router.push("/");
-      setLoading(false);
-      return;
-    }
-
-    const fetchUser = async () => {
-      try {
-        const res = await jwtRequired.get("/api/users");
-
-        const userRaw = res.data;
-
-        const formattedUser = {
-          id: userRaw.id,
-          name: userRaw.name,
-          tat_id: userRaw.referral,
-          phone_number: userRaw.phone,
-          college: userRaw.college,
-          district: userRaw.district,
-          picture: userRaw.picture ?? "/pfp_dev/userFile.webp",
-          referredById: userRaw.referredById,
-          referredByName: userRaw.referredByName,
-          events: userRaw.events ?? [],
-        };
-
-        setUser(formattedUser);
-      } catch (err) {
-        console.error("Error fetching user:", err.message);
-        toast.error(err.message || "Failed to load user data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, [router]);
-
-  if (!backendEnabled) {
+  if (authLoading) {
     return (
-      <BackendStatus
-        title="Profile coming soon"
-        message="Login and profile features will be available soon."
-      />
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="relative">
-          <div className="w-16 h-16 border-4 border-blue-200 rounded-full"></div>
-          <div className="w-16 h-16 border-4 border-black rounded-full border-t-transparent absolute top-0 left-0 animate-spin"></div>
+          <div className="h-16 w-16 rounded-full border-4 border-white/20" />
+          <div className="absolute left-0 top-0 h-16 w-16 animate-spin rounded-full border-4 border-white border-t-transparent" />
         </div>
       </div>
     );
   }
 
-  const PageContainer = ({ children }) => (
-    <div className="">
+  if (!isLoggedIn) return null;
+
+  return (
+    <div>
       <Link
         href="/"
-        className="absolute top-5 left-10 z-20"
+        className="absolute left-10 top-5 z-20 text-white transition-colors hover:text-cyan-400"
         style={{
           textDecoration: "none",
-          color: "inherit",
           marginBottom: "1.5rem",
           display: "inline-block",
         }}
       >
-        <span style={{ fontWeight: "bold", fontSize: "1.5rem" }}>
-          &larr; Home
-        </span>
+        <span style={{ fontWeight: "bold", fontSize: "1.5rem" }}>&larr; Home</span>
       </Link>
 
-      {children}
+      <ProfileSummary user={user} />
     </div>
-  );
-
-  if (!user) {
-    return <div></div>;
-  }
-
-  return (
-    <PageContainer>
-      <ProfileClient user={user} />
-    </PageContainer>
   );
 }

@@ -1,19 +1,19 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useUserContext } from "@/context/UserContext";
 
-// Onboarding is disabled until the profile API is ready. Redirect signed-in
-// users to /profile and guests back home.
-export default function OnboardingPage() {
-  const router = useRouter();
+// OAuth landing page. Google returns to the backend callback, which sets the
+// httpOnly session cookie and redirects here with no token in the URL.
+// better-auth restores the session — this page waits for that and routes to
+// /profile or back home if sign-in failed.
+export default function GoogleCallbackPage() {
   const { isLoggedIn, authLoading } = useUserContext();
 
   useEffect(() => {
     if (authLoading) return;
-    router.replace(isLoggedIn ? "/profile" : "/");
-  }, [authLoading, isLoggedIn, router]);
+    window.location.replace(isLoggedIn ? "/profile" : "/");
+  }, [authLoading, isLoggedIn]);
 
   return (
     <div className="flex min-h-screen items-center justify-center">

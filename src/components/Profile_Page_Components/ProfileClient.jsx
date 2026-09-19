@@ -15,10 +15,11 @@ import {
 import EditModal from "./EditModal";
 import EventsModal from "./EventsModal";
 import { useRouter } from "next/navigation";
-import axios from "axios";
-import jwtRequired from "@/axios/jwtRequired";
+import api from "@/lib/api";
+import { useUserContext } from "@/context/UserContext";
 
 export default function ProfileClient({ user }) {
+  const { logout, refreshProfile } = useUserContext();
   // ...existing code...
   const [modalOpen, setModalOpen] = useState(false);
   const [eventsModalOpen, setEventsModalOpen] = useState(false);
@@ -68,16 +69,8 @@ export default function ProfileClient({ user }) {
       }
 
       try {
-        const token = localStorage.getItem("jwt");
-        if (!token) throw new Error("Authentication token not found.");
-
         // fetch bookings
-        const bookingsResp = await axios.get(
-          `${process.env.NEXT_PUBLIC_API}/api/booking/getbooking`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const bookingsResp = await api.get("/api/booking/getbooking");
 
         const data = bookingsResp.data;
         const fetchedBookings = data.bookings || [];
@@ -91,12 +84,7 @@ export default function ProfileClient({ user }) {
 
         // fetch referrals
         try {
-          const refResp = await axios.get(
-            `${process.env.NEXT_PUBLIC_API}/api/referrals/`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
+          const refResp = await api.get("/api/referrals/");
 
           const refData = refResp.data || {};
           const allReferrals = refData.referrals || [];
@@ -119,7 +107,7 @@ export default function ProfileClient({ user }) {
           );
 
           try {
-            const accomResp = await jwtRequired.get(`${process.env.NEXT_PUBLIC_API}/api/accomodation/`);
+            const accomResp = await api.get("/api/accomodation/");
             console.log(accomResp);
             const confirmedBookings = (accomResp.data.roomBookings || []).filter(
                 (booking) => booking.status === "CONFIRMED"
@@ -185,11 +173,6 @@ export default function ProfileClient({ user }) {
 
     setIsSaving(true);
     try {
-      const token = localStorage.getItem("jwt");
-      if (!token) {
-        throw new Error("Authentication token not found.");
-      }
-
       const fieldMapping = {
         phone_number: "phone",
         college: "college",
@@ -199,22 +182,13 @@ export default function ProfileClient({ user }) {
 
       const apiFieldKey = fieldMapping[editingField] || editingField;
 
-      const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_API}/api/users/`,
-        { [apiFieldKey]: value },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await api.put("/api/users/", { [apiFieldKey]: value });
 
-      // axios throws on non-2xx; response.data contains returned payload
-      const data = response.data;
       setCurrentUser({ ...currentUser, [editingField]: value });
       setEditingField(null);
       setTempValue("");
+      // Keep the shared context in step with what was just saved.
+      refreshProfile();
     } catch (error) {
       console.error("Error updating user:", error);
       alert("Failed to update. Please try again.");
@@ -710,8 +684,8 @@ export default function ProfileClient({ user }) {
                         )}
                       </button>
                       <button
-                        onClick={() => {
-                          localStorage.removeItem("jwt");
+                        onClick={async () => {
+                          await logout();
                           router.push("/");
                         }}
                         className="bg-white hover:bg-gray-300 text-black px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2"

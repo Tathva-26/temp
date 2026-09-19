@@ -1,12 +1,16 @@
+"use client";
+
 import React, { useState } from "react";
 import { ChevronRight, Phone, GraduationCap, Users } from "lucide-react";
-import axios from "axios";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
+import api from "@/lib/api";
+import { useUserContext } from "@/context/UserContext";
 
 export default function OnboardingFlow() {
   const [step, setStep] = useState(1);
   const router = useRouter();
+  const { refreshProfile } = useUserContext();
   const [formData, setFormData] = useState({
     phone: "",
     college: "",
@@ -40,17 +44,6 @@ export default function OnboardingFlow() {
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
 
-    if (process.env.NEXT_PUBLIC_BACKEND_ENABLED === "false") {
-      toast.info("Profile setup is coming soon.");
-      return;
-    }
-
-    const token = localStorage.getItem("jwt");
-    if (!token) {
-      alert("Unauthorized: No JWT token found");
-      return;
-    }
-
     const dataToSend = { ...formData };
 
     // If referral field is empty, remove it from payload
@@ -59,20 +52,15 @@ export default function OnboardingFlow() {
     }
 
     try {
-      const res = await axios.put(
-        `${process.env.NEXT_PUBLIC_API}/api/users`,
-        dataToSend,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        },
-      );
-
+      await api.put("/api/users", dataToSend);
+      // Pull the saved profile back into the context so the /profile guard
+      // sees isComplete and stops bouncing back here.
+      await refreshProfile();
       router.push("/profile");
     } catch (error) {
-      toast.error(error.response || error);
+      toast.error(
+        error.response?.data?.message || "Could not save your details. Please try again.",
+      );
     }
   };
 
