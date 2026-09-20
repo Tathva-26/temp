@@ -127,7 +127,7 @@ export default function WorkshopsPage() {
                   <SectionCard
                     title={heading ?? "Untitled"}
                     description={description ?? "No description available"}
-                    price={formatPrice(price)}
+                    price={(formatPrice(price))/100}
                     image={picture}
                     date={formatDate(datetime)}
                     // `venue` is an object on the API; interpolating it
