@@ -10,9 +10,9 @@ export default function Modal({
   if (!isOpen) return null
 
   console.log(workshopData.price)
-  const basePrice = Number(workshopData.price) || 0
+  const basePrice = Number(workshopData.price) / 100 || 0
 
-  const platformFeePercent = 2.0
+  const platformFeePercent = 2.5
   const gstPercent = 18
 
   const platformFee = (platformFeePercent / 100) * basePrice
