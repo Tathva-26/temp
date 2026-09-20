@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { LogOut, Mail, User } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Camera, LogOut, Mail, User } from "lucide-react";
 import toast from "react-hot-toast";
 
 import api, { apiErrorMessage } from "@/lib/api";
@@ -139,6 +139,17 @@ export default function ProfileSummary({ user }) {
 
   const [form, setForm] = useState({});
   const [saving, setSaving] = useState(false);
+  const [photo, setPhoto] = useState(null);
+
+  const photoPreview = useMemo(
+    () => (photo ? URL.createObjectURL(photo) : null),
+    [photo],
+  );
+
+  useEffect(() => {
+    if (!photoPreview) return;
+    return () => URL.revokeObjectURL(photoPreview);
+  }, [photoPreview]);
 
   // Referral figures are aggregates from TIQR and only exist for a CA.
   const [referral, setReferral] = useState(null);
@@ -175,16 +186,26 @@ export default function ProfileSummary({ user }) {
         : trimmed;
     }
 
-    if (Object.keys(payload).length === 0) {
+    if (Object.keys(payload).length === 0 && !photo) {
       toast("Nothing to save.");
       return;
     }
 
+    // Multipart, so the optional photo travels with the fields in one request.
+    const body = new FormData();
+    for (const [key, value] of Object.entries(payload)) body.append(key, value);
+    if (photo) body.append("image", photo);
+
     setSaving(true);
     try {
-      await api.put("/api/user/", payload);
+      // The instance defaults to JSON, which makes axios flatten FormData and
+      // drop the file. Overriding it sends real multipart.
+      await api.put("/api/user/", body, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       await refreshProfile();
       setForm({});
+      setPhoto(null);
       toast.success("Profile updated");
     } catch (err) {
       toast.error(apiErrorMessage(err, "Could not update your profile."));
@@ -198,18 +219,30 @@ export default function ProfileSummary({ user }) {
       {/* Identity */}
       <div className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-md">
         <div className="mb-8 flex flex-col items-center text-center">
-          {user.picture ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={user.picture}
-              alt=""
-              className="mb-4 h-24 w-24 rounded-full border-2 border-white/20 object-cover"
+          <label className="group relative mb-4 cursor-pointer">
+            {photoPreview || user.picture ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={photoPreview || user.picture}
+                alt=""
+                className="h-24 w-24 rounded-full border-2 border-white/20 object-cover"
+              />
+            ) : (
+              <div className="flex h-24 w-24 items-center justify-center rounded-full border-2 border-white/20 bg-white/10">
+                <User size={40} className="text-white/70" />
+              </div>
+            )}
+            <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+              <Camera size={22} className="text-white" />
+            </span>
+            <input
+              type="file"
+              accept="image/*"
+              hidden
+              disabled={saving}
+              onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
             />
-          ) : (
-            <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-full border-2 border-white/20 bg-white/10">
-              <User size={40} className="text-white/70" />
-            </div>
-          )}
+          </label>
           <h1 className="text-2xl font-bold text-white">
             {user.name || "Your profile"}
           </h1>

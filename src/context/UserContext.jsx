@@ -26,9 +26,8 @@ const { signIn, signOut, useSession } = createAuthClient({
 /**
  * `GET /api/user/` answers with the user object at the top level — no wrapper
  * — carrying exactly: id, email, name, phone, referralCode, college, district,
- * state, role, branch, semester, year. Note what is *not* there: `picture` is
- * not selected by that endpoint, so the avatar falls back to the Google image
- * on the session.
+ * state, role, branch, semester, year, picture. `picture` is null until the
+ * user uploads one, so the avatar falls back to the Google image on the session.
  */
 function normalizeProfile(data) {
   if (!data || (!data.id && !data.email)) return null;
@@ -114,8 +113,6 @@ export default function UserContextWrapper({ children }) {
     if (!profile) return null;
     return {
       ...profile,
-      // GET /api/user/ does not return a picture, so the session's Google
-      // image is the real source here, not a fallback.
       picture:
         profile.picture || sessionUser?.image || "/pfp_dev/userFile.webp",
     };
