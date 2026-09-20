@@ -5,34 +5,36 @@ import { notFound } from "next/navigation";
 import ModalWrapper from "@/components/modelWrapper";
 import BrochureButton from "@/components/BrochureButton";
 import BackendStatus from "@/components/BackendStatus";
+import { getBackendURL } from "@/lib/api";
+import { fetchEvent, formatPrice } from "@/lib/events";
 
 const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
-// DATA FETCHING FUNCTION
-async function getEvent(id) {
-  const url = `${process.env.NEXT_PUBLIC_API}/api/events/details/${id}`;
-  const res = await fetch(url);
+/**
+ * The brochure lives on TIQR, so it is keyed by **TIQR's** event id, not ours.
+ * An event that has not been synced has no TIQR id and therefore no brochure.
+ *
+ * Routed through our own passthrough rather than calling TIQR directly: it is
+ * the documented endpoint for this, and it keeps TIQR's host out of the
+ * browser's network path.
+ */
+async function getBrochure(tiqrEventId) {
+  if (!tiqrEventId) return null;
 
-  if (!res.ok) {
-    console.log("Failed to fetch event:", res);
+  try {
+    const res = await fetch(
+      `${getBackendURL()}/api/tiqr-events/${tiqrEventId}`,
+      { cache: "no-store" },
+    );
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    return data.event?.gallery ?? null;
+  } catch (err) {
+    // A missing brochure must not take the whole event page down with it.
+    console.error("Failed to fetch brochure:", err);
+    return null;
   }
-  const data = await res.json();
-
-  if (!data.event || data.event.length === 0) return null;
-  return data.event;
-}
-
-async function getBrochure(id) {
-  const url = `https://api.tiqr.events/participant/event/${id}`;
-  const res = await fetch(url);
-
-  if (!res.ok) {
-    console.log("Failed to fetch brochure:", res);
-  }
-  const data = await res.json();
-  console.log(data);
-
-  return data.gallery;
 }
 
 // MAIN PAGE COMPONENT
@@ -48,14 +50,10 @@ export default async function EventPage({ params }) {
     );
   }
 
-  const event = await getEvent(id);
-  console.log(event);
+  const event = await fetchEvent(id);
+  if (!event) notFound();
 
-  const brochures = await getBrochure(id);
-
-  if (!event) {
-    notFound();
-  }
+  const brochures = await getBrochure(event.tiqrEventId);
 
   const formatDate = (dateString) =>
     dateString
@@ -91,7 +89,6 @@ export default async function EventPage({ params }) {
       const endDate = event.endTime
         ? formatDate(event.endTime)
         : formatDate(event.datetime);
-      console.log(startDate, endDate);
       return `${startDate} - ${endDate}`;
     }
   };
@@ -102,9 +99,13 @@ export default async function EventPage({ params }) {
     name: event.heading,
     date: getDateDisplay(),
     time: formatTime(event.datetime),
-    ticketId: event.ticketId,
+    // Bookability is decided server-side from our event id; the button only
+    // needs to know whether to offer itself.
+    isBookable: event.isBookable,
     venue: event.venue || null,
-    price: event.price ? `${event.price / 100}` : "N/A",
+    // Numeric: the checkout modal computes the platform fee off it.
+    price: event.price,
+    priceLabel: formatPrice(event.price),
     description: event.description || "No description available",
     catchyPara: event.catchyPara || null,
     image: event.picture,
@@ -121,7 +122,7 @@ export default async function EventPage({ params }) {
     infoItems.push(["Venue", eventData.venue.name || eventData.venue]);
   }
 
-  infoItems.push(["Price", eventData.price]);
+  infoItems.push(["Price", eventData.priceLabel]);
 
   // Add team information if it's a team event
   if (eventData.isTeamEvent) {
@@ -152,13 +153,21 @@ export default async function EventPage({ params }) {
           {/* Left — Image Section */}
           <div className="lg:col-span-4">
             <div className="relative w-full h-[500px] rounded-2xl overflow-hidden shadow-lg border border-white/20 hover:scale-[1.02] transition-transform duration-300">
-              <Image
-                src={eventData.image}
-                alt={eventData.name}
-                fill
-                className="object-cover"
-                priority
-              />
+              {/* `picture` is nullable on the API, and next/image throws on a
+                  null src rather than rendering nothing. */}
+              {eventData.image ? (
+                <Image
+                  src={eventData.image}
+                  alt={eventData.name}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-white/5 px-4 text-center text-sm uppercase tracking-widest text-white/40">
+                  {eventData.name}
+                </div>
+              )}
             </div>
           </div>
 
@@ -172,7 +181,7 @@ export default async function EventPage({ params }) {
                     {label}
                   </p>
                   <p className="font-medium text-white">
-                    {label === "Price" ? `₹${value}` : value}
+                    {value}
                   </p>
                 </div>
               ))}

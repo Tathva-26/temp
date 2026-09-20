@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import Link from "next/link";
 import CompetitionTabs from "@/components/CompetitionTabs";
 import BackendStatus from "@/components/BackendStatus";
+import { fetchEvents } from "@/lib/events";
 
 const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
@@ -29,9 +29,8 @@ export default function EventsPage() {
     const getCompetitions = async () => {
       try {
         setLoading(true);
-        const url = `${process.env.NEXT_PUBLIC_API}/api/events/all?type=competitions`;
-        const response = await axios.get(url);
-        setAllCompetitions(response.data.events || []);
+        // Published only, and prices already in rupees — see lib/events.
+        setAllCompetitions(await fetchEvents("competitions"));
         setError(null);
       } catch (err) {
         console.error("Failed to fetch competitions:", err);

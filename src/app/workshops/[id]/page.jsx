@@ -4,22 +4,9 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import ModalWrapper from "@/components/modelWrapper";
 import BackendStatus from "@/components/BackendStatus";
+import { fetchEvent, formatPrice } from "@/lib/events";
 
 const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
-
-console.log(process.env.NEXT_PUBLIC_API);
-
-async function getWorkshop(id) {
-  const url = `${process.env.NEXT_PUBLIC_API}/api/events/details/${id}`;
-  console.log(url);
-
-  const res = await fetch(url);
-  if (!res.ok) throw new Error("Failed to fetch workshop data");
-  const data = await res.json();
-  const fin = data.event;
-  if (!fin || fin.length === 0) return null;
-  return fin;
-}
 
 export default async function WorkshopPage({ params }) {
   const { id } = await params;
@@ -33,11 +20,8 @@ export default async function WorkshopPage({ params }) {
     );
   }
 
-  const workshop = await getWorkshop(id);
-
-  if (!workshop) {
-    notFound();
-  }
+  const workshop = await fetchEvent(id);
+  if (!workshop) notFound();
 
   const formatDate = (dateString) =>
     dateString
@@ -62,12 +46,16 @@ export default async function WorkshopPage({ params }) {
 
   const workshopData = {
     id: workshop.id,
-    ticketId: workshop.ticketId,
+    // Bookability is decided server-side from our event id; the button only
+    // needs to know whether to offer itself.
+    isBookable: workshop.isBookable,
     name: workshop.heading,
     date: formatDate(workshop.datetime),
     time: formatTime(workshop.datetime),
-    venue: workshop.venue?.name || "TBA",
-    price: `${workshop.price / 100}`,
+    venue: workshop.venueName || "TBA",
+    // Numeric: the checkout modal computes the platform fee off it.
+    price: workshop.price,
+    priceLabel: formatPrice(workshop.price),
     description: workshop.description,
     image: workshop.picture,
   };
@@ -93,13 +81,21 @@ export default async function WorkshopPage({ params }) {
           {/* Left — Image Section */}
           <div className="lg:col-span-4 flex items-center">
             <div className="relative w-full h-[450px] rounded-2xl overflow-hidden shadow-lg border border-white/20 hover:scale-[1.02] transition-transform duration-300">
-              <Image
-                src={workshopData.image}
-                alt={workshopData.name}
-                fill
-                className="object-cover"
-                priority
-              />
+              {/* `picture` is nullable on the API, and next/image throws on a
+                  null src rather than rendering nothing. */}
+              {workshopData.image ? (
+                <Image
+                  src={workshopData.image}
+                  alt={workshopData.name}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-white/5 px-4 text-center text-sm uppercase tracking-widest text-white/40">
+                  {workshopData.name}
+                </div>
+              )}
             </div>
           </div>
 
@@ -111,14 +107,14 @@ export default async function WorkshopPage({ params }) {
                 ["Date", workshopData.date],
                 ["Time", workshopData.time],
                 ["Venue", workshopData.venue + ", NIT"],
-                ["Price", workshopData.price],
+                ["Price", workshopData.priceLabel],
               ].map(([label, value]) => (
                 <div key={label}>
                   <p className="text-xs uppercase text-gray-400 tracking-widest">
                     {label}
                   </p>
                   <p className="font-medium text-white">
-                    {label === "Price" ? `₹${value}` : value}
+                    {value}
                   </p>
                 </div>
               ))}

@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import SectionCard from "@/components/SectionCard";
 import Link from "next/link";
 import BackendStatus from "@/components/BackendStatus";
+import { fetchEvents, formatPrice } from "@/lib/events";
 
 const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
@@ -38,9 +38,8 @@ export default function WorkshopsPage() {
     const fetchWorkshops = async () => {
       try {
         setLoading(true);
-        const url = `${process.env.NEXT_PUBLIC_API}/api/events/all?type=workshops`;
-        const response = await axios.get(url);
-        setWorkshops(response.data.events);
+        // Published only, and prices already in rupees — see lib/events.
+        setWorkshops(await fetchEvents("workshops"));
         setError(null);
       } catch (err) {
         console.error("Error fetching workshops:", err);
@@ -78,11 +77,6 @@ export default function WorkshopsPage() {
       </div>
     );
   }
-
-  const bookingsFull = [
-    1497, 1493, 1475, 1499, 1496, 1491, 1513, 1520, 1534, 1527, 1526, 1525,
-    1476, 1498, 1522, 1521,
-  ];
 
   const filteredWorkshops = searchedWorkshops.filter((w) => !w.isFull);
 
@@ -134,27 +128,20 @@ export default function WorkshopsPage() {
         ) : (
           <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             {sortedWorkshops.map((workshop) => {
-              const {
-                id,
-                heading,
-                description,
-                price,
-                datetime,
-                time,
-                venue,
-                picture,
-              } = workshop;
+              const { id, heading, description, price, datetime, venueName, picture } =
+                workshop;
 
               return (
                 <Link href={`/workshops/${id}`} key={id}>
                   <SectionCard
                     title={heading ?? "Untitled"}
                     description={description ?? "No description available"}
-                    price={price / 100 ?? "N/A"}
+                    price={formatPrice(price)}
                     image={picture}
                     date={formatDate(datetime)}
-                    extraInfo={`${datetime ?? ""} ${time ?? ""} @ ${venue ?? ""
-                      }`}
+                    // `venue` is an object on the API; interpolating it
+                    // rendered "[object Object]".
+                    extraInfo={venueName ? `@ ${venueName}` : ""}
                   />
                 </Link>
               );

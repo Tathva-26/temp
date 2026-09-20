@@ -1,26 +1,28 @@
 import SectionCard from "@/components/SectionCard";
 import Link from "next/link";
 import BackendStatus from "@/components/BackendStatus";
+import { fetchEvents, formatPrice } from "@/lib/events";
 
 const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
-// Function to fetch all lectures from Strapi
+/*
+ * Rendered per request. Which events are published changes whenever an admin
+ * publishes one, so a build-time snapshot would go stale immediately — and
+ * prerendering would also mean reaching for the backend during the build.
+ */
+export const dynamic = "force-dynamic";
+
+/**
+ * Published lectures. An empty list is a normal state — nothing is published
+ * yet — so a fetch failure is swallowed rather than taking the page down.
+ */
 async function getLectures() {
-  // const url = `${process.env.NEXT_PUBLIC_API}/api/events/all?type=lectures`;
-
-  // const res = await fetch(url);
-
-  // if (!res.ok) {
-  //   console.log("Failed to fetch events:", res);
-  //   return [];
-  // }
-  // const data = await res.json();
-
-  // // console.log(url)
-  // // console.log(data.events);
-
-  // return data.events; // Strapi nests the array in a 'data' object
-  return [];
+  try {
+    return await fetchEvents("lectures");
+  } catch (err) {
+    console.error("Failed to fetch lectures:", err);
+    return [];
+  }
 }
 
 // The page component
@@ -56,20 +58,25 @@ export default async function LecturesPage() {
 
       {/* Lectures Grid */}
       <div className="mx-auto">
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {lectures.map((lecture) => (
-            <Link href={`/lectures/${lecture.id}`} key={lecture.id}>
-              <SectionCard
-                // Your API doesn't have an image field, so we use a fallback
-                image={lecture.picture}
-                // Map API 'name' field to the 'title' prop
-                title={lecture.heading}
-                // The 'description' prop is populated by lecture.description
-                description={lecture.description}
-              />
-            </Link>
-          ))}
-        </div>
+        {lectures.length === 0 ? (
+          <p className="text-center text-lg text-gray-300">
+            No lectures announced yet. Check back soon.
+          </p>
+        ) : (
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            {lectures.map((lecture) => (
+              <Link href={`/lectures/${lecture.id}`} key={lecture.id}>
+                <SectionCard
+                  image={lecture.picture}
+                  title={lecture.heading}
+                  description={lecture.description}
+                  price={formatPrice(lecture.price)}
+                  extraInfo={lecture.venueName ?? ""}
+                />
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

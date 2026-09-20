@@ -9,8 +9,8 @@ export default function Modal({
 }) {
   if (!isOpen) return null;
 
-console.log(workshopData.price)
-const basePrice = Number(workshopData.price) || 0;
+  // `price` is a whole number of rupees straight from the API.
+  const basePrice = Number(workshopData.price) || 0;
 
   const platformFeePercent = 2.0; 
   const gstPercent = 18; 
@@ -18,8 +18,6 @@ const basePrice = Number(workshopData.price) || 0;
   const platformFee = (platformFeePercent / 100) * basePrice;
   const gst = (gstPercent / 100) * (platformFee);
   const total = basePrice + platformFee + gst;
-
-  console.log(basePrice ,platformFee )
 
   // 💰 Proper INR formatter
   const formatINR = (num) =>
@@ -79,7 +77,8 @@ const basePrice = Number(workshopData.price) || 0;
             >
               Cancel
             </button>
-            <RegisterButton id={workshopData.id} ticketId={workshopData.ticketId} />
+            {/* `id` is ours; TIQR's ticket is resolved server-side from it. */}
+            <RegisterButton id={workshopData.id} disabled={!workshopData.isBookable} />
           </div>
         </div>
       </div>

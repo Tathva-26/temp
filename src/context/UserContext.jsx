@@ -11,6 +11,7 @@ import {
 import toast from "react-hot-toast";
 import { createAuthClient } from "better-auth/react";
 import api, { getBackendURL } from "@/lib/api";
+import { captureReferralCode } from "@/lib/referral";
 
 const UserContext = createContext(null);
 
@@ -22,28 +23,59 @@ const { signIn, signOut, useSession } = createAuthClient({
   baseURL: getBackendURL(),
 });
 
+/**
+ * `GET /api/user/` answers with the user object at the top level — no wrapper
+ * — carrying exactly: id, email, name, phone, referralCode, college, district,
+ * state, role, branch, semester, year. Note what is *not* there: `picture` is
+ * not selected by that endpoint, so the avatar falls back to the Google image
+ * on the session.
+ */
 function normalizeProfile(data) {
   if (!data || (!data.id && !data.email)) return null;
   return {
-    isComplete: !!(data.phone && data.college && data.district),
+    /*
+     * A phone number is what the booking endpoint actually requires, so it is
+     * tracked on its own: without one, POST /api/booking/create 400s before
+     * TIQR is ever called.
+     */
+    hasPhone: !!data.phone,
+    // The same completeness gate the backend applies before a CA gets a code.
+    isComplete: !!(
+      data.phone &&
+      data.college &&
+      data.district &&
+      data.state &&
+      data.branch &&
+      data.semester &&
+      data.year
+    ),
     id: data.id,
     name: data.name,
     email: data.email || "",
-    tat_id: data.referral || data.referralCode || "",
-    phone_number: data.phone || "",
+    phone: data.phone || "",
     college: data.college || "",
     district: data.district || "",
-    picture: data.picture ?? data.image ?? "/pfp_dev/userFile.webp",
-    referredById: data.referredById || "",
-    referredByName: data.referredByName || "",
-    events: data.events ?? [],
+    state: data.state || "",
+    branch: data.branch || "",
+    semester: data.semester ?? "",
+    year: data.year ?? "",
     role: data.role,
+    // CA only, and only once TIQR has issued it. Null for everyone else.
+    referralCode: data.referralCode || "",
+    picture: data.picture ?? data.image ?? null,
   };
 }
 
 
 export default function UserContextWrapper({ children }) {
   const { data: sessionData, isPending: sessionPending } = useSession();
+
+  // A CA's link lands on any page with ?referral_code=…; grab it before the
+  // visitor navigates away, so it is still around at checkout.
+  useEffect(() => {
+    captureReferralCode();
+  }, []);
+
   const [profile, setProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
 
@@ -82,10 +114,10 @@ export default function UserContextWrapper({ children }) {
     if (!profile) return null;
     return {
       ...profile,
+      // GET /api/user/ does not return a picture, so the session's Google
+      // image is the real source here, not a fallback.
       picture:
-        profile.picture ||
-        sessionUser?.image ||
-        "/pfp_dev/userFile.webp",
+        profile.picture || sessionUser?.image || "/pfp_dev/userFile.webp",
     };
   }, [profile, sessionUser?.image]);
 
