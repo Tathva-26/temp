@@ -226,7 +226,7 @@ const ticketData = [
         <div className={`${mi.className} flex flex-wrap items-center justify-center gap-3 sm:gap-6 px-4 text-xs sm:text-sm tracking-wider`}>
           {centerCard === 0 && (
             <>
-              <span className="flex items-center gap-2">
+              {/* <span className="flex items-center gap-2">
                 <span className="text-white/60">•</span>
                 <span>WHEELS</span>
               </span>
@@ -237,17 +237,17 @@ const ticketData = [
               <span className="flex items-center gap-2">
                 <span className="text-white/60">•</span>
                 <span>CONCLAVE</span>
-              </span>
+              </span> */}
             </>
           )}
           
           {centerCard === 1 && (
             <>
-              <span className="flex items-center gap-2">
+              {/* <span className="flex items-center gap-2">
                 <span className="text-white/60">•</span>
                 <span>MUSIC CLUB</span>
-              </span>
-              <span className="flex items-center gap-2">
+              </span> */}
+              {/* <span className="flex items-center gap-2">
                 <span className="text-white/60">•</span>
                 <span>SA + MHR</span>
               </span>
@@ -258,29 +258,29 @@ const ticketData = [
               <span className="flex items-center gap-2">
                 <span className="text-white/60">•</span>
                 <span>DJ VIOLA</span>
-              </span>
-              <span className="flex items-center gap-2">
+              </span> */}
+              {/* <span className="flex items-center gap-2">
                 <span className="text-white/60">•</span>
                 <span>ROBOWARS</span>
               </span>
               <span className="flex items-center gap-2">
                 <span className="text-white/60">•</span>
                 <span>CONCLAVE</span>
-              </span>
+              </span> */}
             </>
           )}
           
           {centerCard === 2 && (
             <>
-              <span className="flex items-center gap-2">
+              {/* <span className="flex items-center gap-2">
                 <span className="text-white/60">•</span>
                 <span>ARIVU</span>
               </span>
               <span className="flex items-center gap-2">
                 <span className="text-white/60">•</span>
                 <span>MITHOON</span>
-              </span>
-              <span className="flex items-center gap-2">
+              </span> */}
+              {/* <span className="flex items-center gap-2">
                 <span className="text-white/60">•</span>
                 <span>DJ PERFORMANCE</span>
               </span>
@@ -291,7 +291,7 @@ const ticketData = [
               <span className="flex items-center gap-2">
                 <span className="text-white/60">•</span>
                 <span>CONCLAVE</span>
-              </span>
+              </span> */}
             </>
           )}
         </div>

@@ -7,6 +7,7 @@ import CavaVisualizer from "@/components/CavaVisualizer";
 import DynamicBackground from "@/components/DynamicBackground";
 import CommandPalette from "@/components/CommandPalette";
 import ScrollHeader from "@/components/ScrollHeader";
+import UserContextWrapper from "@/context/UserContext";
 import { Plus_Jakarta_Sans } from 'next/font/google';
 
 const plusJakarta = Plus_Jakarta_Sans({ 
@@ -63,15 +64,17 @@ export default function RootLayout({ children }) {
     <html lang="en" className={plusJakarta.variable}>
       <body style={{ overflowX: "clip" }} className="plus-jakarta">
         <PerformanceProvider>
-          <DynamicBackground />
-          <Toaster />
-          <div className="relative z-10">
-            <SmoothScrolling>{children}</SmoothScrolling>
-          </div>
-          <ScrollHeader />
-          <CommandPalette />
-          <CavaVisualizer />
-          <PowerToggle />
+          <UserContextWrapper>
+            <DynamicBackground />
+            <Toaster />
+            <div className="relative z-10">
+              <SmoothScrolling>{children}</SmoothScrolling>
+            </div>
+            <ScrollHeader />
+            <CommandPalette />
+            <CavaVisualizer />
+            <PowerToggle />
+          </UserContextWrapper>
         </PerformanceProvider>
       </body>
     </html>

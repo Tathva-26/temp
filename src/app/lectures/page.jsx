@@ -6,20 +6,21 @@ const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
 // Function to fetch all lectures from Strapi
 async function getLectures() {
-  const url = `${process.env.NEXT_PUBLIC_API}/api/events/all?type=lectures`;
+  // const url = `${process.env.NEXT_PUBLIC_API}/api/events/all?type=lectures`;
 
-  const res = await fetch(url);
+  // const res = await fetch(url);
 
-  if (!res.ok) {
-    console.log("Failed to fetch events:", res);
-    return [];
-  }
-  const data = await res.json();
+  // if (!res.ok) {
+  //   console.log("Failed to fetch events:", res);
+  //   return [];
+  // }
+  // const data = await res.json();
 
-  // console.log(url)
-  // console.log(data.events);
+  // // console.log(url)
+  // // console.log(data.events);
 
-  return data.events; // Strapi nests the array in a 'data' object
+  // return data.events; // Strapi nests the array in a 'data' object
+  return [];
 }
 
 // The page component

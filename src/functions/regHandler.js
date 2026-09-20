@@ -1,19 +1,11 @@
-import jwtRequired from "@/axios/jwtRequired";
+import api from "@/lib/api";
 import toast from "react-hot-toast";
 
 export const regHandler = async (eventId, ticketId) => {
-  if (process.env.NEXT_PUBLIC_BACKEND_ENABLED === "false") {
-    toast.info("Event registration is coming soon.");
-    return false;
-  }
-
-  const url = `${process.env.NEXT_PUBLIC_API}/api/booking/create`;
-  console.log(eventId);
-
   let bookingRes = undefined;
 
   try {
-    bookingRes = await jwtRequired.post(url, { eventId, ticketId });
+    bookingRes = await api.post("/api/booking/create", { eventId, ticketId });
   } catch (error) {
     //console.error("Error during booking:", error.response.data.message);
     toast.error(

@@ -1,29 +1,18 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-export default function ProfilePage() {
-  const params = useParams();
+// Legacy route. It used to take a JWT out of the URL path and stash it in
+// localStorage. Auth is now an httpOnly cookie set by the backend, so there is
+// nothing to capture here — this only redirects, and the file should be
+// deleted once no old links point at it.
+export default function LegacyProfileTokenRoute() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = params?.id;
+    router.replace("/profile");
+  }, [router]);
 
-    if (token) {
-      const existingToken = localStorage.getItem("jwt");
-      if (!existingToken) {
-        localStorage.setItem("jwt", token);
-      }
-
-      router.replace("/");
-    }
-  }, [params, router]);
-
-  return <div className="flex items-center justify-center min-h-screen bg-gray-50">
-    <div className="relative">
-      <div className="w-16 h-16 border-4 border-blue-200 rounded-full"></div>
-      <div className="w-16 h-16 border-4 border-black rounded-full border-t-transparent absolute top-0 left-0 animate-spin"></div>
-    </div>
-  </div>;
+  return null;
 }

@@ -3,7 +3,7 @@ const nextConfig = {
   experimental: {
     optimizeCss: false, // disable LightningCSS
   },
-    images: {
+  images: {
       remotePatterns: [
       {
         protocol: 'https',

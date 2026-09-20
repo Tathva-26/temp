@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { FaEdit, FaShare, FaCheck, FaUser, FaBed } from "react-icons/fa";
+import { FaEdit, FaCheck, FaUser, FaBed } from "react-icons/fa";
 import {
   MdEvent,
   MdDateRange,
@@ -13,31 +13,22 @@ import {
 import EditModal from "./EditModal";
 import EventsModal from "./EventsModal";
 import { useRouter } from "next/navigation";
-import axios from "axios";
-import jwtRequired from "@/axios/jwtRequired";
+import api from "@/lib/api";
+import { useUserContext } from "@/context/UserContext";
 
 export default function ProfileClient({ user }) {
+  const { logout, refreshProfile } = useUserContext();
   // ...existing code...
   const [modalOpen, setModalOpen] = useState(false);
   const [eventsModalOpen, setEventsModalOpen] = useState(false);
   const [editField, setEditField] = useState("name");
   const [currentUser, setCurrentUser] = useState(user);
-  const [copied, setCopied] = useState(false);
   const [allBookings, setAllBookings] = useState([]);
   const [confirmedBookings, setConfirmedBookings] = useState([]);
   const [accommodationBookings, setAccommodationBookings] = useState([]);
 
   // State for tab management
   const [activeTab, setActiveTab] = useState("bookings"); // 'bookings' or 'history' or 'accommodation'
-
-  const isCaUser = Boolean(
-    currentUser?.is_ca ||
-    currentUser?.isCa ||
-    currentUser?.isCA ||
-    currentUser?.ca ||
-    currentUser?.role === "ca" ||
-    currentUser?.role === "CA"
-  );
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -67,17 +58,9 @@ export default function ProfileClient({ user }) {
       }
 
       try {
-        const token = localStorage.getItem("jwt");
-        if (!token) throw new Error("Authentication token not found.");
-
         // 1. fetch bookings
         try {
-          const bookingsResp = await axios.get(
-            `${process.env.NEXT_PUBLIC_API}/api/booking/getbooking`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
+          const bookingsResp = await api.get("/api/booking/getbooking");
 
           const data = bookingsResp.data;
           const fetchedBookings = data.bookings || [];
@@ -94,14 +77,13 @@ export default function ProfileClient({ user }) {
 
         // 2. fetch accommodation independently
         try {
-          const accomResp = await jwtRequired.get(
-            `${process.env.NEXT_PUBLIC_API}/api/accomodation/`
-          );
+          const accomResp = await api.get("/api/accomodation/");
           const bookings = (accomResp.data?.roomBookings || []).filter(
             (booking) => booking.status === "CONFIRMED"
           );
           setAccommodationBookings(bookings);
         } catch (accomErr) {
+          // Non-fatal: log error but don't block the UI
           console.error("Failed to fetch accommodation:", accomErr);
         }
       } catch (err) {
@@ -154,11 +136,6 @@ export default function ProfileClient({ user }) {
 
     setIsSaving(true);
     try {
-      const token = localStorage.getItem("jwt");
-      if (!token) {
-        throw new Error("Authentication token not found.");
-      }
-
       const fieldMapping = {
         phone_number: "phone",
         college: "college",
@@ -168,22 +145,13 @@ export default function ProfileClient({ user }) {
 
       const apiFieldKey = fieldMapping[editingField] || editingField;
 
-      const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_API}/api/users/`,
-        { [apiFieldKey]: value },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await api.put("/api/users/", { [apiFieldKey]: value });
 
-      // axios throws on non-2xx; response.data contains returned payload
-      const data = response.data;
       setCurrentUser({ ...currentUser, [editingField]: value });
       setEditingField(null);
       setTempValue("");
+      // Keep the shared context in step with what was just saved.
+      refreshProfile();
     } catch (error) {
       console.error("Error updating user:", error);
       alert("Failed to update. Please try again.");
@@ -221,7 +189,6 @@ export default function ProfileClient({ user }) {
             </span>
           );
         }
-        // PENDING referrals are shown as PENDING
         return (
           <span className={`${baseClasses} bg-amber-500/20 text-amber-400 border border-amber-500/30`}>
             PENDING
@@ -233,19 +200,6 @@ export default function ProfileClient({ user }) {
             {status}
           </span>
         );
-    }
-  };
-
-  const handleCopyReferral = async () => {
-    const referralLink = currentUser.tat_id;
-
-    try {
-      await navigator.clipboard.writeText(referralLink);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error("Failed to copy:", error);
-      alert("Copy failed. Please copy manually.");
     }
   };
 
@@ -540,10 +494,34 @@ export default function ProfileClient({ user }) {
   };
 
   const tabItems = [
-    { key: "bookings", label: "Bookings", icon: <MdEvent size={16} /> },
-    { key: "history", label: "History", icon: <MdHistory size={16} /> },
-    { key: "accommodation", label: "Accommodation", icon: <FaBed size={16} /> },
+    {
+      key: "bookings",
+      label: "Bookings",
+      icon: <MdEvent size={16} />,
+      title: "My Bookings",
+      noun: "event",
+      count: confirmedBookings.length,
+    },
+    {
+      key: "history",
+      label: "History",
+      icon: <MdHistory size={16} />,
+      title: "Booking History",
+      noun: "event",
+      count: allBookings.length,
+    },
+    {
+      key: "accommodation",
+      label: "Accommodation",
+      icon: <FaBed size={16} />,
+      title: "My Accommodation",
+      noun: "booking",
+      count: accommodationBookings.length,
+    },
   ];
+
+  const currentTab =
+    tabItems.find((tab) => tab.key === activeTab) || tabItems[0];
 
 
   return (
@@ -591,28 +569,17 @@ export default function ProfileClient({ user }) {
                     {currentUser.tat_id}
                   </p>
 
-                  {/* Action Buttons: Only show Refer button if user is CA; no logout button */}
-                  {isCaUser && (
-                    <div className="flex justify-center mb-6 w-full max-w-xs">
-                      <button
-                        onClick={handleCopyReferral}
-                        className={`w-full px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2 border ${copied
-                          ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
-                          : "bg-white/[0.06] hover:bg-white/[0.1] text-white/80 hover:text-white border-white/[0.08] hover:border-white/20"
-                          }`}
-                      >
-                        {copied ? (
-                          <>
-                            <FaCheck size={12} /> Copied!
-                          </>
-                        ) : (
-                          <>
-                            <FaShare size={12} /> Refer
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  )}
+                  <div className="flex justify-center mb-6 w-full max-w-xs">
+                    <button
+                      onClick={async () => {
+                        await logout();
+                        router.push("/");
+                      }}
+                      className="w-full px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2 border bg-white/[0.06] hover:bg-white/[0.1] text-white/80 hover:text-white border-white/[0.08] hover:border-white/20"
+                    >
+                      Logout
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -621,31 +588,6 @@ export default function ProfileClient({ user }) {
 
               {/* ── Personal Information ── */}
               <div className="p-5 sm:p-6 lg:p-7">
-                {/* ── QR Code Section ── */}
-                <div className="mb-6">
-                  <h2 className="text-sm font-bold text-white/60 mb-4 flex items-center gap-2 tracking-widest uppercase">
-                    <span className="w-1 h-5 bg-white/30 rounded-full"></span>
-                    QR Code
-                  </h2>
-                  <div className="bg-white/[0.02] hover:bg-white/[0.04] border border-white/[0.06] hover:border-white/[0.12] rounded-2xl p-5 flex flex-col items-center justify-center transition-all duration-300">
-                    <div className="relative p-3 bg-white rounded-xl shadow-xl shadow-black/50 transition-transform duration-300 hover:scale-[1.02]">
-                      <Image
-                        src={currentUser?.qrCode || currentUser?.qr || "/qr.png"}
-                        alt="QR Code"
-                        width={150}
-                        height={150}
-                        className="object-contain w-32 h-32 sm:w-36 sm:h-36 rounded-lg"
-                        priority
-                      />
-                    </div>
-                    <p className="text-[11px] text-white/40 mt-3 font-mono tracking-wider text-center">
-                      {currentUser?.tat_id || "Scan to verify"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mb-6 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-
                 <h2 className="text-sm font-bold text-white/60 mb-4 flex items-center gap-2 tracking-widest uppercase">
                   <span className="w-1 h-5 bg-white/30 rounded-full"></span>
                   Personal Information
@@ -731,40 +673,26 @@ export default function ProfileClient({ user }) {
             <div className="h-full w-full bg-white/[0.02] backdrop-blur-md rounded-2xl overflow-hidden border border-white/[0.06] shadow-2xl shadow-black/50 flex flex-col">
 
               {/* ── Header ── */}
-              <div className="p-6 relative overflow-hidden flex-shrink-0">
+              <div className="p-4 sm:p-6 relative overflow-hidden flex-shrink-0">
                 <div className="absolute top-0 left-0 right-0 h-full bg-gradient-to-b from-white/[0.03] to-transparent"></div>
                 <div className="relative z-10">
                   <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
-                    {activeTab === "bookings"
-                      ? "My Bookings"
-                      : activeTab === "history"
-                        ? "Booking History"
-                        : "My Accommodation"}
+                    {currentTab.title}
                   </h2>
                   <p className="text-white/40 text-xs mt-1.5 font-mono tracking-wider">
-                    {activeTab === "bookings"
-                      ? confirmedBookings.length
-                      : activeTab === "history"
-                        ? allBookings.length
-                        : accommodationBookings.length}{" "}
-                    {activeTab === "accommodation" ? "booking" : "event"}
-                    {((activeTab === "bookings" && confirmedBookings.length !== 1) ||
-                      (activeTab === "history" && allBookings.length !== 1) ||
-                      (activeTab === "accommodation" && accommodationBookings.length !== 1))
-                      ? "s"
-                      : ""}{" "}
-                    Total
+                    {currentTab.count} {currentTab.noun}
+                    {currentTab.count !== 1 ? "s" : ""} Total
                   </p>
                 </div>
               </div>
 
               {/* ── Tabs ── */}
-              <div className="flex border-b border-white/[0.06] px-4 sm:px-6 overflow-x-auto scrollbar-hide flex-shrink-0">
+              <div className="flex justify-between gap-4 border-b border-white/[0.06] px-4 sm:px-6 overflow-x-auto scrollbar-hide flex-shrink-0">
                 {tabItems.map((tab) => (
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
-                    className={`py-3 px-3 sm:px-4 text-xs sm:text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 relative ${activeTab === tab.key
+                    className={`py-3 text-xs sm:text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 relative ${activeTab === tab.key
                       ? "text-white"
                       : "text-white/35 hover:text-white/60"
                       }`}
