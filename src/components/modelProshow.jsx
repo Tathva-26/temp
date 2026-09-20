@@ -35,7 +35,7 @@ export default function Modal({
 
   return (
     <div className={`${mi.className} absolute scale-60 sm:scale-100 flex items-center justify-center z-[1000]`}>
-      <div className="bg-white rounded-2xl p-6 w-[90%] max-w-md shadow-xl relative">
+      <div className="bg-white text-black rounded-2xl p-6 w-[90%] max-w-md shadow-xl relative">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -45,7 +45,7 @@ export default function Modal({
         </button>
 
         {/* Title */}
-        <h2 className={`${mi.className} text-xl font-semibold mb-4`}>
+        <h2 className={`${mi.className} text-xl font-semibold mb-4 text-black`}>
           {title}
         </h2>
 
@@ -75,7 +75,7 @@ export default function Modal({
           <div className="flex justify-end gap-3 mt-6">
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition"
+              className="px-4 py-2 rounded-lg border border-gray-300 text-black hover:bg-gray-100 transition"
             >
               Cancel
             </button>
