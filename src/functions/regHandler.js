@@ -42,7 +42,19 @@ export async function regHandler(eventId, quantity = 1) {
     return true;
   } catch (error) {
     const status = error?.response?.status;
-    const message = error?.response?.data?.error;
+    /*
+     * Older routes report in `message`, newer ones in `error` (API.md §3), so
+     * reading only `error` left the branches below dead against a
+     * `message`-shaped body — the phone-number redirect in particular, which is
+     * the only thing telling someone why their booking cannot go through.
+     *
+     * A Zod failure puts an *array* in `error`; that is a list of field issues,
+     * not a message, and `.includes()` on it would test membership instead of
+     * substring. Hence the string check.
+     */
+    const body = error?.response?.data;
+    const message =
+      typeof body?.error === "string" ? body.error : body?.message;
 
     // Each of these means something different to the person clicking, so they
     // are worth separating rather than collapsing into "booking failed".
