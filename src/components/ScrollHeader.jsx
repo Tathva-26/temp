@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { BellDot, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import AuthButton from "./AuthButton";
 
@@ -94,7 +94,8 @@ export default function ScrollHeader() {
               <AuthButton />
             </div>
             <button
-              className="md:hidden p-2 text-white hover:text-cyan-400 transition-colors" 
+              className="md:hidden flex h-11 w-11 items-center justify-center rounded-full bg-black/40 backdrop-blur-md border border-white/10 shadow-lg text-white hover:text-cyan-400 transition-colors"
+              aria-label="Toggle menu"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -120,9 +121,6 @@ export default function ScrollHeader() {
               {item.toUpperCase()}
             </Link>
           ))}
-          <div className="mt-1 flex justify-center border-t border-white/10 pt-3">
-            <AuthButton onNavigate={() => setIsMobileMenuOpen(false)} />
-          </div>
         </div>
       </div>
     </>

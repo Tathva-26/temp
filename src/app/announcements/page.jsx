@@ -1,10 +1,11 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import BackendStatus from '@/components/BackendStatus'
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import BackendStatus from "@/components/BackendStatus";
+import { getBackendURL } from "@/lib/api";
 
-const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== 'false'
+const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
 // const specificAnnouncements = [
 //   {
@@ -34,114 +35,145 @@ export default function AnnouncementsPage() {
   if (!backendEnabled) {
     return (
       <BackendStatus
-        title='Announcements coming soon'
-        message='There are no announcements to show yet.'
+        title="Announcements coming soon"
+        message="There are no announcements to show yet."
       />
-    )
+    );
   }
 
-  const [specificAnnouncements, setSpecificAnnouncements] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [specificAnnouncements, setSpecificAnnouncements] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const formatDate = (dateString) =>
     dateString
-      ? new Date(dateString).toLocaleDateString('en-IN', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-          timeZone: 'Asia/Kolkata',
+      ? new Date(dateString).toLocaleDateString("en-IN", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+          timeZone: "Asia/Kolkata",
         })
-      : 'TBA'
+      : "TBA";
 
+  /*
+   * There is no public announcements endpoint yet.
+   *
+   * `/api/announcements` exists in the backend but is not mounted in app.js,
+   * and the admin routes under `/api/admin/announcements` 401 for a visitor.
+   * So this asks, and treats a 404 as "nothing published" rather than an
+   * error — the page renders its empty state instead of a red failure on a
+   * feature nobody has turned on. Once the backend mounts that router (and
+   * filters it on `published`), this starts working with no change here.
+   */
   useEffect(() => {
+    let cancelled = false;
+
     const fetchAnnouncements = async () => {
       try {
-        setLoading(true)
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API}/api/announcements`,
-        )
+        const response = await fetch(`${getBackendURL()}/api/announcements`);
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch announcements')
+        if (response.status === 404) {
+          if (!cancelled) setSpecificAnnouncements([]);
+          return;
         }
+        if (!response.ok) throw new Error("Failed to fetch announcements");
 
-        const data = await response.json()
-        setSpecificAnnouncements(data)
+        const data = await response.json();
+        // Tolerates both the bare array the controller returns today and a
+        // wrapped `{ announcements }` envelope, and never shows drafts.
+        const list = Array.isArray(data) ? data : (data.announcements ?? []);
+        if (!cancelled) {
+          setSpecificAnnouncements(list.filter((a) => a.published !== false));
+        }
       } catch (err) {
-        setError(err.message)
-        console.error('Error fetching announcements:', err)
+        console.error("Error fetching announcements:", err);
+        if (!cancelled) setError(err.message);
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false);
       }
-    }
-    fetchAnnouncements()
+    };
 
-    // On visiting announcements page → mark all as read
-    const allIds = specificAnnouncements.map((a) => a.id)
-    localStorage.setItem('readAnnouncements', JSON.stringify(allIds))
-  }, [])
+    fetchAnnouncements();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Visiting this page marks everything currently listed as read. Runs off the
+  // loaded list, not the empty initial one — it used to store [] every time.
+  useEffect(() => {
+    if (specificAnnouncements.length === 0) return;
+    try {
+      localStorage.setItem(
+        "readAnnouncements",
+        JSON.stringify(specificAnnouncements.map((a) => a.id)),
+      );
+    } catch {
+      // Storage blocked; the badge just stays on. Not worth failing over.
+    }
+  }, [specificAnnouncements]);
 
   if (loading) {
     return (
-      <div className='bg-black min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center'>
-        <div className='text-center'>
-          <div className='inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-white border-r-transparent'></div>
-          <p className='mt-4 text-gray-300'>Loading announcements...</p>
+      <div className="bg-black min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-white border-r-transparent"></div>
+          <p className="mt-4 text-gray-300">Loading announcements...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
     return (
-      <div className='bg-black min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center'>
-        <div className='text-center text-red-500'>
-          <p className='text-xl font-semibold'>Error loading announcements</p>
-          <p className='mt-2'>{error}</p>
+      <div className="bg-black min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center">
+        <div className="text-center text-red-500">
+          <p className="text-xl font-semibold">Error loading announcements</p>
+          <p className="mt-2">{error}</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
-    <div className='bg-black min-h-screen py-4 sm:py-10 px-4 sm:px-8 text-white'>
-      <div className='mb-12'>
-        <button
-          onClick={() => router.push('/')}
-          className='text-sm font-medium text-gray-500 hover:text-white transition-colors'
+    <div className="bg-black min-h-screen pt-24 sm:pt-28 pb-4 sm:pb-10 px-4 sm:px-8 text-white">
+      {/* Heading */}
+      <div className="mb-12">
+        <Link
+          href="/"
+          className="text-sm font-medium text-gray-500 hover:text-white transition-colors"
         >
           ← Home
-        </button>
-        <div className='mb-12 border-b border-gray-300 pb-4 mt-4'>
-          <h1 className='pp-fragment text-4xl sm:text-5xl md:text-6xl text-center md:text-left tracking-wide text-white uppercase md:mt-3'>
+        </Link>
+        <div className="mb-12 border-b border-gray-300 pb-4 mt-4">
+          <h1 className="pp-fragment text-4xl sm:text-5xl md:text-6xl text-center md:text-left tracking-wide text-white uppercase md:mt-3">
             ANNOUNCEMENTS
           </h1>
         </div>
       </div>
 
       {/* Announcements List */}
-      <div className='mx-auto max-w-4xl'>
+      <div className="mx-auto max-w-4xl">
         {specificAnnouncements.length === 0 ? (
-          <p className='text-center text-gray-300 text-lg'>
+          <p className="text-center text-gray-300 text-lg">
             No announcements at the moment. Please check back later.
           </p>
         ) : (
-          <div className='space-y-6'>
+          <div className="space-y-6">
             {specificAnnouncements.map((announcement) => (
               <div
                 key={announcement.id}
-                className='border-l-4 border-white/20 pl-6 lg:pr-8 py-4 bg-black/30 rounded-r-lg shadow-sm border border-white/10'
+                className="border-l-4 border-white/20 pl-6 lg:pr-8 py-4 bg-black/30 rounded-r-lg shadow-sm border border-white/10"
               >
-                <div className='flex justify-between items-baseline mb-2 flex-wrap'>
-                  <h2 className='text-2xl font-bold text-white pp-fragment break-words max-w-full'>
+                <div className="flex justify-between items-baseline mb-2 flex-wrap">
+                  <h2 className="text-2xl font-bold text-white pp-fragment break-words max-w-full">
                     {announcement.title}
                   </h2>
-                  <p className='text-sm text-gray-400 sm:ml-4 mt-2 whitespace-nowrap'>
+                  <p className="text-sm text-gray-400 sm:ml-4 mt-2 whitespace-nowrap">
                     {formatDate(announcement.createdAt)}
                   </p>
                 </div>
-                <p className='text-gray-300 leading-relaxed break-words'>
+                <p className="text-gray-300 leading-relaxed break-words">
                   {announcement.content}
                 </p>
               </div>
@@ -150,5 +182,5 @@ export default function AnnouncementsPage() {
         )}
       </div>
     </div>
-  )
+  );
 }

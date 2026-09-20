@@ -4,8 +4,10 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUserContext } from "@/context/UserContext";
 
-// Onboarding is disabled until the profile API is ready. Redirect signed-in
-// users to /profile and guests back home.
+// There is no separate onboarding flow any more: /profile edits the same
+// fields through the same PUT /api/user/, and shows a prompt when the phone
+// number booking requires is still missing. This only redirects so old links
+// do not 404.
 export default function OnboardingPage() {
   const router = useRouter();
   const { isLoggedIn, authLoading } = useUserContext();

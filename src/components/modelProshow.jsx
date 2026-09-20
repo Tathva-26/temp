@@ -11,9 +11,9 @@ const mi = Michroma({
 export default function Modal({
   isOpen,
   onClose,
-  ticketId,
   eventId,
   price = 0,
+  isBookable = true,
   title = "Checkout Summary",
 }) {
   if (!isOpen) return null;
@@ -79,7 +79,8 @@ export default function Modal({
             >
               Cancel
             </button>
-            <RegisterButton id={eventId} ticketId={ticketId} />
+            {/* `id` is ours; TIQR's ticket is resolved server-side from it. */}
+            <RegisterButton id={eventId} disabled={!isBookable} />
           </div>
         </div>
       </div>

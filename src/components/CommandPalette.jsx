@@ -19,7 +19,6 @@ export default function CommandPalette() {
     { name: "Lectures", action: () => router.push("/lectures") },
     { name: "Passes", action: () => router.push("/passes") },
     { name: "Accomodation", action: () => router.push("/accomodation") },
-    { name: "Announcements", action: () => router.push("/announcements") },
     { name: "Profile", action: () => router.push("/profile") },
     { name: "Toggle Low Power Mode", action: () => setLowPowerMode(!lowPowerMode) },
   ];
