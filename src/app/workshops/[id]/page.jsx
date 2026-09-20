@@ -107,7 +107,7 @@ export default async function WorkshopPage({ params }) {
                 ["Date", workshopData.date],
                 ["Time", workshopData.time],
                 ["Venue", workshopData.venue + ", NIT"],
-                ["Price", (workshopData.priceLabel)/100],
+                ["Price", workshopData.priceLabel],
               ].map(([label, value]) => (
                 <div key={label}>
                   <p className="text-xs uppercase text-gray-400 tracking-widest">
