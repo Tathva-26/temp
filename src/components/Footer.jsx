@@ -1,9 +1,24 @@
+'use client'
+
 import React from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { useLenis } from 'lenis/react'
 
-export default function Footer({ refs }) {
-  const handleScroll = (ref) => {
-    ref.current?.scrollIntoView({ behavior: 'smooth' })
+export default function Footer() {
+  const pathname = usePathname()
+  const lenis = useLenis()
+
+  // On the home page the gallery is a section, so scroll to it instead of
+  // navigating. Anywhere else the Link takes over and lands on /#galleryx.
+  // Lenis owns the scroll, so scrollIntoView would be a no-op here.
+  const handleGalleryClick = (e) => {
+    if (pathname !== '/') return
+    const gallery = document.getElementById('galleryx')
+    if (!gallery) return
+    e.preventDefault()
+    if (lenis) lenis.scrollTo(gallery)
+    else gallery.scrollIntoView({ behavior: 'smooth' })
   }
 
   const socialLinks = [
@@ -83,12 +98,13 @@ export default function Footer({ refs }) {
             </li>
 
             <li>
-              <button
-                onClick={() => handleScroll(refs.gallery)}
+              <Link
+                href='/#galleryx'
+                onClick={handleGalleryClick}
                 className='text-lg sm:text-xl font-medium tracking-wider uppercase text-white/80 transition-all duration-300 hover:text-cyan-400 hover:drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] pp-fragment cursor-pointer'
               >
                 Gallery
-              </button>
+              </Link>
             </li>
           </ul>
         </div>

@@ -68,7 +68,10 @@ export default function RootLayout({ children }) {
             <DynamicBackground />
             <Toaster />
             <div className="relative z-10">
-              <SmoothScrolling>{children}</SmoothScrolling>
+              <SmoothScrolling>
+                {children}
+                <Footer />
+              </SmoothScrolling>
             </div>
             <ScrollHeader />
             <CommandPalette />
