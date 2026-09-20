@@ -1,24 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import Modal from "./model";
+import { useUserContext } from "@/context/UserContext";
 
 
 export default function ModalWrapper({ workshopData }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const router = useRouter();
+    const { isLoggedIn, authLoading, loginWithGoogle } = useUserContext();
 
-    // Check login status on mount
-    useEffect(() => {
-        const token = localStorage.getItem("jwt");
-        setIsLoggedIn(!!token);
-    }, []);
-
+    // Signed out, this button *is* the sign-in entry point: start Google OAuth
+    // rather than dumping the user on the homepage with nothing to click.
     const handleClick = () => {
         if (!isLoggedIn) {
-            router.push("/");
+            loginWithGoogle();
             return;
         }
         setIsModalOpen(true);
@@ -29,7 +24,8 @@ export default function ModalWrapper({ workshopData }) {
         <div className="flex">
             <button
                 onClick={handleClick}
-                className="px-5 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition"
+                disabled={authLoading}
+                className="px-5 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition disabled:opacity-60"
             >
                 {isLoggedIn ? "Register" : "Login to Register"}
             </button>

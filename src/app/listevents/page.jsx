@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import api from "@/lib/api";
 import { Calendar, MapPin, Tag } from "lucide-react";
 import BackendStatus from "@/components/BackendStatus";
 
@@ -58,16 +59,7 @@ export default function EventsListing() {
         picture: event.cover?.image || "",
       };
 
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API}/api/events/create`,
-        body,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("jwt")}`, // if using JWT auth
-            "Content-Type": "application/json",
-          },
-        },
-      );
+      const response = await api.post("/api/events/create", body);
 
       alert(`✅ Event "${event.name}" added successfully!`);
       console.log("Created event:", response.data);

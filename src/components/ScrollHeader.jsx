@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { BellDot, Menu, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+import AuthButton from "./AuthButton";
 
 export default function ScrollHeader() {
   const [isVisible, setIsVisible] = useState(false);
@@ -71,7 +72,10 @@ export default function ScrollHeader() {
             <Link className="p-2" href="/announcements">
               <BellDot size={20} className="text-white hover:text-cyan-400 transition-colors" />
             </Link>
-            <button 
+            <div className="hidden md:flex items-center border-l border-white/10 pl-1">
+              <AuthButton />
+            </div>
+            <button
               className="md:hidden p-2 text-white hover:text-cyan-400 transition-colors" 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
@@ -98,6 +102,9 @@ export default function ScrollHeader() {
               {item.toUpperCase()}
             </Link>
           ))}
+          <div className="mt-1 flex justify-center border-t border-white/10 pt-3">
+            <AuthButton onNavigate={() => setIsMobileMenuOpen(false)} />
+          </div>
         </div>
       </div>
     </>

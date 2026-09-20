@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import axios from "axios";
+import api from "@/lib/api";
 
 export default function EditModal({
   isOpen,
@@ -29,26 +29,11 @@ export default function EditModal({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (process.env.NEXT_PUBLIC_BACKEND_ENABLED === "false") {
-      setError("Profile updates are coming soon.");
-      return;
-    }
     setLoading(true);
     setError("");
 
     try {
-      const token = localStorage.getItem("jwt");
-
-      await axios.put(
-        `${process.env.NEXT_PUBLIC_API}/api/users`,
-        { [field]: value },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        },
-      );
+      await api.put("/api/users", { [field]: value });
 
       onSuccess();
       onClose();
