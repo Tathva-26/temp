@@ -30,7 +30,7 @@ export default function Modal({
 
   return (
     <div className='fixed inset-0 rounded-3xl bg-black/50 flex items-center justify-center z-50'>
-      <div className='bg-white rounded-2xl p-6 w-[90%] max-w-md shadow-xl relative'>
+      <div className='bg-white text-black rounded-2xl p-6 w-[90%] max-w-md shadow-xl relative'>
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -40,7 +40,7 @@ export default function Modal({
         </button>
 
         {/* Title */}
-        <h2 className='text-xl font-semibold mb-4'>{title}</h2>
+        <h2 className='text-xl font-semibold mb-4 text-black'>{title}</h2>
 
         {/* Billing Breakdown */}
         <div className='space-y-4'>
