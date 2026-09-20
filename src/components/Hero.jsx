@@ -3,19 +3,16 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { BellDot, Menu, X } from 'lucide-react'
 import HeroTitle from '@/components/HeroTitle'
+import AuthButton from '@/components/AuthButton'
 
 export default function Hero({ refs }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [countdown, setCountdown] = useState({
     days: 0,
     hours: 0,
     minutes: 0,
     seconds: 0,
   })
-  const router = useRouter()
 
   const handleScroll = (ref) => {
     ref.current?.scrollIntoView({ behavior: 'smooth' })
@@ -46,10 +43,6 @@ export default function Hero({ refs }) {
 
     return () => clearInterval(timer)
   }, [])
-
-  const handleVisitDashboard = () => {
-    router.push('/profile')
-  }
 
   const CountdownBox = ({ value, label }) => (
     <div className='flex flex-col items-center'>
@@ -93,13 +86,11 @@ export default function Hero({ refs }) {
         alt='Tathva Logo'
         width={150}
         height={150}
-        className='absolute top-4 left-1/2 -translate-x-1/2 sm:left-auto sm:right-4 sm:translate-x-0 z-10 invert pointer-events-none'
+        className='absolute top-6 left-6 sm:top-8 sm:left-12 z-10 invert pointer-events-none'
       />
 
-      <div className='absolute top-20 right-10 max-[639px]:top-4 max-[639px]:right-3 z-50 flex items-center gap-2 pointer-events-auto'>
-        <Link className='p-2' href='/announcements'>
-          <BellDot size={24} className='text-white hover:text-cyan-400 transition-colors' />
-        </Link>
+      <div className='absolute top-6 right-6 sm:top-8 sm:right-12 z-50 pointer-events-auto'>
+        <AuthButton />
       </div>
 
       {/* Countdown Timer */}
@@ -142,14 +133,11 @@ export default function Hero({ refs }) {
           <Link href='/accomodation' className='px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110'>
             ACCOMODATION
           </Link>
-          <Link href='/announcements' className='px-5 py-2 bg-black/3 backdrop-blur-xl border border-white/40 rounded-md transition-all duration-300 hover:bg-black/25 hover:scale-110'>
-            ANNOUNCEMENTS
-          </Link>
         </div>
 
         {/* Mobile Nav */}
         <div className='flex md:hidden w-full max-w-4xl items-center justify-center flex-wrap gap-3 text-center poppins pointer-events-auto'>
-          {["Workshops", "Competitions", "Passes", "Lectures", "Accomodation", "Announcements"].map((item) => (
+          {["Workshops", "Competitions", "Passes", "Lectures", "Accomodation"].map((item) => (
             <Link
               key={item}
               href={`/${item.toLowerCase()}`}
@@ -159,25 +147,6 @@ export default function Hero({ refs }) {
             </Link>
           ))}
         </div>
-
-        <button
-          onClick={handleVisitDashboard}
-          className='z-10 flex items-center gap-3 bg-black/[0.08] backdrop-blur-xl border border-white/40 text-white font-semibold py-3 px-6 rounded-md transition-all duration-300 hover:bg-black/[0.20] hover:scale-105 group mt-4 md:mt-6 pointer-events-auto'
-        >
-          <svg
-            className='w-5 h-5'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            strokeWidth='2'
-            strokeLinecap='round'
-            strokeLinejoin='round'
-          >
-            <path d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z' />
-            <polyline points='9 22 9 12 15 12 15 22' />
-          </svg>
-          <span className='monocraft'>Visit Dashboard</span>
-        </button>
       </div>
     </header>
   )

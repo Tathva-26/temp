@@ -13,7 +13,7 @@ const fontspring = localFont({
   src: "../../public/fonts/fontspring.otf",
 });
 
-function Ticket({ day, date, ticketId, eventId, price }) {
+function Ticket({ day, date, eventId, price, isBookable = true }) {
   // Dynamic event text based on day
   const eventText =
     day === 1 ? "Wheels | Robowars | Conclave" : "Proshow | Events | Conclave";
@@ -70,12 +70,11 @@ function Ticket({ day, date, ticketId, eventId, price }) {
             {eventText}
           </p>
           <div className="flex items-center justify-between gap-2 md:pl-3">
-            {/* ModalWrapper receives ticketId, eventId, price */}
             {day != 4 ? (
               <ModalWrapper
                 eventId={eventId}
-                ticketId={ticketId}
                 price={price}
+                isBookable={isBookable}
               />
             ) : null}
             <button

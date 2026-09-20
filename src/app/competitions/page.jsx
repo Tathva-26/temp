@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import Link from "next/link";
 import CompetitionTabs from "@/components/CompetitionTabs";
 import BackendStatus from "@/components/BackendStatus";
+import { fetchEvents } from "@/lib/events";
 
 const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
@@ -29,9 +28,8 @@ export default function EventsPage() {
     const getCompetitions = async () => {
       try {
         setLoading(true);
-        const url = `${process.env.NEXT_PUBLIC_API}/api/events/all?type=competitions`;
-        const response = await axios.get(url);
-        setAllCompetitions(response.data.events || []);
+        // Published only, and prices already in rupees — see lib/events.
+        setAllCompetitions(await fetchEvents("competitions"));
         setError(null);
       } catch (err) {
         console.error("Failed to fetch competitions:", err);
@@ -50,14 +48,18 @@ export default function EventsPage() {
   );
 
   // Separate the *filtered* list into two categories
-  const kgpcEvents = searchedCompetitions.filter(
+  /*
+   * Split by committee only. These used to drop anything flagged `isFull`, but
+   * that flag is local bookkeeping the backend never refreshes from TIQR, so a
+   * stale one silently hid a bookable competition. Availability is decided at
+   * booking time; `isBookable` is what gates the button.
+   */
+  const gpcEvents = searchedCompetitions.filter(
     (event) => event.committee === "GPC",
   );
-  const gpcEvents = kgpcEvents.filter((event) => !event.isFull);
-  const kotherCompetitions = searchedCompetitions.filter(
+  const otherCompetitions = searchedCompetitions.filter(
     (event) => event.committee !== "GPC",
   );
-  const otherCompetitions = kotherCompetitions.filter((event) => !event.isFull);
 
   // Loading state UI
   if (loading) {
@@ -84,15 +86,9 @@ export default function EventsPage() {
   }
 
   return (
-    <div className="bg-transparent min-h-screen py-4 sm:py-10 px-4 sm:px-8 text-white">
+    <div className="bg-transparent min-h-screen pt-24 sm:pt-28 pb-4 sm:pb-10 px-4 sm:px-8 text-white">
       {/* Heading and Search Bar Section */}
       <div className="mb-12">
-        <Link
-          href="/"
-          className="text-sm font-medium text-gray-500 hover:text-white transition-colors"
-        >
-          ← Home
-        </Link>
         <div className="mb-12 border-b border-gray-300 pb-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <h1 className="pp-fragment text-4xl sm:text-5xl md:text-6xl text-center md:text-left tracking-wide text-white uppercase md:mt-3">

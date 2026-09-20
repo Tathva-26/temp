@@ -13,7 +13,7 @@ const fontspring = localFont({
   src: "../../public/fonts/fontspring.otf",
 });
 
-function TicketMobile({ day, date, ticketId, eventId, price }) {
+function TicketMobile({ day, date, eventId, price, isBookable = true }) {
   return (
     <div className="relative w-20 h-56 sm:w-20 sm:h-56 ">
       {/* Oversized Image */}
@@ -66,7 +66,11 @@ function TicketMobile({ day, date, ticketId, eventId, price }) {
         </p>
         <div className="flex flex-col items-center justify-around gap-1">
           {day != 4 ? (
-            <ModalWrapper eventId={eventId} ticketId={ticketId} price={price} />
+            <ModalWrapper
+              eventId={eventId}
+              price={price}
+              isBookable={isBookable}
+            />
           ) : null}
           <button
             className={`${mi.className} flex justify-center items-center rounded-sm px-2 py-1 bg-[#3E3E3B] text-[0.3rem] w-14 h-4 text-white`}
