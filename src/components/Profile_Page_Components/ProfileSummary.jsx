@@ -27,6 +27,8 @@ const EDITABLE_FIELDS = [
   { key: "state", label: "State", type: "text", placeholder: "Kerala" },
 ];
 
+const MAX_PHOTO_BYTES = 400 * 1024;
+
 function formatDate(value) {
   if (!value) return "—";
   const date = new Date(value);
@@ -170,6 +172,18 @@ export default function ProfileSummary({ user }) {
 
   const set = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
 
+  function handlePhotoChange(e) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+
+    if (file.size > MAX_PHOTO_BYTES) {
+      toast.error("Image must be under 400 KB.");
+      return;
+    }
+    setPhoto(file);
+  }
+
   async function handleSave() {
     // Only send what was actually touched and is non-empty: the backend 400s
     // on an empty string for any field, and rejects a body with no known keys.
@@ -240,7 +254,7 @@ export default function ProfileSummary({ user }) {
               accept="image/*"
               hidden
               disabled={saving}
-              onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
+              onChange={handlePhotoChange}
             />
           </label>
           <h1 className="text-2xl font-bold text-white">

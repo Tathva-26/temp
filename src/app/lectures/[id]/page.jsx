@@ -19,21 +19,21 @@ const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
  * browser's network path.
  */
 async function getBrochure(tiqrEventId) {
-  if (!tiqrEventId) return null;
+  if (!tiqrEventId) return [];
 
   try {
     const res = await fetch(
       `${getBackendURL()}/api/tiqr-events/${tiqrEventId}`,
       { cache: "no-store" },
     );
-    if (!res.ok) return null;
+    if (!res.ok) return [];
 
     const data = await res.json();
-    return data.event?.gallery ?? null;
+    return data.event?.gallery ?? [];
   } catch (err) {
     // A missing brochure must not take the whole event page down with it.
     console.error("Failed to fetch brochure:", err);
-    return null;
+    return [];
   }
 }
 
