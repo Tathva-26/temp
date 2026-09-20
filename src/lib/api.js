@@ -1,16 +1,16 @@
 import axios from "axios";
 
-function getApiBaseURL() {
-  // When testing through ca.tathva.org proxy, profile routes use the same origin.
-  if (typeof window !== "undefined") {
-    const caProxy = process.env.NEXT_PUBLIC_AUTH_PROXY_URL?.replace(/\/$/, "");
-    if (caProxy) return caProxy;
-  }
-  return process.env.NEXT_PUBLIC_API;
+// Same as ca-frontend: one backend origin, session sent via httpOnly cookie.
+export function getBackendURL() {
+  return (
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    process.env.NEXT_PUBLIC_API ||
+    ""
+  ).replace(/\/$/, "");
 }
 
 const api = axios.create({
-  baseURL: getApiBaseURL(),
+  baseURL: getBackendURL(),
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });
