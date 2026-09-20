@@ -1,16 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { FaEdit, FaShare, FaCheck, FaUser, FaUsers, FaBed } from "react-icons/fa";
+import { FaEdit, FaCheck, FaUser, FaBed } from "react-icons/fa";
 import {
   MdEvent,
   MdDateRange,
   MdAccessTime,
   MdDownload,
   MdHistory,
-  MdPending,
-  MdCheckCircle,
 } from "react-icons/md";
 import EditModal from "./EditModal";
 import EventsModal from "./EventsModal";
@@ -25,20 +23,12 @@ export default function ProfileClient({ user }) {
   const [eventsModalOpen, setEventsModalOpen] = useState(false);
   const [editField, setEditField] = useState("name");
   const [currentUser, setCurrentUser] = useState(user);
-  const [copied, setCopied] = useState(false);
   const [allBookings, setAllBookings] = useState([]);
   const [confirmedBookings, setConfirmedBookings] = useState([]);
   const [accommodationBookings, setAccommodationBookings] = useState([]);
 
-  // --- MODIFICATION START ---
-  // State for tab management in BOTH desktop and mobile modal
-  const [activeTab, setActiveTab] = useState("bookings"); // 'bookings' or 'history' or 'confirmedReferrals' or 'pendingReferrals'
-  // Referral states
-  const [referrals, setReferrals] = useState([]);
-  const [confirmReferrals, setConfirmReferrals] = useState(0);
-  const [pendingReferrals, setPendingReferrals] = useState([]);
-  const [confirmedReferralsList, setConfirmedReferralsList] = useState([]);
-  // --- MODIFICATION END ---
+  // State for tab management
+  const [activeTab, setActiveTab] = useState("bookings"); // 'bookings' or 'history' or 'accommodation'
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -46,8 +36,11 @@ export default function ProfileClient({ user }) {
   const [tempValue, setTempValue] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
+  // Animation ref
+  const profileCardRef = useRef(null);
+
   useEffect(() => {
-    const fetchBookingsAndReferrals = async () => {
+    const fetchBookingsAndAccommodation = async () => {
       setIsLoading(true);
       setError(null);
 
@@ -56,10 +49,6 @@ export default function ProfileClient({ user }) {
         setAllBookings([]);
         setConfirmedBookings([]);
         setAccommodationBookings([]);
-        setReferrals([]);
-        setPendingReferrals([]);
-        setConfirmedReferralsList([]);
-        setConfirmReferrals(0);
       };
 
       if (process.env.NEXT_PUBLIC_BACKEND_ENABLED === 'false') {
@@ -69,70 +58,44 @@ export default function ProfileClient({ user }) {
       }
 
       try {
-        // fetch bookings
-        const bookingsResp = await api.get("/api/booking/getbooking");
-
-        const data = bookingsResp.data;
-        const fetchedBookings = data.bookings || [];
-
-        setAllBookings(
-          fetchedBookings.filter((booking) => booking.status !== "TIMEOUT")
-        );
-        setConfirmedBookings(
-          fetchedBookings.filter((booking) => booking.status === "CONFIRMED")
-        );
-
-        // fetch referrals
+        // 1. fetch bookings
         try {
-          const refResp = await api.get("/api/referrals/");
+          const bookingsResp = await api.get("/api/booking/getbooking");
 
-          const refData = refResp.data || {};
-          const allReferrals = refData.referrals || [];
+          const data = bookingsResp.data;
+          const fetchedBookings = data.bookings || [];
 
-          // Separate referrals by status - COMPLETED is considered confirmed
-          const pending = allReferrals.filter(
-            (ref) => ref.status === "PENDING"
+          setAllBookings(
+            fetchedBookings.filter((booking) => booking.status !== "TIMEOUT")
           );
-          const confirmed = allReferrals.filter(
-            (ref) => ref.status === "CONFIRMED" || ref.status === "COMPLETED"
+          setConfirmedBookings(
+            fetchedBookings.filter((booking) => booking.status === "CONFIRMED")
           );
+        } catch (bookingErr) {
+          console.error("Failed to fetch bookings:", bookingErr);
+        }
 
-          setReferrals(allReferrals);
-          setPendingReferrals(pending);
-          setConfirmedReferralsList(confirmed);
-          setConfirmReferrals(
-            typeof refData.confirmReferrals === "number"
-              ? refData.confirmReferrals
-              : confirmed.length
+        // 2. fetch accommodation independently
+        try {
+          const accomResp = await api.get("/api/accomodation/");
+          const bookings = (accomResp.data?.roomBookings || []).filter(
+            (booking) => booking.status === "CONFIRMED"
           );
-
-          try {
-            const accomResp = await api.get("/api/accomodation/");
-            console.log(accomResp);
-            const confirmedBookings = (accomResp.data.roomBookings || []).filter(
-                (booking) => booking.status === "CONFIRMED"
-            );
-            setAccommodationBookings(confirmedBookings);
-          } catch (accomErr) {
-            // Non-fatal: log error but don't block the UI
-            console.error("Failed to fetch accommodation:", accomErr);
-          }
-
-        } catch (refErr) {
-          // Non-fatal: keep bookings but surface referral fetch error in console
-          console.error("Failed to fetch referrals:", refErr);
+          setAccommodationBookings(bookings);
+        } catch (accomErr) {
+          // Non-fatal: log error but don't block the UI
+          console.error("Failed to fetch accommodation:", accomErr);
         }
       } catch (err) {
         applyMockData();
         const message =
           err?.response?.data?.message || err.message || "Failed to fetch";
-        // Do not set error state so the UI gracefully falls back instead of breaking
         console.error("Fetch failed:", message);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchBookingsAndReferrals();
+    fetchBookingsAndAccommodation();
   }, []);
 
   const router = useRouter();
@@ -205,19 +168,15 @@ export default function ProfileClient({ user }) {
     }
   };
 
-  const getRefferalDetails = () => {
-    // return cached referrals fetched from API
-    return referrals;
-  };
 
   // --- MODIFICATION: Updated getStatusBadge to handle context ---
   const getStatusBadge = (status, context = "default") => {
-    const baseClasses = "text-xs font-bold uppercase px-2 py-1 rounded-full";
+    const baseClasses = "text-[10px] font-bold uppercase px-2.5 py-1 rounded-full tracking-wider";
     switch (status) {
       case "CONFIRMED":
       case "COMPLETED":
         return (
-          <span className={`${baseClasses} bg-green-200 text-green-800`}>
+          <span className={`${baseClasses} bg-emerald-500/20 text-emerald-400 border border-emerald-500/30`}>
             CONFIRMED
           </span>
         );
@@ -225,36 +184,22 @@ export default function ProfileClient({ user }) {
         if (context === "booking") {
           // PENDING bookings are shown as FAILED
           return (
-            <span className={`${baseClasses} bg-gray-200 text-gray-800`}>
+            <span className={`${baseClasses} bg-red-500/20 text-red-400 border border-red-500/30`}>
               FAILED
             </span>
           );
         }
-        // PENDING referrals are shown as PENDING
         return (
-          <span className={`${baseClasses} bg-yellow-200 text-yellow-800`}>
+          <span className={`${baseClasses} bg-amber-500/20 text-amber-400 border border-amber-500/30`}>
             PENDING
           </span>
         );
       default:
         return (
-          <span className={`${baseClasses} bg-gray-200 text-gray-800`}>
+          <span className={`${baseClasses} bg-white/10 text-white/60 border border-white/20`}>
             {status}
           </span>
         );
-    }
-  };
-
-  const handleCopyReferral = async () => {
-    const referralLink = currentUser.tat_id;
-
-    try {
-      await navigator.clipboard.writeText(referralLink);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error("Failed to copy:", error);
-      alert("Copy failed. Please copy manually.");
     }
   };
 
@@ -264,19 +209,12 @@ export default function ProfileClient({ user }) {
     { key: "phone_number", label: "Phone Number", editable: true },
     { key: "college", label: "College", editable: true },
     { key: "district", label: "District", editable: true },
-    {
-      key: "referredByName",
-      label: "Referred By",
-      editable:
-        !currentUser.referredByName || currentUser.referredByName.trim() === "",
-    },
-    { key: "confReferral", label: "Confirmed Referrals", editable: false },
   ];
 
   const renderBookingList = (bookingsToRender) => {
     if (bookingsToRender.length > 0) {
       return (
-        <div className="space-y-5">
+        <div className="space-y-4">
           {bookingsToRender.map((booking, index) => {
             const eventDateTime = new Date(booking.event?.datetime);
             const displayDate = eventDateTime.toLocaleDateString("en-GB", {
@@ -293,53 +231,54 @@ export default function ProfileClient({ user }) {
             return (
               <div
                 key={booking.bookingUid}
-                className="bg-white rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-200 hover:border-gray-300"
+                className="group bg-white/[0.04] backdrop-blur-sm rounded-xl overflow-hidden border border-white/[0.08] hover:border-white/20 hover:bg-white/[0.07] transition-all duration-500"
                 style={{
-                  animation: `slideUp 0.3s ease-out ${index * 100}ms backwards`,
+                  animation: `profileSlideUp 0.4s ease-out ${index * 80}ms backwards`,
                 }}
               >
                 <div className="flex flex-col lg:flex-row">
-                  <div className="relative w-full lg:w-64 xl:w-80 h-48 lg:h-auto flex-shrink-0 group overflow-hidden">
+                  <div className="relative w-full lg:w-56 xl:w-64 h-44 lg:h-auto flex-shrink-0 overflow-hidden">
                     <Image
                       src={booking.event?.picture || "/placeholder.jpg"}
                       alt={booking.event?.heading}
                       fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-500"
+                      className="object-cover group-hover:scale-110 transition-transform duration-700"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-40"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                   </div>
-                  <div className="flex-1 p-6">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-3 tracking-tight">
-                      {booking.event?.heading} {booking.event?.type}{" "}
-                      {/* --- MODIFICATION: Pass context to getStatusBadge --- */}
+                  <div className="flex-1 p-5">
+                    <div className="flex items-start justify-between mb-3 gap-3">
+                      <h3 className="text-lg font-bold text-white tracking-tight leading-tight">
+                        {booking.event?.heading} {booking.event?.type}
+                      </h3>
                       {getStatusBadge(booking?.status, "booking")}
-                    </h3>
-                    <p className="text-gray-600 text-sm mb-5 line-clamp-2 leading-relaxed">
+                    </div>
+                    <p className="text-white/50 text-sm mb-4 line-clamp-2 leading-relaxed">
                       {booking.event?.description}
                     </p>
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 mb-5">
-                      <div className="flex items-center bg-gray-50 rounded-lg p-3 border border-gray-200 hover:border-gray-300 transition-all duration-200 group">
-                        <div className="bg-black rounded-lg p-2 mr-3 group-hover:scale-110 transition-transform">
-                          <MdDateRange className="text-white" size={18} />
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-2.5 mb-4">
+                      <div className="flex items-center bg-white/[0.05] rounded-lg p-3 border border-white/[0.06] group/item hover:border-white/15 transition-all">
+                        <div className="bg-white/10 rounded-lg p-2 mr-3 group-hover/item:bg-white/15 transition-colors">
+                          <MdDateRange className="text-white/70" size={16} />
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide">
+                          <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wider">
                             Date
                           </p>
-                          <p className="text-sm font-bold text-gray-900">
+                          <p className="text-sm font-semibold text-white/90">
                             {displayDate}
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center bg-gray-50 rounded-lg p-3 border border-gray-200 hover:border-gray-300 transition-all duration-200 group">
-                        <div className="bg-black rounded-lg p-2 mr-3 group-hover:scale-110 transition-transform">
-                          <MdAccessTime className="text-white" size={18} />
+                      <div className="flex items-center bg-white/[0.05] rounded-lg p-3 border border-white/[0.06] group/item hover:border-white/15 transition-all">
+                        <div className="bg-white/10 rounded-lg p-2 mr-3 group-hover/item:bg-white/15 transition-colors">
+                          <MdAccessTime className="text-white/70" size={16} />
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide">
+                          <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wider">
                             Time
                           </p>
-                          <p className="text-sm font-bold text-gray-900">
+                          <p className="text-sm font-semibold text-white/90">
                             {displayTime}
                           </p>
                         </div>
@@ -348,9 +287,9 @@ export default function ProfileClient({ user }) {
                     <button
                       onClick={() => handleDownloadTicket(booking.picture)}
                       disabled={booking.status !== "CONFIRMED"}
-                      className="w-full bg-black hover:bg-zinc-800 text-white px-6 py-3 rounded-lg font-bold text-base transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      className="w-full bg-white/10 hover:bg-white/15 text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 flex items-center justify-center gap-2 border border-white/10 hover:border-white/20 disabled:opacity-30 disabled:cursor-not-allowed"
                     >
-                      <MdDownload size={20} />
+                      <MdDownload size={18} />
                       {booking.status === "CONFIRMED"
                         ? "Download Ticket"
                         : "Failed"}
@@ -364,71 +303,141 @@ export default function ProfileClient({ user }) {
       );
     }
     return (
-      <div className="text-center py-20">
-        <div className="bg-gray-100 rounded-full w-28 h-28 mx-auto flex items-center justify-center mb-5 border-2 border-gray-200">
-          <MdDateRange className="text-gray-700" size={40} />
+      <div className="h-full flex-1 flex flex-col items-center justify-center text-center py-16">
+        <div className="bg-white/[0.05] rounded-full w-24 h-24 mx-auto flex items-center justify-center mb-5 border border-white/[0.08]">
+          <MdDateRange className="text-white/30" size={36} />
         </div>
-        <p className="text-gray-900 text-xl font-bold mb-2">
+        <p className="text-white/70 text-lg font-bold mb-2">
           {activeTab === "bookings"
             ? "No confirmed events yet"
             : "No booking history"}
         </p>
-        <p className="text-gray-500 text-base">
+        <p className="text-white/40 text-sm">
           Start exploring and register for exciting events!
         </p>
       </div>
     );
   };
 
-  // NEW: Render referral lists
-  const renderReferralsList = (referralsToRender, type) => {
-    if (referralsToRender.length > 0) {
+
+  const renderAccommodationList = (bookingsToRender) => {
+    if (bookingsToRender.length > 0) {
       return (
-        <div className="space-y-5">
-          {referralsToRender.map((referral, index) => {
+        <div className="space-y-4">
+          {bookingsToRender.map((booking, index) => {
+            // --- Helper to format dates ---
+            const formatDate = (dateString) => {
+              return new Date(dateString).toLocaleDateString("en-GB", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              });
+            };
+
+            // --- Logic to summarize food choices ---
+            const foodChoices = [];
+            if (booking.foodDay24Veg > 0)
+              foodChoices.push(`24th (Veg: ${booking.foodDay24Veg})`);
+            if (booking.foodDay24NonVeg > 0)
+              foodChoices.push(`24th (Non-Veg: ${booking.foodDay24NonVeg})`);
+            if (booking.foodDay25Veg > 0)
+              foodChoices.push(`25th (Veg: ${booking.foodDay25Veg})`);
+            if (booking.foodDay25NonVeg > 0)
+              foodChoices.push(`25th (Non-Veg: ${booking.foodDay25NonVeg})`);
+            if (booking.foodDay26Veg > 0)
+              foodChoices.push(`26th (Veg: ${booking.foodDay26Veg})`);
+            if (booking.foodDay26NonVeg > 0)
+              foodChoices.push(`26th (Non-Veg: ${booking.foodDay26NonVeg})`);
+            const foodSummary =
+              foodChoices.length > 0
+                ? foodChoices.join(", ")
+                : "No food selected";
+
             return (
               <div
-                key={index}
-                className="bg-white rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-200 hover:border-gray-300"
+                key={booking.bookingUid}
+                className="group bg-white/[0.04] backdrop-blur-sm rounded-xl overflow-hidden border border-white/[0.08] hover:border-white/20 hover:bg-white/[0.07] transition-all duration-500"
                 style={{
-                  animation: `slideUp 0.3s ease-out ${
-                    index * 100
-                  }ms backwards`,
+                  animation: `profileSlideUp 0.4s ease-out ${index * 80}ms backwards`,
                 }}
               >
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
-                      <FaUser className="text-gray-700" />
-                      {referral.referredUser.name}
-                      {/* --- MODIFICATION: Pass context to getStatusBadge --- */}
-                      {getStatusBadge(referral.status, "referral")}
+                <div className="p-5">
+                  <div className="flex items-start justify-between mb-4">
+                    <h3 className="text-lg font-bold text-white tracking-tight">
+                      Accommodation at {booking.room === "DORMG" ? "Dormitory (Girls)" : (booking.room === "DORMB" ? "Dormitory (Boys) " : (booking.room === "ROOM3" ? "3 Shared Room (Girls)" : "4 Shared Room (Boys)"))}
                     </h3>
+                    {getStatusBadge(booking.status, "booking")}
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-                    <div className="flex items-center bg-gray-50 rounded-lg p-3 border border-gray-200 transition-all duration-200">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 mb-4">
+                    {/* Check-in Date */}
+                    <div className="flex items-center bg-white/[0.05] rounded-lg p-3 border border-white/[0.06] hover:border-white/15 transition-all">
+                      <div className="bg-white/10 rounded-lg p-2 mr-3">
+                        <MdDateRange className="text-white/70" size={16} />
+                      </div>
                       <div>
-                        <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide">
-                          Email
+                        <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wider">
+                          Check-in
                         </p>
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {referral.referredUser.email}
+                        <p className="text-sm font-medium text-white/80">
+                          {formatDate(booking.startDate)}
                         </p>
                       </div>
                     </div>
-
-                    <div className="flex items-center bg-gray-50 rounded-lg p-3 border border-gray-200 transition-all duration-200">
+                    {/* Check-out Date */}
+                    <div className="flex items-center bg-white/[0.05] rounded-lg p-3 border border-white/[0.06] hover:border-white/15 transition-all">
+                      <div className="bg-white/10 rounded-lg p-2 mr-3">
+                        <MdDateRange className="text-white/70" size={16} />
+                      </div>
                       <div>
-                        <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide">
-                          Tathva ID
+                        <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wider">
+                          Check-out
                         </p>
-                        <p className="text-sm font-medium text-gray-900">
-                          {referral.referredUser.referral}
+                        <p className="text-sm font-medium text-white/80">
+                          {formatDate(booking.endDate)}
+                        </p>
+                      </div>
+                    </div>
+                    {/* Gender */}
+                    <div className="flex items-center bg-white/[0.05] rounded-lg p-3 border border-white/[0.06] hover:border-white/15 transition-all">
+                      <div className="bg-white/10 rounded-lg p-2 mr-3">
+                        <FaUser className="text-white/70" size={16} />
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wider">
+                          Gender
+                        </p>
+                        <p className="text-sm font-medium text-white/80 capitalize">
+                          {booking.gender.toLowerCase()}
+                        </p>
+                      </div>
+                    </div>
+                    {/* Food Summary */}
+                    <div className="flex items-center bg-white/[0.05] rounded-lg p-3 border border-white/[0.06] hover:border-white/15 transition-all">
+                      <div className="bg-white/10 rounded-lg p-2 mr-3">
+                        <MdEvent className="text-white/70" size={16} />
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wider">
+                          Food Choices
+                        </p>
+                        <p className="text-sm font-medium text-white/80">
+                          {foodSummary}
                         </p>
                       </div>
                     </div>
                   </div>
+
+                  <button
+                    onClick={() => handleDownloadTicket(booking.picture)}
+                    disabled={booking.status !== "CONFIRMED"}
+                    className="w-full bg-white/10 hover:bg-white/15 text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 flex items-center justify-center gap-2 border border-white/10 hover:border-white/20 disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    <MdDownload size={18} />
+                    {booking.status === "CONFIRMED"
+                      ? "Download Food & Accommodation Ticket"
+                      : "Failed"}
+                  </button>
                 </div>
               </div>
             );
@@ -437,175 +446,38 @@ export default function ProfileClient({ user }) {
       );
     }
 
-    // Empty state for referrals
-    return (
-      <div className="text-center py-20">
-        <div className="bg-gray-100 rounded-full w-28 h-28 mx-auto flex items-center justify-center mb-5 border-2 border-gray-200">
-          <FaUsers className="text-gray-700" size={40} />
-        </div>
-        <p className="text-gray-900 text-xl font-bold mb-2">
-          {type === "confirmed"
-            ? "No confirmed referrals yet"
-            : "No pending referrals"}
-        </p>
-        <p className="text-gray-500 text-base">
-          Share your referral code with friends to earn rewards!
-        </p>
-      </div>
-    );
-  };
-
-  const renderAccommodationList = (bookingsToRender) => {
-    if (bookingsToRender.length > 0) {
-      return (
-          <div className="space-y-5">
-            {bookingsToRender.map((booking, index) => {
-              // --- Helper to format dates ---
-              const formatDate = (dateString) => {
-                return new Date(dateString).toLocaleDateString("en-GB", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                });
-              };
-
-              // --- Logic to summarize food choices ---
-              const foodChoices = [];
-              if (booking.foodDay24Veg > 0)
-                foodChoices.push(`24th (Veg: ${booking.foodDay24Veg})`);
-              if (booking.foodDay24NonVeg > 0)
-                foodChoices.push(`24th (Non-Veg: ${booking.foodDay24NonVeg})`);
-              if (booking.foodDay25Veg > 0)
-                foodChoices.push(`25th (Veg: ${booking.foodDay25Veg})`);
-              if (booking.foodDay25NonVeg > 0)
-                foodChoices.push(`25th (Non-Veg: ${booking.foodDay25NonVeg})`);
-              if (booking.foodDay26Veg > 0)
-                foodChoices.push(`26th (Veg: ${booking.foodDay26Veg})`);
-              if (booking.foodDay26NonVeg > 0)
-                foodChoices.push(`26th (Non-Veg: ${booking.foodDay26NonVeg})`);
-              const foodSummary =
-                  foodChoices.length > 0
-                      ? foodChoices.join(", ")
-                      : "No food selected";
-
-              return (
-                  <div
-                      key={booking.bookingUid}
-                      className="bg-white rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-200 hover:border-gray-300"
-                      style={{
-                        animation: `slideUp 0.3s ease-out ${index * 100}ms backwards`,
-                      }}
-                  >
-                    <div className="p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <h3 className="text-xl font-bold text-gray-900 tracking-tight">
-                          Accommodation at {booking.room === "DORMG" ? "Dormitory (Girls)" : (booking.room === "DORMB" ? "Dormitory (Boys) " : (booking.room === "ROOM3" ? "3 Shared Room (Girls)" : "4 Shared Room (Boys)"))}
-                        </h3>
-                        {getStatusBadge(booking.status, "booking")}
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                        {/* Check-in Date */}
-                        <div className="flex items-center bg-gray-50 rounded-lg p-3 border border-gray-200">
-                          <div className="bg-black rounded-lg p-2 mr-3">
-                            <MdDateRange className="text-white" size={18} />
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide">
-                              Check-in
-                            </p>
-                            <p className="text-sm font-medium text-gray-900">
-                              {formatDate(booking.startDate)}
-                            </p>
-                          </div>
-                        </div>
-                        {/* Check-out Date */}
-                        <div className="flex items-center bg-gray-50 rounded-lg p-3 border border-gray-200">
-                          <div className="bg-black rounded-lg p-2 mr-3">
-                            <MdDateRange className="text-white" size={18} />
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide">
-                              Check-out
-                            </p>
-                            <p className="text-sm font-medium text-gray-900">
-                              {formatDate(booking.endDate)}
-                            </p>
-                          </div>
-                        </div>
-                        {/* Gender */}
-                        <div className="flex items-center bg-gray-50 rounded-lg p-3 border border-gray-200">
-                          <div className="bg-black rounded-lg p-2 mr-3">
-                            <FaUser className="text-white" size={18} />
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide">
-                              Gender
-                            </p>
-                            <p className="text-sm font-medium text-gray-900 capitalize">
-                              {booking.gender.toLowerCase()}
-                            </p>
-                          </div>
-                        </div>
-                        {/* Food Summary */}
-                        <div className="flex items-center bg-gray-50 rounded-lg p-3 border border-gray-200">
-                          <div className="bg-black rounded-lg p-2 mr-3">
-                            <MdEvent className="text-white" size={18} />
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide">
-                              Food Choices
-                            </p>
-                            <p className="text-sm font-medium text-gray-900">
-                              {foodSummary}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <button
-                          onClick={() => handleDownloadTicket(booking.picture)}
-                          disabled={booking.status !== "CONFIRMED"}
-                          className="w-full bg-black hover:bg-zinc-800 text-white px-6 py-3 rounded-lg font-bold text-base transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                      >
-                        <MdDownload size={20} />
-                        {booking.status === "CONFIRMED"
-                            ? "Download Food & Accommodation Ticket"
-                            : "Failed"}
-                      </button>
-                    </div>
-                  </div>
-              );
-            })}
-          </div>
-      );
-    }
-
     // Empty state for accommodation
     return (
-        <div className="text-center py-20">
-          <div className="bg-gray-100 rounded-full w-28 h-28 mx-auto flex items-center justify-center mb-5 border-2 border-gray-200">
-            <FaBed className="text-gray-700" size={40} />
-          </div>
-          <p className="text-gray-900 text-xl font-bold mb-2">
-            No accommodation booked
-          </p>
-          <p className="text-gray-500 text-base">
-            You can book your stay through the accommodation page.
-          </p>
+      <div className="h-full flex-1 flex flex-col items-center justify-center text-center py-16">
+        <div className="bg-white/[0.05] rounded-full w-24 h-24 mx-auto flex items-center justify-center mb-5 border border-white/[0.08]">
+          <FaBed className="text-white/30" size={36} />
         </div>
+        <p className="text-white/70 text-lg font-bold mb-2">
+          No accommodation booked
+        </p>
+        <p className="text-white/40 text-sm">
+          You can book your stay through the accommodation page.
+        </p>
+      </div>
     );
   };
 
   // Determine which content to show based on active tab
   const renderActiveContent = () => {
     if (isLoading) {
-      return <div className="text-center py-20">Loading...</div>;
+      return (
+        <div className="flex items-center justify-center py-20">
+          <div className="relative">
+            <div className="w-10 h-10 border-2 border-white/10 rounded-full"></div>
+            <div className="w-10 h-10 border-2 border-white rounded-full border-t-transparent absolute top-0 left-0 animate-spin"></div>
+          </div>
+        </div>
+      );
     }
 
     if (error) {
       return (
-        <div className="text-center py-20 text-red-600">Error: {error}</div>
+        <div className="text-center py-20 text-red-400/80">Error: {error}</div>
       );
     }
 
@@ -614,10 +486,6 @@ export default function ProfileClient({ user }) {
         return renderBookingList(confirmedBookings);
       case "history":
         return renderBookingList(allBookings);
-      case "pendingReferrals":
-        return renderReferralsList(pendingReferrals, "pending");
-      case "confirmedReferrals":
-        return renderReferralsList(confirmedReferralsList, "confirmed");
       case "accommodation":
         return renderAccommodationList(accommodationBookings);
       default:
@@ -625,96 +493,121 @@ export default function ProfileClient({ user }) {
     }
   };
 
+  const tabItems = [
+    {
+      key: "bookings",
+      label: "Bookings",
+      icon: <MdEvent size={16} />,
+      title: "My Bookings",
+      noun: "event",
+      count: confirmedBookings.length,
+    },
+    {
+      key: "history",
+      label: "History",
+      icon: <MdHistory size={16} />,
+      title: "Booking History",
+      noun: "event",
+      count: allBookings.length,
+    },
+    {
+      key: "accommodation",
+      label: "Accommodation",
+      icon: <FaBed size={16} />,
+      title: "My Accommodation",
+      noun: "booking",
+      count: accommodationBookings.length,
+    },
+  ];
+
+  const currentTab =
+    tabItems.find((tab) => tab.key === activeTab) || tabItems[0];
 
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-zinc-100 via-gray-50 to-zinc-200 py-4 sm:py-8 px-3 sm:px-6 lg:px-10 relative overflow-hidden">
-        {/* Background and other UI elements... */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.08)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
-        <div className="absolute top-20 left-1/4 w-96 h-96 bg-zinc-300 rounded-full blur-[120px] opacity-20 animate-pulse"></div>
-        <div
-          className="absolute bottom-20 right-1/4 w-96 h-96 bg-gray-300 rounded-full blur-[120px] opacity-20 animate-pulse"
-          style={{ animationDelay: "2s" }}
-        ></div>
+      <div className="min-h-screen bg-transparent py-4 sm:py-8 px-3 sm:px-6 lg:px-10 relative overflow-hidden">
+        {/* Background Effects */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:60px_60px]"></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-white/[0.04] to-transparent rounded-full blur-[100px]"></div>
+        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-gradient-to-tl from-zinc-800/20 to-transparent rounded-full blur-[120px]"></div>
 
-        <div className="mt-15 max-w-7xl mx-auto flex flex-col lg:flex-row gap-6 lg:gap-12 relative z-10">
-          {/* User Details Section (Left) */}
-          <div className="w-full lg:w-[42%] xl:w-[38%]">
-            <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-200">
-              {/* Profile Header */}
-              <div className="bg-gradient-to-br from-black via-zinc-900 to-black p-6 sm:p-8 relative overflow-hidden">
-                <div className="absolute inset-0 opacity-10">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white to-transparent"></div>
-                  <div className="absolute bottom-0 right-0 w-1 h-full bg-gradient-to-b from-transparent via-white to-transparent"></div>
-                </div>
-                <div className="flex flex-col sm:flex-row items-center gap-6 relative z-10">
-                  <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full overflow-hidden border-4 border-white shadow-[0_0_30px_rgba(255,255,255,0.3)]">
-                    <Image
-                      src={currentUser.picture}
-                      alt="user_pfp"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="flex-1 text-center sm:text-left">
-                    <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1 tracking-tight">
-                      {currentUser.name}
-                    </h1>
-                    <p className="text-gray-300 text-xs sm:text-sm font-mono mb-4">
-                      ID: {currentUser.tat_id}
-                    </p>
-                    <div className="flex justify-center sm:justify-start gap-5">
-                      <button
-                        onClick={handleCopyReferral}
-                        className={`${
-                          copied
-                            ? "bg-black text-white"
-                            : "bg-gray-200 hover:bg-gray-300 text-black"
-                        } px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2`}
-                      >
-                        {copied ? (
-                          <>
-                            <FaCheck size={14} /> Copied!
-                          </>
-                        ) : (
-                          <>
-                            <FaShare size={14} /> Refer
-                          </>
-                        )}
-                      </button>
-                      <button
-                        onClick={async () => {
-                          await logout();
-                          router.push("/");
-                        }}
-                        className="bg-white hover:bg-gray-300 text-black px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2"
-                      >
-                        Logout
-                      </button>
+        <div className="mt-16 max-w-7xl mx-auto flex flex-col lg:flex-row items-stretch gap-6 lg:gap-8 relative z-10">
+
+          {/* ═══════════════════════════════════════════ */}
+          {/* LEFT COLUMN - Profile Card */}
+          {/* ═══════════════════════════════════════════ */}
+          <div className="w-full lg:w-1/2 flex flex-col" ref={profileCardRef}>
+            <div className="h-full bg-white/[0.02] backdrop-blur-md rounded-2xl overflow-hidden border border-white/[0.06] shadow-2xl shadow-black/50 flex flex-col">
+
+              {/* ── Profile Header with Avatar ── */}
+              <div className="relative p-6 sm:p-8 pb-0">
+                {/* Subtle gradient overlay at top */}
+                <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-white/[0.04] to-transparent rounded-t-2xl"></div>
+
+                <div className="relative z-10 flex flex-col items-center">
+                  {/* Profile Picture with Glow Ring */}
+                  <div className="relative mb-5 group">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-white/20 via-white/5 to-white/20 rounded-full blur-sm group-hover:blur-md group-hover:from-white/30 group-hover:to-white/30 transition-all duration-700 animate-pulse"></div>
+                    <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-2 border-white/20 shadow-[0_0_40px_rgba(255,255,255,0.1)]">
+                      <Image
+                        src={currentUser.picture}
+                        alt="user_pfp"
+                        fill
+                        className="object-cover"
+                      />
                     </div>
+                    {/* Online indicator */}
+                    <div className="absolute bottom-1 right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-black shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+                  </div>
+
+                  {/* Name & ID */}
+                  <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1 tracking-tight text-center">
+                    {currentUser.name}
+                  </h1>
+                  <p className="text-white/40 text-xs font-mono mb-5 tracking-wider">
+                    {currentUser.tat_id}
+                  </p>
+
+                  <div className="flex justify-center mb-6 w-full max-w-xs">
+                    <button
+                      onClick={async () => {
+                        await logout();
+                        router.push("/");
+                      }}
+                      className="w-full px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2 border bg-white/[0.06] hover:bg-white/[0.1] text-white/80 hover:text-white border-white/[0.08] hover:border-white/20"
+                    >
+                      Logout
+                    </button>
                   </div>
                 </div>
               </div>
-              {/* Personal Information */}
-              <div className="p-5 sm:p-6 lg:p-7 bg-gradient-to-br from-gray-50 to-white">
-                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-5 flex items-center gap-2 tracking-tight">
-                  <span className="w-1 h-6 bg-black rounded-full"></span>
+
+              {/* ── Divider ── */}
+              <div className="mx-6 sm:mx-8 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+
+              {/* ── Personal Information ── */}
+              <div className="p-5 sm:p-6 lg:p-7">
+                <h2 className="text-sm font-bold text-white/60 mb-4 flex items-center gap-2 tracking-widest uppercase">
+                  <span className="w-1 h-5 bg-white/30 rounded-full"></span>
                   Personal Information
                 </h2>
-                <div className="space-y-3">
-                  {fields.map((field) => (
+                <div className="space-y-2.5">
+                  {fields.map((field, index) => (
                     <div
                       key={field.key}
-                      className="group bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-xl p-4 transition-all duration-300 shadow-sm hover:shadow-md"
+                      className="group bg-white/[0.02] hover:bg-white/[0.04] border border-white/[0.05] hover:border-white/[0.10] rounded-xl p-3.5 transition-all duration-300"
+                      style={{
+                        animation: `profileSlideUp 0.3s ease-out ${index * 50}ms backwards`,
+                      }}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs text-gray-500 font-medium mb-1 uppercase tracking-wide">
+                          <p className="text-[10px] text-white/35 font-semibold mb-0.5 uppercase tracking-wider">
                             {field.label}
                           </p>
                           {editingField === field.key ? (
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 mt-1">
                               <input
                                 type="text"
                                 inputMode={
@@ -729,32 +622,28 @@ export default function ProfileClient({ user }) {
                                 }
                                 value={tempValue}
                                 onChange={(e) => setTempValue(e.target.value)}
-                                className="flex-1 text-sm sm:text-base font-semibold text-gray-900 border-b-2 border-black focus:outline-none bg-transparent px-1 py-1"
+                                className="flex-1 text-sm font-semibold text-white bg-white/[0.06] border border-white/[0.15] rounded-lg px-3 py-1.5 focus:outline-none focus:border-white/30 transition-colors"
                                 autoFocus
                                 disabled={isSaving}
                               />
                               <button
                                 onClick={handleSaveEdit}
                                 disabled={isSaving}
-                                className="px-3 py-2.5 rounded-lg bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold text-xs shadow-lg transition-all transform hover:scale-105 disabled:opacity-50"
+                                className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 transition-all disabled:opacity-50"
                               >
-                                <FaCheck size={12} />
+                                <FaCheck size={11} />
                               </button>
                               <button
                                 onClick={handleCancelEdit}
                                 disabled={isSaving}
-                                className="px-3 py-2 rounded-lg bg-gradient-to-r from-gray-600 to-gray-700 text-white font-semibold text-xs shadow-lg transition-all transform hover:scale-105 disabled:opacity-50"
+                                className="p-2 rounded-lg bg-white/[0.06] text-white/50 border border-white/[0.08] hover:bg-white/[0.1] transition-all disabled:opacity-50"
                               >
-                                <span>✕</span>
+                                <span className="text-xs">✕</span>
                               </button>
                             </div>
                           ) : (
-                            <p className="text-sm sm:text-base font-semibold text-gray-900 truncate">
-                              {field.key === "confReferral"
-                                ? confirmReferrals
-                                : field.key === "referredByName"
-                                ? currentUser.referredByName || ""
-                                : currentUser[field.key]}
+                            <p className="text-sm font-semibold text-white/85 truncate">
+                              {currentUser[field.key]}
                             </p>
                           )}
                         </div>
@@ -763,9 +652,9 @@ export default function ProfileClient({ user }) {
                             onClick={() =>
                               handleEdit(field.key, currentUser[field.key])
                             }
-                            className="ml-3 p-2 rounded-lg bg-gray-100 hover:bg-black hover:text-white text-gray-600 transition-all"
+                            className="ml-3 p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.1] text-white/30 hover:text-white/70 border border-transparent hover:border-white/[0.1] transition-all opacity-0 group-hover:opacity-100"
                           >
-                            <FaEdit size={16} />
+                            <FaEdit size={13} />
                           </button>
                         )}
                       </div>
@@ -773,163 +662,52 @@ export default function ProfileClient({ user }) {
                   ))}
                 </div>
 
-                {/* Mobile buttons for all sections */}
-                <div className="w-full lg:hidden mt-6 grid grid-cols-2 gap-3">
-                  <button
-                    onClick={() => handleOpenModal("bookings")}
-                    className="bg-black hover:bg-zinc-800 text-white py-3 rounded-xl font-semibold text-sm transition-all shadow-lg flex items-center justify-center gap-2"
-                  >
-                    <MdEvent size={20} />
-                    My Bookings
-                  </button>
-                  <button
-                    onClick={() => handleOpenModal("history")}
-                    className="bg-gray-200 hover:bg-gray-300 text-black py-3 rounded-xl font-semibold text-sm transition-all shadow-lg flex items-center justify-center gap-2"
-                  >
-                    <MdHistory size={20} />
-                    History
-                  </button>
-                </div>
-
-                {/* New mobile buttons for referrals */}
-                <div className="w-full lg:hidden mt-3 grid grid-cols-2 gap-3">
-                  <button
-                    onClick={() => handleOpenModal("confirmedReferrals")}
-                    className="bg-gray-200 hover:bg-gray-300 text-black py-3 rounded-xl font-semibold text-sm transition-all shadow-lg flex items-center justify-center gap-2"
-                  >
-                    <MdCheckCircle size={20} />
-                    Confirmed Refs
-                  </button>
-                  <button
-                    onClick={() => handleOpenModal("pendingReferrals")}
-                    className="bg-gray-200 hover:bg-gray-300 text-blackpy-3 rounded-xl font-semibold text-sm transition-all shadow-lg flex items-center justify-center gap-2"
-                  >
-                    <MdPending size={20} />
-                    Pending Refs
-                  </button>
-                </div>
-
-                <div className="w-full lg:hidden mt-3">
-                  <button
-                      onClick={() => handleOpenModal("accommodation")}
-                      className="bg-gray-200 hover:bg-gray-300 text-black w-full py-3 rounded-xl font-semibold text-sm transition-all shadow-lg flex items-center justify-center gap-2"
-                  >
-                    <FaBed size={20} />
-                    Accommodation
-                  </button>
-                </div>
-
               </div>
             </div>
           </div>
 
-          {/* Right Section - Events & Referrals (Desktop Only) */}
-          <div className="hidden lg:flex w-full lg:w-[58%] xl:w-[62%] relative">
-            <div className="w-full bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-200 pb-3">
-              <div className="bg-gradient-to-br from-black via-zinc-900 to-black p-6 relative overflow-hidden">
-                <div className="flex items-center justify-between relative z-10">
-                  <div>
-                    {/* --- MODIFY --- */}
-                    <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
-                      {activeTab === "bookings"
-                          ? "My Bookings"
-                          : activeTab === "history"
-                              ? "Booking History"
-                              : activeTab === "pendingReferrals"
-                                  ? "Pending Referrals"
-                                  : activeTab === "accommodation" // Add this condition
-                                      ? "My Accommodation"
-                                      : "Confirmed Referrals"}
-                    </h2>
-                    <p className="text-gray-300 text-sm mt-1 font-mono">
-                      {activeTab === "bookings"
-                          ? confirmedBookings.length
-                          : activeTab === "history"
-                              ? allBookings.length
-                              : activeTab === "pendingReferrals"
-                                  ? pendingReferrals.length
-                                  : activeTab === "accommodation" // Add this condition
-                                      ? accommodationBookings.length
-                                      : confirmedReferralsList.length}{" "}
-                      {activeTab === "pendingReferrals" ||
-                      activeTab === "confirmedReferrals"
-                          ? "referral"
-                          : activeTab === "accommodation" // Add this condition
-                              ? "booking"
-                              : "event"}
-                      {(activeTab === "bookings" && confirmedBookings.length !== 1) ||
-                      (activeTab === "history" && allBookings.length !== 1) ||
-                      (activeTab === "pendingReferrals" &&
-                          pendingReferrals.length !== 1) ||
-                      (activeTab === "confirmedReferrals" &&
-                          confirmedReferralsList.length !== 1) ||
-                      (activeTab === "accommodation" && // Add this condition
-                          accommodationBookings.length !== 1)
-                          ? "s"
-                          : ""}{" "}
-                      Total
-                    </p>
-                    {/* --- END MODIFY --- */}
-                  </div>
+          {/* ═══════════════════════════════════════════ */}
+          {/* RIGHT / MAIN CONTENT - Bookings & Accommodation */}
+          {/* ═══════════════════════════════════════════ */}
+          <div id="content-section" className="w-full lg:w-1/2 flex flex-col relative scroll-mt-20">
+            <div className="h-full w-full bg-white/[0.02] backdrop-blur-md rounded-2xl overflow-hidden border border-white/[0.06] shadow-2xl shadow-black/50 flex flex-col">
+
+              {/* ── Header ── */}
+              <div className="p-4 sm:p-6 relative overflow-hidden flex-shrink-0">
+                <div className="absolute top-0 left-0 right-0 h-full bg-gradient-to-b from-white/[0.03] to-transparent"></div>
+                <div className="relative z-10">
+                  <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+                    {currentTab.title}
+                  </h2>
+                  <p className="text-white/40 text-xs mt-1.5 font-mono tracking-wider">
+                    {currentTab.count} {currentTab.noun}
+                    {currentTab.count !== 1 ? "s" : ""} Total
+                  </p>
                 </div>
               </div>
 
-              <div className="flex border-b border-gray-200 px-6 pt-4 bg-gray-50 overflow-x-auto">
-                <button
-                  onClick={() => setActiveTab("bookings")}
-                  className={`py-3 px-4 text-sm font-bold transition-all whitespace-nowrap ${
-                    activeTab === "bookings"
-                      ? "text-black border-b-2 border-black"
-                      : "text-gray-500 hover:text-black"
-                  }`}
-                >
-                  My Bookings
-                </button>
-                <button
-                  onClick={() => setActiveTab("history")}
-                  className={`py-3 px-4 text-sm font-bold transition-all whitespace-nowrap ${
-                    activeTab === "history"
-                      ? "text-black border-b-2 border-black"
-                      : "text-gray-500 hover:text-black"
-                  }`}
-                >
-                  History
-                </button>
-                <button
-                  onClick={() => setActiveTab("confirmedReferrals")}
-                  className={`py-3 px-4 text-sm font-bold transition-all whitespace-nowrap ${
-                    activeTab === "confirmedReferrals"
-                      ? "text-black border-b-2 border-black"
-                      : "text-gray-500 hover:text-black"
-                  }`}
-                >
-                  Confirmed Referrals
-                </button>
-                <button
-                  onClick={() => setActiveTab("pendingReferrals")}
-                  className={`py-3 px-4 text-sm font-bold transition-all whitespace-nowrap ${
-                    activeTab === "pendingReferrals"
-                      ? "text-black border-b-2 border-black"
-                      : "text-gray-500 hover:text-black"
-                  }`}
-                >
-                  Pending Referrals
-                </button>
-                {/* --- ADD --- */}
-                <button
-                    onClick={() => setActiveTab("accommodation")}
-                    className={`py-3 px-4 text-sm font-bold transition-all whitespace-nowrap ${
-                        activeTab === "accommodation"
-                            ? "text-black border-b-2 border-black"
-                            : "text-gray-500 hover:text-black"
-                    }`}
-                >
-                  Accommodation
-                </button>
-                {/* --- END ADD --- */}
+              {/* ── Tabs ── */}
+              <div className="flex justify-between gap-4 border-b border-white/[0.06] px-4 sm:px-6 overflow-x-auto scrollbar-hide flex-shrink-0">
+                {tabItems.map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key)}
+                    className={`py-3 text-xs sm:text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 relative ${activeTab === tab.key
+                      ? "text-white"
+                      : "text-white/35 hover:text-white/60"
+                      }`}
+                  >
+                    {tab.icon}
+                    {tab.label}
+                    {activeTab === tab.key && (
+                      <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-white rounded-full"></span>
+                    )}
+                  </button>
+                ))}
               </div>
 
-              <div className="overflow-y-auto max-h-[70vh] p-6 bg-gradient-to-br from-gray-50 to-white">
+              {/* ── Content ── */}
+              <div className="overflow-y-auto flex-1 min-h-[400px] p-4 sm:p-6 flex flex-col">
                 {renderActiveContent()}
               </div>
             </div>
@@ -945,25 +723,20 @@ export default function ProfileClient({ user }) {
         userId={currentUser.id}
         onSuccess={() => window.location.reload()}
       />
-      {/* --- MODIFICATION: Pass new props to EventsModal --- */}
       <EventsModal
-          isOpen={eventsModalOpen}
-          onClose={() => setEventsModalOpen(false)}
-          activeView={activeTab}
-          setActiveView={setActiveTab}
-          confirmedBookings={confirmedBookings}
-          allBookings={allBookings}
-          referrals={referrals}
-          pendingReferrals={pendingReferrals}
-          confirmedReferralsList={confirmedReferralsList}
-          confirmReferrals={confirmReferrals}
-          accommodationBookings={accommodationBookings} // Add this prop
+        isOpen={eventsModalOpen}
+        onClose={() => setEventsModalOpen(false)}
+        activeView={activeTab}
+        setActiveView={setActiveTab}
+        confirmedBookings={confirmedBookings}
+        allBookings={allBookings}
+        accommodationBookings={accommodationBookings}
       />
       <style jsx>{`
-        @keyframes slideUp {
+        @keyframes profileSlideUp {
           from {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(16px);
           }
           to {
             opacity: 1;

@@ -53,14 +53,30 @@ export default function Hero({ refs }) {
 
   const CountdownBox = ({ value, label }) => (
     <div className='flex flex-col items-center'>
-      <div>
-        <p className='text-2xl sm:text-3xl md:text-6xl font-bold text-white monocraft'>
+      <div className='flex items-center justify-center'>
+        <p className='text-2xl sm:text-3xl md:text-6xl font-bold text-white monocraft leading-none'>
           {String(value).padStart(2, '0')}
         </p>
       </div>
       <p className='text-xs sm:text-sm md:text-base font-semibold mt-1 text-white'>
         {label}
       </p>
+    </div>
+  )
+
+  const Colon = () => (
+    <div className='flex flex-col items-center'>
+      <div className='flex items-center justify-center'>
+        <span className='text-2xl sm:text-3xl md:text-6xl font-bold text-white monocraft leading-none -translate-y-[0.1em]'>
+          :
+        </span>
+      </div>
+      <span
+        className='text-xs sm:text-sm md:text-base font-semibold mt-1 invisible select-none pointer-events-none'
+        aria-hidden='true'
+      >
+        &nbsp;
+      </span>
     </div>
   )
 
@@ -91,19 +107,13 @@ export default function Hero({ refs }) {
         <p className='mb-3 text-center text-sm font-black uppercase tracking-wide text-white sm:text-base md:mb-4 md:text-xl'>
           Website Launching IN
         </p>
-        <div className='flex items-center justify-center gap-1 px-2 sm:gap-3 md:gap-6'>
+        <div className='flex items-start justify-center gap-1 px-2 sm:gap-3 md:gap-6'>
           <CountdownBox value={countdown.days} label='DAYS' />
-          <div className='flex items-center text-lg md:text-5xl font-bold text-white'>
-            :
-          </div>
+          <Colon />
           <CountdownBox value={countdown.hours} label='HOURS' />
-          <div className='flex items-center text-lg md:text-5xl font-bold text-white'>
-            :
-          </div>
+          <Colon />
           <CountdownBox value={countdown.minutes} label='MINS' />
-          <div className='flex items-center text-lg md:text-5xl font-bold text-white'>
-            :
-          </div>
+          <Colon />
           <CountdownBox value={countdown.seconds} label='SECS' />
         </div>
       </div>

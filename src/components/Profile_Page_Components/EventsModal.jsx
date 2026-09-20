@@ -9,23 +9,17 @@ import {
   MdDownload,
   MdHistory,
   MdEvent,
-  MdCheckCircle,
-  MdPending,
 } from "react-icons/md";
-import { FaUser, FaUsers, FaBed } from "react-icons/fa";
+import { FaUser, FaBed } from "react-icons/fa";
 
 export default function EventsModal({
   isOpen,
   onClose,
   activeView,
   setActiveView,
-  confirmedBookings,
-  allBookings,
-  referrals,
-  pendingReferrals,
-  confirmedReferralsList,
-  confirmReferrals,
-  accommodationBookings,
+  confirmedBookings = [],
+  allBookings = [],
+  accommodationBookings = [],
 }) {
   useEffect(() => {
     if (isOpen) {
@@ -48,35 +42,25 @@ export default function EventsModal({
     }
   };
 
-  // --- MODIFICATION: Updated getStatusBadge to handle context ---
   const getStatusBadge = (status, context = "default") => {
-    const baseClasses = "text-xs font-bold uppercase px-2 py-1 rounded-full";
+    const baseClasses = "text-[10px] font-bold uppercase px-2.5 py-1 rounded-full tracking-wider";
     switch (status) {
       case "CONFIRMED":
       case "COMPLETED":
         return (
-          <span className={`${baseClasses} bg-green-200 text-green-800`}>
+          <span className={`${baseClasses} bg-emerald-500/20 text-emerald-400 border border-emerald-500/30`}>
             CONFIRMED
           </span>
         );
       case "PENDING":
-        if (context === "booking") {
-          // PENDING bookings are shown as FAILED
-          return (
-            <span className={`${baseClasses} bg-gray-200 text-gray-800`}>
-              FAILED
-            </span>
-          );
-        }
-        // PENDING referrals are shown as PENDING
         return (
-          <span className={`${baseClasses} bg-yellow-200 text-yellow-800`}>
-            PENDING
+          <span className={`${baseClasses} bg-amber-500/20 text-amber-400 border border-amber-500/30`}>
+            {context === "booking" ? "FAILED" : "PENDING"}
           </span>
         );
       default:
         return (
-          <span className={`${baseClasses} bg-gray-200 text-gray-800`}>
+          <span className={`${baseClasses} bg-white/10 text-white/60 border border-white/20`}>
             {status}
           </span>
         );
@@ -86,7 +70,7 @@ export default function EventsModal({
   const renderBookingList = (bookingsToRender) => {
     if (bookingsToRender && bookingsToRender.length > 0) {
       return (
-        <div className="space-y-4 sm:space-y-5">
+        <div className="space-y-4">
           {bookingsToRender.map((booking, index) => {
             const eventDateTime = new Date(booking.event?.datetime);
             const displayDate = eventDateTime.toLocaleDateString("en-GB", {
@@ -102,57 +86,52 @@ export default function EventsModal({
 
             return (
               <div
-                key={booking.bookingUid}
-                className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200"
-                style={{
-                  animation: `slideUp 0.3s ease-out ${
-                    index * 100
-                  }ms backwards`,
-                }}
+                key={booking.bookingUid || index}
+                className="group bg-white/[0.04] backdrop-blur-sm rounded-xl overflow-hidden border border-white/[0.08] hover:border-white/20 hover:bg-white/[0.07] transition-all duration-300"
               >
                 <div className="flex flex-col sm:flex-row">
-                  <div className="relative w-full sm:w-48 h-40 sm:h-auto flex-shrink-0 group overflow-hidden">
+                  <div className="relative w-full sm:w-48 h-36 sm:h-auto flex-shrink-0 overflow-hidden">
                     <Image
                       src={booking.event?.picture || "/placeholder.jpg"}
-                      alt={booking.event?.heading}
+                      alt={booking.event?.heading || "Event"}
                       fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-500"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                   </div>
                   <div className="flex-1 p-4 sm:p-5">
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-2">
-                      <h3 className="text-lg sm:text-xl font-bold text-gray-900 tracking-tight leading-tight">
-                        {booking.event?.heading}
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <h3 className="text-base sm:text-lg font-bold text-white tracking-tight leading-tight">
+                        {booking.event?.heading} {booking.event?.type}
                       </h3>
-                      {/* --- MODIFICATION: Pass context to getStatusBadge --- */}
                       {getStatusBadge(booking?.status, "booking")}
                     </div>
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
+                    <p className="text-white/50 text-xs sm:text-sm mb-4 line-clamp-2 leading-relaxed">
                       {booking.event?.description}
                     </p>
-                    <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
-                      <div className="flex items-center gap-2">
-                        <MdDateRange className="text-gray-500" size={16} />
-                        <span className="font-semibold text-gray-800">
-                          {displayDate}
-                        </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+                      <div className="flex items-center bg-white/[0.05] rounded-lg p-2.5 border border-white/[0.06]">
+                        <MdDateRange className="text-white/70 mr-2" size={16} />
+                        <div>
+                          <p className="text-[10px] text-white/40 font-semibold uppercase">Date</p>
+                          <p className="text-xs font-semibold text-white/90">{displayDate}</p>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <MdAccessTime className="text-gray-500" size={16} />
-                        <span className="font-semibold text-gray-800">
-                          {displayTime}
-                        </span>
+                      <div className="flex items-center bg-white/[0.05] rounded-lg p-2.5 border border-white/[0.06]">
+                        <MdAccessTime className="text-white/70 mr-2" size={16} />
+                        <div>
+                          <p className="text-[10px] text-white/40 font-semibold uppercase">Time</p>
+                          <p className="text-xs font-semibold text-white/90">{displayTime}</p>
+                        </div>
                       </div>
                     </div>
                     <button
                       onClick={() => handleDownloadTicket(booking.picture)}
                       disabled={booking.status !== "CONFIRMED"}
-                      className="w-full bg-black hover:bg-zinc-800 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2 shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      className="w-full bg-white/10 hover:bg-white/15 text-white px-4 py-2 rounded-lg font-semibold text-xs transition-all flex items-center justify-center gap-2 border border-white/10 disabled:opacity-30 disabled:cursor-not-allowed"
                     >
-                      <MdDownload size={18} />
-                      {booking.status === "CONFIRMED"
-                        ? "Download Ticket"
-                        : "Failed"}
+                      <MdDownload size={16} />
+                      {booking.status === "CONFIRMED" ? "Download Ticket" : "Failed"}
                     </button>
                   </div>
                 </div>
@@ -164,87 +143,110 @@ export default function EventsModal({
     }
 
     return (
-      <div className="text-center py-16 sm:py-20">
-        <div className="bg-gray-100 rounded-full w-20 h-20 sm:w-28 sm:h-28 mx-auto flex items-center justify-center mb-5 border-2 border-gray-200">
-          <MdDateRange className="text-gray-700" size={40} />
+      <div className="text-center py-12 sm:py-16">
+        <div className="bg-white/[0.05] rounded-full w-20 h-20 mx-auto flex items-center justify-center mb-4 border border-white/[0.08]">
+          <MdDateRange className="text-white/30" size={32} />
         </div>
-        <p className="text-gray-900 text-lg sm:text-xl font-bold mb-2">
-          {activeView === "bookings"
-            ? "No confirmed events yet"
-            : "No booking history"}
+        <p className="text-white/80 text-base font-bold mb-1">
+          {activeView === "bookings" ? "No confirmed events yet" : "No booking history"}
         </p>
-        <p className="text-gray-500 text-sm sm:text-base">
-          Your bookings will appear here!
+        <p className="text-white/40 text-xs sm:text-sm">
+          Start exploring and register for exciting events!
         </p>
       </div>
     );
   };
 
-  // Add renderReferralsList function
-  const renderReferralsList = (referralsToRender, type) => {
-    if (referralsToRender.length > 0) {
+  const renderAccommodationList = (bookingsToRender) => {
+    if (bookingsToRender && bookingsToRender.length > 0) {
       return (
-        <div className="space-y-5">
-          {referralsToRender.map((referral, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-200 hover:border-gray-300"
-              style={{
-                animation: `slideUp 0.3s ease-out ${index * 100}ms backwards`,
-              }}
-            >
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
-                    <FaUser className="text-gray-700" />
-                    {referral.referredUser.name}
-                    {/* --- MODIFICATION: Pass context to getStatusBadge --- */}
-                    {getStatusBadge(referral.status, "referral")}
+        <div className="space-y-4">
+          {bookingsToRender.map((booking, index) => {
+            const formatDate = (dateString) => {
+              return new Date(dateString).toLocaleDateString("en-GB", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              });
+            };
+
+            const foodChoices = [];
+            if (booking.foodDay24Veg > 0) foodChoices.push(`24th (Veg: ${booking.foodDay24Veg})`);
+            if (booking.foodDay24NonVeg > 0) foodChoices.push(`24th (Non-Veg: ${booking.foodDay24NonVeg})`);
+            if (booking.foodDay25Veg > 0) foodChoices.push(`25th (Veg: ${booking.foodDay25Veg})`);
+            if (booking.foodDay25NonVeg > 0) foodChoices.push(`25th (Non-Veg: ${booking.foodDay25NonVeg})`);
+            if (booking.foodDay26Veg > 0) foodChoices.push(`26th (Veg: ${booking.foodDay26Veg})`);
+            if (booking.foodDay26NonVeg > 0) foodChoices.push(`26th (Non-Veg: ${booking.foodDay26NonVeg})`);
+            const foodSummary = foodChoices.length > 0 ? foodChoices.join(", ") : "No food selected";
+
+            return (
+              <div
+                key={booking.bookingUid || index}
+                className="group bg-white/[0.04] backdrop-blur-sm rounded-xl overflow-hidden border border-white/[0.08] hover:border-white/20 hover:bg-white/[0.07] transition-all duration-300 p-4 sm:p-5"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
+                    Accommodation at {booking.room === "DORMG" ? "Dormitory (Girls)" : (booking.room === "DORMB" ? "Dormitory (Boys)" : (booking.room === "ROOM3" ? "3 Shared Room (Girls)" : "4 Shared Room (Boys)"))}
                   </h3>
+                  {getStatusBadge(booking.status, "booking")}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-                  <div className="flex items-center bg-gray-50 rounded-lg p-3 border border-gray-200 transition-all duration-200">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-4">
+                  <div className="flex items-center bg-white/[0.05] rounded-lg p-2.5 border border-white/[0.06]">
+                    <MdDateRange className="text-white/70 mr-2.5" size={16} />
                     <div>
-                      <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide">
-                        Email
-                      </p>
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {referral.referredUser.email}
-                      </p>
+                      <p className="text-[10px] text-white/40 font-semibold uppercase">Check-in</p>
+                      <p className="text-xs font-semibold text-white/90">{formatDate(booking.startDate)}</p>
                     </div>
                   </div>
-
-                  <div className="flex items-center bg-gray-50 rounded-lg p-3 border border-gray-200 transition-all duration-200">
+                  <div className="flex items-center bg-white/[0.05] rounded-lg p-2.5 border border-white/[0.06]">
+                    <MdDateRange className="text-white/70 mr-2.5" size={16} />
                     <div>
-                      <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide">
-                        Tathva ID
-                      </p>
-                      <p className="text-sm font-medium text-gray-900">
-                        {referral.referredUser.referral}
-                      </p>
+                      <p className="text-[10px] text-white/40 font-semibold uppercase">Check-out</p>
+                      <p className="text-xs font-semibold text-white/90">{formatDate(booking.endDate)}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center bg-white/[0.05] rounded-lg p-2.5 border border-white/[0.06]">
+                    <FaUser className="text-white/70 mr-2.5" size={14} />
+                    <div>
+                      <p className="text-[10px] text-white/40 font-semibold uppercase">Gender</p>
+                      <p className="text-xs font-semibold text-white/90 capitalize">{booking.gender?.toLowerCase()}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center bg-white/[0.05] rounded-lg p-2.5 border border-white/[0.06]">
+                    <MdEvent className="text-white/70 mr-2.5" size={16} />
+                    <div>
+                      <p className="text-[10px] text-white/40 font-semibold uppercase">Food Choices</p>
+                      <p className="text-xs font-semibold text-white/90">{foodSummary}</p>
                     </div>
                   </div>
                 </div>
+
+                <button
+                  onClick={() => handleDownloadTicket(booking.picture)}
+                  disabled={booking.status !== "CONFIRMED"}
+                  className="w-full bg-white/10 hover:bg-white/15 text-white px-4 py-2.5 rounded-lg font-semibold text-xs transition-all flex items-center justify-center gap-2 border border-white/10 disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <MdDownload size={16} />
+                  {booking.status === "CONFIRMED" ? "Download Food & Accommodation Ticket" : "Failed"}
+                </button>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       );
     }
 
     return (
-      <div className="text-center py-20">
-        <div className="bg-gray-100 rounded-full w-28 h-28 mx-auto flex items-center justify-center mb-5 border-2 border-gray-200">
-          <FaUsers className="text-gray-700" size={40} />
+      <div className="text-center py-12 sm:py-16">
+        <div className="bg-white/[0.05] rounded-full w-20 h-20 mx-auto flex items-center justify-center mb-4 border border-white/[0.08]">
+          <FaBed className="text-white/30" size={32} />
         </div>
-        <p className="text-gray-900 text-xl font-bold mb-2">
-          {type === "confirmed"
-            ? "No confirmed referrals yet"
-            : "No pending referrals"}
+        <p className="text-white/80 text-base font-bold mb-1">
+          No accommodation booked
         </p>
-        <p className="text-gray-500 text-base">
-          Share your referral code with friends to earn rewards!
+        <p className="text-white/40 text-xs sm:text-sm">
+          You can book your stay through the accommodation page.
         </p>
       </div>
     );
@@ -256,11 +258,7 @@ export default function EventsModal({
         return renderBookingList(confirmedBookings);
       case "history":
         return renderBookingList(allBookings);
-      case "pendingReferrals":
-        return renderReferralsList(pendingReferrals, "pending");
-      case "confirmedReferrals":
-        return renderReferralsList(confirmedReferralsList, "confirmed");
-      case "accommodation": // Add this case
+      case "accommodation":
         return renderAccommodationList(accommodationBookings);
       default:
         return renderBookingList(confirmedBookings);
@@ -273,11 +271,7 @@ export default function EventsModal({
         return "My Bookings";
       case "history":
         return "Booking History";
-      case "pendingReferrals":
-        return "Pending Referrals";
-      case "confirmedReferrals":
-        return "Confirmed Referrals";
-      case "accommodation": // Add this case
+      case "accommodation":
         return "My Accommodation";
       default:
         return "My Bookings";
@@ -290,234 +284,87 @@ export default function EventsModal({
         return confirmedBookings.length;
       case "history":
         return allBookings.length;
-      case "pendingReferrals":
-        return pendingReferrals.length;
-      case "confirmedReferrals":
-        return confirmedReferralsList.length;
-      case "accommodation": // Add this case
+      case "accommodation":
         return accommodationBookings.length;
       default:
         return 0;
     }
   };
 
-  const renderAccommodationList = (bookingsToRender) => {
-    if (bookingsToRender && bookingsToRender.length > 0) {
-      return (
-          <div className="space-y-5">
-            {bookingsToRender.map((booking, index) => {
-              const formatDate = (dateString) => {
-                return new Date(dateString).toLocaleDateString("en-GB", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                });
-              };
-
-              // --- ADD: Food summary logic ---
-              const foodChoices = [];
-              if (booking.foodDay24Veg > 0)
-                foodChoices.push(`24th (Veg: ${booking.foodDay24Veg})`);
-              if (booking.foodDay24NonVeg > 0)
-                foodChoices.push(`24th (Non-Veg: ${booking.foodDay24NonVeg})`);
-              if (booking.foodDay25Veg > 0)
-                foodChoices.push(`25th (Veg: ${booking.foodDay25Veg})`);
-              if (booking.foodDay25NonVeg > 0)
-                foodChoices.push(`25th (Non-Veg: ${booking.foodDay25NonVeg})`);
-              if (booking.foodDay26Veg > 0)
-                foodChoices.push(`26th (Veg: ${booking.foodDay26Veg})`);
-              if (booking.foodDay26NonVeg > 0)
-                foodChoices.push(`26th (Non-Veg: ${booking.foodDay26NonVeg})`);
-              const foodSummary =
-                  foodChoices.length > 0
-                      ? foodChoices.join(", ")
-                      : "No food selected";
-              // --- END ADD ---
-
-              return (
-                  <div
-                      key={booking.bookingUid}
-                      className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200"
-                      style={{
-                        animation: `slideUp 0.3s ease-out ${index * 100}ms backwards`,
-                      }}
-                  >
-                    <div className="p-5">
-                      <div className="flex items-start justify-between mb-4">
-                        <h3 className="text-lg font-bold text-gray-900 tracking-tight">
-                          Accommodation
-                        </h3>
-                        {getStatusBadge(booking.status, "booking")}
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm mb-4">
-                        {/* Check-in */}
-                        <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-lg">
-                          <MdDateRange className="text-gray-500" size={18} />
-                          <div>
-                            <p className="text-xs text-gray-500">Check-in</p>
-                            <p className="font-semibold text-gray-800">
-                              {formatDate(booking.startDate)}
-                            </p>
-                          </div>
-                        </div>
-                        {/* Check-out */}
-                        <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-lg">
-                          <MdDateRange className="text-gray-500" size={18} />
-                          <div>
-                            <p className="text-xs text-gray-500">Check-out</p>
-                            <p className="font-semibold text-gray-800">
-                              {formatDate(booking.endDate)}
-                            </p>
-                          </div>
-                        </div>
-                        {/* --- ADD: Food Details UI Block --- */}
-                        <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-lg col-span-1 sm:col-span-2">
-                          <MdEvent className="text-gray-500" size={18} />
-                          <div>
-                            <p className="text-xs text-gray-500">Food Choices</p>
-                            <p className="font-semibold text-gray-800">
-                              {foodSummary}
-                            </p>
-                          </div>
-                        </div>
-                        {/* --- END ADD --- */}
-                      </div>
-
-                      <button
-                          onClick={() => handleDownloadTicket(booking.picture)}
-                          disabled={booking.status !== "CONFIRMED"}
-                          className="w-full bg-black hover:bg-zinc-800 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg disabled:bg-gray-400"
-                      >
-                        <MdDownload size={18} />
-                        Download Ticket
-                      </button>
-                    </div>
-                  </div>
-              );
-            })}
-          </div>
-      );
-    };
-
-    return (
-        <div className="text-center py-20">
-          <div className="bg-gray-100 rounded-full w-28 h-28 mx-auto flex items-center justify-center mb-5 border-2 border-gray-200">
-            <FaBed className="text-gray-700" size={40} />
-          </div>
-          <p className="text-gray-900 text-xl font-bold mb-2">
-            No accommodation booked
-          </p>
-          <p className="text-gray-500 text-base">
-            Book your stay to see details here.
-          </p>
-        </div>
-    );
-  };
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl">
-        <div className="bg-gradient-to-br from-black via-zinc-900 to-black p-6 relative overflow-hidden flex-shrink-0">
-          <div className="flex items-center justify-between relative z-10">
-            <div>
-              <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
-                {getTitle()}
-              </h2>
-              <p className="text-gray-300 text-sm mt-1 font-mono">
-                {getCount()}{" "}
-                {activeView === "pendingReferrals" ||
-                activeView === "confirmedReferrals"
-                  ? "referral"
-                  : "event"}
-                {getCount() !== 1 ? "s" : ""} Total
-              </p>
-            </div>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-full bg-white bg-opacity-20 hover:bg-opacity-30 transition-all text-black"
-            >
-              <MdClose size={24} />
-            </button>
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-3 sm:p-6">
+      <div className="bg-zinc-950/95 backdrop-blur-xl border border-white/10 rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+        {/* Modal Header */}
+        <div className="p-5 sm:p-6 border-b border-white/[0.08] flex items-center justify-between flex-shrink-0 bg-white/[0.02]">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              {getTitle()}
+            </h2>
+            <p className="text-white/40 text-xs mt-1 font-mono tracking-wider">
+              {getCount()} {activeView === "accommodation" ? "booking" : "event"}
+              {getCount() !== 1 ? "s" : ""} Total
+            </p>
           </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-xl bg-white/10 hover:bg-white/15 text-white/70 hover:text-white transition-all border border-white/10"
+            aria-label="Close modal"
+          >
+            <MdClose size={20} />
+          </button>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex border-b border-gray-200 px-6 pt-4 bg-gray-50 overflow-x-auto flex-shrink-0">
+        <div className="flex border-b border-white/[0.06] px-4 sm:px-6 bg-white/[0.01] overflow-x-auto flex-shrink-0 scrollbar-hide">
           <button
             onClick={() => setActiveView("bookings")}
-            className={`py-3 px-4 text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
+            className={`py-3 px-4 text-xs sm:text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 relative ${
               activeView === "bookings"
-                ? "text-black border-b-2 border-black"
-                : "text-gray-500 hover:text-black"
+                ? "text-white"
+                : "text-white/40 hover:text-white/70"
             }`}
           >
-            <MdEvent size={18} />
-            My Bookings
+            <MdEvent size={16} />
+            Bookings
+            {activeView === "bookings" && (
+              <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-white rounded-full"></span>
+            )}
           </button>
           <button
             onClick={() => setActiveView("history")}
-            className={`py-3 px-4 text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
+            className={`py-3 px-4 text-xs sm:text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 relative ${
               activeView === "history"
-                ? "text-black border-b-2 border-black"
-                : "text-gray-500 hover:text-black"
+                ? "text-white"
+                : "text-white/40 hover:text-white/70"
             }`}
           >
-            <MdHistory size={18} />
+            <MdHistory size={16} />
             History
+            {activeView === "history" && (
+              <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-white rounded-full"></span>
+            )}
           </button>
           <button
-            onClick={() => setActiveView("confirmedReferrals")}
-            className={`py-3 px-4 text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
-              activeView === "confirmedReferrals"
-                ? "text-black border-b-2 border-black"
-                : "text-gray-500 hover:text-black"
+            onClick={() => setActiveView("accommodation")}
+            className={`py-3 px-4 text-xs sm:text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 relative ${
+              activeView === "accommodation"
+                ? "text-white"
+                : "text-white/40 hover:text-white/70"
             }`}
           >
-            <MdCheckCircle size={18} />
-            Confirmed
-          </button>
-          <button
-            onClick={() => setActiveView("pendingReferrals")}
-            className={`py-3 px-4 text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
-              activeView === "pendingReferrals"
-                ? "text-black border-b-2 border-black"
-                : "text-gray-500 hover:text-black"
-            }`}
-          >
-            <MdPending size={18} />
-            Pending
-          </button>
-          <button
-              onClick={() => setActiveView("accommodation")}
-              className={`py-3 px-4 text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
-                  activeView === "accommodation"
-                      ? "text-black border-b-2 border-black"
-                      : "text-gray-500 hover:text-black"
-              }`}
-          >
-            <FaBed size={18} />
+            <FaBed size={16} />
             Accommodation
+            {activeView === "accommodation" && (
+              <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-white rounded-full"></span>
+            )}
           </button>
         </div>
 
-        <div className="overflow-y-auto flex-1 p-6 bg-gradient-to-br from-gray-50 to-white">
+        {/* Content Area */}
+        <div className="overflow-y-auto flex-1 p-4 sm:p-6 bg-transparent">
           {renderActiveContent()}
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </div>
   );
 }
