@@ -36,8 +36,9 @@ export default async function LecturesPage() {
     );
   }
 
-  const wlectures = await getLectures();
-  const lectures = wlectures.filter((w) => !w.isFull);
+  // Not filtered on `isFull`: it is local bookkeeping that is never refreshed
+  // from TIQR, so a stale flag hid lectures that were still bookable.
+  const lectures = await getLectures();
 
   return (
     <div className="bg-transparent min-h-screen pt-24 sm:pt-28 pb-4 sm:pb-10 px-4 sm:px-8 text-white">

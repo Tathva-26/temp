@@ -11,7 +11,7 @@ const mi = Michroma({
   display: "swap",
 });
 
-export default function ModalWrapper({ eventId, ticketId, price }) {
+export default function ModalWrapper({ eventId, price, isBookable = true }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { isLoggedIn, authLoading, loginWithGoogle } = useUserContext();
 
@@ -39,8 +39,8 @@ export default function ModalWrapper({ eventId, ticketId, price }) {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         eventId={eventId}
-        ticketId={ticketId}
         price={price}
+        isBookable={isBookable}
       />
     </div>
   );

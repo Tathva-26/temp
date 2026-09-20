@@ -48,14 +48,18 @@ export default function EventsPage() {
   );
 
   // Separate the *filtered* list into two categories
-  const kgpcEvents = searchedCompetitions.filter(
+  /*
+   * Split by committee only. These used to drop anything flagged `isFull`, but
+   * that flag is local bookkeeping the backend never refreshes from TIQR, so a
+   * stale one silently hid a bookable competition. Availability is decided at
+   * booking time; `isBookable` is what gates the button.
+   */
+  const gpcEvents = searchedCompetitions.filter(
     (event) => event.committee === "GPC",
   );
-  const gpcEvents = kgpcEvents.filter((event) => !event.isFull);
-  const kotherCompetitions = searchedCompetitions.filter(
+  const otherCompetitions = searchedCompetitions.filter(
     (event) => event.committee !== "GPC",
   );
-  const otherCompetitions = kotherCompetitions.filter((event) => !event.isFull);
 
   // Loading state UI
   if (loading) {

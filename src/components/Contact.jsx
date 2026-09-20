@@ -3,7 +3,7 @@
 import { forwardRef, useState } from 'react'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import axios from 'axios'
+import api, { apiErrorMessage } from '@/lib/api'
 
 const ContactPage = forwardRef((props, ref) => {
   const [formData, setFormData] = useState({
@@ -58,10 +58,11 @@ const ContactPage = forwardRef((props, ref) => {
 
     try {
       setSubmitting(true)
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API}/api/contact/create`,
-        formData,
-      )
+      // Shared client: it resolves the backend origin from
+      // NEXT_PUBLIC_BACKEND_URL first and only then the legacy NEXT_PUBLIC_API,
+      // which this call used to read on its own — so a deployment setting only
+      // the former posted to `undefined/api/contact/create`.
+      const response = await api.post('/api/contact/create', formData)
 
       if (response.status === 201) {
         toast.success('Your query has been submitted successfully!')
@@ -70,8 +71,12 @@ const ContactPage = forwardRef((props, ref) => {
         toast.error('Something went wrong. Please try again later.')
       }
     } catch (error) {
-      console.log(error)
-      toast.error('Something went wrong. Please try again later.')
+      console.error('Contact submission failed:', error)
+      // Error bodies are not uniform (`error` vs `message`, and an array for a
+      // Zod failure) — apiErrorMessage is the one place that knows the shapes.
+      toast.error(
+        apiErrorMessage(error, 'Something went wrong. Please try again later.'),
+      )
     } finally {
       setSubmitting(false)
     }
