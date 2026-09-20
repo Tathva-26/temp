@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import ProfileSummary from "@/components/Profile_Page_Components/ProfileSummary";
 import { useUserContext } from "@/context/UserContext";
 
@@ -30,18 +29,6 @@ export default function ProfilePage() {
 
   return (
     <div>
-      <Link
-        href="/"
-        className="absolute left-10 top-5 z-20 text-white transition-colors hover:text-cyan-400"
-        style={{
-          textDecoration: "none",
-          marginBottom: "1.5rem",
-          display: "inline-block",
-        }}
-      >
-        <span style={{ fontWeight: "bold", fontSize: "1.5rem" }}>&larr; Home</span>
-      </Link>
-
       <ProfileSummary user={user} />
     </div>
   );

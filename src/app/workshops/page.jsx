@@ -53,7 +53,7 @@ export default function WorkshopsPage() {
   }, []);
 
   const searchedWorkshops = workshops.filter((workshop) =>
-    workshop.heading.toLowerCase().includes(searchQuery.toLowerCase()),
+    (workshop.heading ?? "").toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   if (loading) {
@@ -78,29 +78,20 @@ export default function WorkshopsPage() {
     );
   }
 
-  const filteredWorkshops = searchedWorkshops.filter((w) => !w.isFull);
-
   // Sort: real images first, dummy ones (ending with "-DUMMY.jpg") last
   const sortedWorkshops = [
-    ...filteredWorkshops.filter(
+    ...searchedWorkshops.filter(
       (w) => !w.picture?.trim().endsWith("-DUMMY.jpg"),
     ),
-    ...filteredWorkshops.filter((w) =>
+    ...searchedWorkshops.filter((w) =>
       w.picture?.trim().endsWith("-DUMMY.jpg"),
     ),
   ];
 
   return (
-    <div className="bg-transparent min-h-screen py-4 sm:py-10 px-4 sm:px-8 text-white">
-      {/* Heading and home */}
+    <div className="bg-transparent min-h-screen pt-24 sm:pt-28 pb-4 sm:pb-10 px-4 sm:px-8 text-white">
+      {/* Heading */}
       <div className="mb-12">
-        <Link
-          href="/"
-          className="text-sm font-medium text-gray-500 hover:text-black transition-colors"
-        >
-          ← Home
-        </Link>
-
         <div className="mb-12 border-b border-gray-300 pb-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             {/* Title */}

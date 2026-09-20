@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import CompetitionTabs from "@/components/CompetitionTabs";
 import BackendStatus from "@/components/BackendStatus";
 import { fetchEvents } from "@/lib/events";
@@ -83,15 +82,9 @@ export default function EventsPage() {
   }
 
   return (
-    <div className="bg-transparent min-h-screen py-4 sm:py-10 px-4 sm:px-8 text-white">
+    <div className="bg-transparent min-h-screen pt-24 sm:pt-28 pb-4 sm:pb-10 px-4 sm:px-8 text-white">
       {/* Heading and Search Bar Section */}
       <div className="mb-12">
-        <Link
-          href="/"
-          className="text-sm font-medium text-gray-500 hover:text-white transition-colors"
-        >
-          ← Home
-        </Link>
         <div className="mb-12 border-b border-gray-300 pb-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <h1 className="pp-fragment text-4xl sm:text-5xl md:text-6xl text-center md:text-left tracking-wide text-white uppercase md:mt-3">

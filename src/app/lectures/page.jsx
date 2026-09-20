@@ -40,15 +40,9 @@ export default async function LecturesPage() {
   const lectures = wlectures.filter((w) => !w.isFull);
 
   return (
-    <div className="bg-transparent min-h-screen py-4 sm:py-10 px-4 sm:px-8 text-white">
+    <div className="bg-transparent min-h-screen pt-24 sm:pt-28 pb-4 sm:pb-10 px-4 sm:px-8 text-white">
       {/* Heading */}
       <div className="mb-12">
-        <Link
-          href="/"
-          className="text-sm font-medium text-gray-500 hover:text-white transition-colors"
-        >
-          ← Home
-        </Link>
         <div className="mb-12 border-b border-gray-300 pb-4 mt-4">
           <h1 className="pp-fragment text-4xl sm:text-5xl md:text-6xl text-center md:text-left tracking-wide text-white uppercase md:mt-3">
             LECTURES

@@ -133,7 +133,7 @@ export default async function EventPage({ params }) {
   }
 
   return (
-    <div className="bg-transparent min-h-screen py-4 sm:py-10 px-4 sm:px-8 text-white">
+    <div className="bg-transparent min-h-screen pt-24 sm:pt-28 pb-4 sm:pb-10 px-4 sm:px-8 text-white">
       <div className="max-w-6xl mx-auto">
         {/* Header Section */}
         <div className="mb-12">
