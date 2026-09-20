@@ -1,10 +1,10 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import BackendStatus from "@/components/BackendStatus";
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import BackendStatus from '@/components/BackendStatus'
 
-const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
+const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== 'false'
 
 // const specificAnnouncements = [
 //   {
@@ -34,115 +34,114 @@ export default function AnnouncementsPage() {
   if (!backendEnabled) {
     return (
       <BackendStatus
-        title="Announcements coming soon"
-        message="There are no announcements to show yet."
+        title='Announcements coming soon'
+        message='There are no announcements to show yet.'
       />
-    );
+    )
   }
 
-  const [specificAnnouncements, setSpecificAnnouncements] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [specificAnnouncements, setSpecificAnnouncements] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   const formatDate = (dateString) =>
     dateString
-      ? new Date(dateString).toLocaleDateString("en-IN", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-          timeZone: "Asia/Kolkata",
+      ? new Date(dateString).toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+          timeZone: 'Asia/Kolkata',
         })
-      : "TBA";
+      : 'TBA'
 
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
-        setLoading(true);
+        setLoading(true)
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API}/api/announcements`,
-        );
+        )
 
         if (!response.ok) {
-          throw new Error("Failed to fetch announcements");
+          throw new Error('Failed to fetch announcements')
         }
 
-        const data = await response.json();
-        setSpecificAnnouncements(data);
+        const data = await response.json()
+        setSpecificAnnouncements(data)
       } catch (err) {
-        setError(err.message);
-        console.error("Error fetching announcements:", err);
+        setError(err.message)
+        console.error('Error fetching announcements:', err)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-    fetchAnnouncements();
+    }
+    fetchAnnouncements()
 
     // On visiting announcements page → mark all as read
-    const allIds = specificAnnouncements.map((a) => a.id);
-    localStorage.setItem("readAnnouncements", JSON.stringify(allIds));
-  }, []);
+    const allIds = specificAnnouncements.map((a) => a.id)
+    localStorage.setItem('readAnnouncements', JSON.stringify(allIds))
+  }, [])
 
   if (loading) {
     return (
-      <div className="bg-black min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-white border-r-transparent"></div>
-          <p className="mt-4 text-gray-300">Loading announcements...</p>
+      <div className='bg-black min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center'>
+        <div className='text-center'>
+          <div className='inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-white border-r-transparent'></div>
+          <p className='mt-4 text-gray-300'>Loading announcements...</p>
         </div>
       </div>
-    );
+    )
   }
 
   if (error) {
     return (
-      <div className="bg-black min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center">
-        <div className="text-center text-red-500">
-          <p className="text-xl font-semibold">Error loading announcements</p>
-          <p className="mt-2">{error}</p>
+      <div className='bg-black min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center'>
+        <div className='text-center text-red-500'>
+          <p className='text-xl font-semibold'>Error loading announcements</p>
+          <p className='mt-2'>{error}</p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="bg-black min-h-screen py-4 sm:py-10 px-4 sm:px-8 text-white">
-      {/* Heading */}
-      <div className="mb-12">
-        <Link
-          href="/"
-          className="text-sm font-medium text-gray-500 hover:text-white transition-colors"
+    <div className='bg-black min-h-screen py-4 sm:py-10 px-4 sm:px-8 text-white'>
+      <div className='mb-12'>
+        <button
+          onClick={() => router.push('/')}
+          className='text-sm font-medium text-gray-500 hover:text-white transition-colors'
         >
           ← Home
-        </Link>
-        <div className="mb-12 border-b border-gray-300 pb-4 mt-4">
-          <h1 className="pp-fragment text-4xl sm:text-5xl md:text-6xl text-center md:text-left tracking-wide text-white uppercase md:mt-3">
+        </button>
+        <div className='mb-12 border-b border-gray-300 pb-4 mt-4'>
+          <h1 className='pp-fragment text-4xl sm:text-5xl md:text-6xl text-center md:text-left tracking-wide text-white uppercase md:mt-3'>
             ANNOUNCEMENTS
           </h1>
         </div>
       </div>
 
       {/* Announcements List */}
-      <div className="mx-auto max-w-4xl">
+      <div className='mx-auto max-w-4xl'>
         {specificAnnouncements.length === 0 ? (
-          <p className="text-center text-gray-300 text-lg">
+          <p className='text-center text-gray-300 text-lg'>
             No announcements at the moment. Please check back later.
           </p>
         ) : (
-          <div className="space-y-6">
+          <div className='space-y-6'>
             {specificAnnouncements.map((announcement) => (
               <div
                 key={announcement.id}
-                className="border-l-4 border-white/20 pl-6 lg:pr-8 py-4 bg-black/30 rounded-r-lg shadow-sm border border-white/10"
+                className='border-l-4 border-white/20 pl-6 lg:pr-8 py-4 bg-black/30 rounded-r-lg shadow-sm border border-white/10'
               >
-                <div className="flex justify-between items-baseline mb-2 flex-wrap">
-                  <h2 className="text-2xl font-bold text-white pp-fragment break-words max-w-full">
+                <div className='flex justify-between items-baseline mb-2 flex-wrap'>
+                  <h2 className='text-2xl font-bold text-white pp-fragment break-words max-w-full'>
                     {announcement.title}
                   </h2>
-                  <p className="text-sm text-gray-400 sm:ml-4 mt-2 whitespace-nowrap">
+                  <p className='text-sm text-gray-400 sm:ml-4 mt-2 whitespace-nowrap'>
                     {formatDate(announcement.createdAt)}
                   </p>
                 </div>
-                <p className="text-gray-300 leading-relaxed break-words">
+                <p className='text-gray-300 leading-relaxed break-words'>
                   {announcement.content}
                 </p>
               </div>
@@ -151,5 +150,5 @@ export default function AnnouncementsPage() {
         )}
       </div>
     </div>
-  );
+  )
 }
