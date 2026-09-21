@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import SectionCard from "@/components/SectionCard";
+import { formatPrice } from "@/lib/events";
 
 export default function CompetitionTabs({ tathvaEvents, preTathvaEvents }) {
   const [activeTab, setActiveTab] = useState("tathva");

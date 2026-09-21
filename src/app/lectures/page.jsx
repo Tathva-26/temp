@@ -1,25 +1,28 @@
 import SectionCard from "@/components/SectionCard";
 import Link from "next/link";
 import BackendStatus from "@/components/BackendStatus";
+import { fetchEvents, formatPrice } from "@/lib/events";
 
 const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
-// Function to fetch all lectures from Strapi
+/*
+ * Rendered per request. Which events are published changes whenever an admin
+ * publishes one, so a build-time snapshot would go stale immediately — and
+ * prerendering would also mean reaching for the backend during the build.
+ */
+export const dynamic = "force-dynamic";
+
+/**
+ * Published lectures. An empty list is a normal state — nothing is published
+ * yet — so a fetch failure is swallowed rather than taking the page down.
+ */
 async function getLectures() {
-  const url = `${process.env.NEXT_PUBLIC_API}/api/events/all?type=lectures`;
-
-  const res = await fetch(url);
-
-  if (!res.ok) {
-    console.log("Failed to fetch events:", res);
+  try {
+    return await fetchEvents("lectures");
+  } catch (err) {
+    console.error("Failed to fetch lectures:", err);
     return [];
   }
-  const data = await res.json();
-
-  // console.log(url)
-  // console.log(data.events);
-
-  return data.events; // Strapi nests the array in a 'data' object
 }
 
 // The page component
@@ -33,19 +36,14 @@ export default async function LecturesPage() {
     );
   }
 
-  const wlectures = await getLectures();
-  const lectures = wlectures.filter((w) => !w.isFull);
+  // Not filtered on `isFull`: it is local bookkeeping that is never refreshed
+  // from TIQR, so a stale flag hid lectures that were still bookable.
+  const lectures = await getLectures();
 
   return (
-    <div className="bg-transparent min-h-screen py-4 sm:py-10 px-4 sm:px-8 text-white">
+    <div className="bg-transparent min-h-screen pt-24 sm:pt-28 pb-4 sm:pb-10 px-4 sm:px-8 text-white">
       {/* Heading */}
       <div className="mb-12">
-        <Link
-          href="/"
-          className="text-sm font-medium text-gray-500 hover:text-white transition-colors"
-        >
-          ← Home
-        </Link>
         <div className="mb-12 border-b border-gray-300 pb-4 mt-4">
           <h1 className="pp-fragment text-4xl sm:text-5xl md:text-6xl text-center md:text-left tracking-wide text-white uppercase md:mt-3">
             LECTURES
@@ -55,20 +53,25 @@ export default async function LecturesPage() {
 
       {/* Lectures Grid */}
       <div className="mx-auto">
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {lectures.map((lecture) => (
-            <Link href={`/lectures/${lecture.id}`} key={lecture.id}>
-              <SectionCard
-                // Your API doesn't have an image field, so we use a fallback
-                image={lecture.picture}
-                // Map API 'name' field to the 'title' prop
-                title={lecture.heading}
-                // The 'description' prop is populated by lecture.description
-                description={lecture.description}
-              />
-            </Link>
-          ))}
-        </div>
+        {lectures.length === 0 ? (
+          <p className="text-center text-lg text-gray-300">
+            No lectures announced yet. Check back soon.
+          </p>
+        ) : (
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            {lectures.map((lecture) => (
+              <Link href={`/lectures/${lecture.id}`} key={lecture.id}>
+                <SectionCard
+                  image={lecture.picture}
+                  title={lecture.heading}
+                  description={lecture.description}
+                  price={formatPrice(lecture.price)}
+                  extraInfo={lecture.venueName ?? ""}
+                />
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

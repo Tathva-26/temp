@@ -1,21 +1,19 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useUserContext } from "@/context/UserContext";
 
-// There is no separate onboarding flow any more: /profile edits the same
-// fields through the same PUT /api/user/, and shows a prompt when the phone
-// number booking requires is still missing. This only redirects so old links
-// do not 404.
-export default function OnboardingPage() {
-  const router = useRouter();
+// OAuth landing page. Google returns to the backend callback, which sets the
+// httpOnly session cookie and redirects here with no token in the URL.
+// better-auth restores the session — this page waits for that and routes to
+// /profile or back home if sign-in failed.
+export default function GoogleCallbackPage() {
   const { isLoggedIn, authLoading } = useUserContext();
 
   useEffect(() => {
     if (authLoading) return;
-    router.replace(isLoggedIn ? "/profile" : "/");
-  }, [authLoading, isLoggedIn, router]);
+    window.location.replace(isLoggedIn ? "/profile" : "/");
+  }, [authLoading, isLoggedIn]);
 
   return (
     <div className="flex min-h-screen items-center justify-center">

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { BellDot, Menu, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+import AuthButton from "./AuthButton";
 
 export default function ScrollHeader() {
   const [isVisible, setIsVisible] = useState(false);
@@ -12,9 +13,19 @@ export default function ScrollHeader() {
   const router = useRouter();
 
   useEffect(() => {
+    // Only the landing page hides the header at the top — its hero is meant to
+    // be seen uninterrupted. Everywhere else the header is part of the page and
+    // shows straight away, so there is nothing to listen for.
+    if (pathname !== '/') {
+      setIsVisible(true);
+      return;
+    }
+
+    // Past the hero.
+    const threshold = 300;
+
     const handleScroll = () => {
-      // Show header after scrolling down 300px OR if we are not on the homepage
-      if (pathname !== '/' || window.scrollY > 300) {
+      if (window.scrollY > threshold) {
         setIsVisible(true);
       } else {
         setIsVisible(false);
@@ -24,7 +35,14 @@ export default function ScrollHeader() {
 
     handleScroll(); // Trigger immediately on mount/path change
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleScroll);
+    // Content can load in after mount and change the page height
+    const timeout = setTimeout(handleScroll, 600);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+      clearTimeout(timeout);
+    };
   }, [pathname]);
 
   return (
@@ -34,10 +52,10 @@ export default function ScrollHeader() {
           isVisible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
         }`}
       >
-        <div className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-8 flex items-center justify-between">
+        <div className="pointer-events-none mx-auto w-full max-w-7xl px-4 py-4 sm:px-8 flex items-center justify-between">
           
           {/* Logo */}
-          <div className="flex-shrink-0 bg-black/40 p-2 px-4 rounded-full backdrop-blur-md border border-white/10 shadow-lg cursor-pointer transition-transform hover:scale-105" onClick={() => {
+          <div className="pointer-events-auto flex-shrink-0 bg-black/40 p-2 px-4 rounded-full backdrop-blur-md border border-white/10 shadow-lg cursor-pointer transition-transform hover:scale-105" onClick={() => {
               if (window.location.pathname === '/') {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
               } else {
@@ -54,7 +72,7 @@ export default function ScrollHeader() {
           </div>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-6 bg-black/40 backdrop-blur-md border border-white/10 rounded-full px-6 py-2 shadow-lg">
+          <div className="pointer-events-auto hidden md:flex items-center gap-6 bg-black/40 backdrop-blur-md border border-white/10 rounded-full px-6 py-2 shadow-lg">
             {["Workshops", "Competitions", "Passes", "Lectures", "Accomodation"].map((item) => (
               <Link 
                 key={item} 
@@ -67,12 +85,16 @@ export default function ScrollHeader() {
           </div>
 
           {/* Mobile Toggle / Notification */}
-          <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/10 rounded-full px-2 py-1 shadow-lg">
+          <div className="pointer-events-auto flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/10 rounded-full px-2 py-1 shadow-lg">
             <Link className="p-2" href="/announcements">
               <BellDot size={20} className="text-white hover:text-cyan-400 transition-colors" />
             </Link>
-            <button 
-              className="md:hidden p-2 text-white hover:text-cyan-400 transition-colors" 
+            <div className="hidden md:flex items-center border-l border-white/10 pl-1">
+              <AuthButton />
+            </div>
+            <button
+              className="md:hidden flex h-11 w-11 items-center justify-center rounded-full bg-black/40 backdrop-blur-md border border-white/10 shadow-lg text-white hover:text-cyan-400 transition-colors"
+              aria-label="Toggle menu"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
