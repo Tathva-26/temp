@@ -89,7 +89,7 @@ export default async function WorkshopPage({ params }) {
                   src={workshopData.image}
                   alt={workshopData.name}
                   fill
-                  className='object-cover'
+                  className='object-contain'
                   priority
                 />
               ) : (

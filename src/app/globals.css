@@ -22,6 +22,28 @@ body {
   overscroll-behavior-x: none;
 }
 
+/*
+ * Full-screen fixed backgrounds.
+ *
+ * On phones the fixed containing block shrinks and grows as the browser's
+ * URL bar collapses and reappears mid-scroll. A plain `inset-0` background
+ * therefore changes height during a scroll, which re-crops `object-cover`
+ * images and re-runs every resize handler underneath it. Pinning to the
+ * large viewport (`lvh`) keeps the box one constant size and lets the URL
+ * bar overlap it instead. `vh` first as the fallback for older browsers.
+ *
+ * Left/right rather than a `100vw` width, so a desktop scrollbar can't push
+ * the box wider than the page.
+ */
+.viewport-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  height: 100lvh;
+}
+
 @font-face {
   font-family: "PPFragment";
   src: url("/fonts/PPFragment-SerifLight.otf") format("opentype");

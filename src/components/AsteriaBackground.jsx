@@ -34,16 +34,25 @@ export default function AsteriaBackground() {
             mediaQuery.addListener(handleMotionChange);
         }
 
-        const init = () => {
-            width = window.innerWidth;
-            height = window.innerHeight;
+        const resizeCanvas = () => {
+            // Measure the canvas' own box, not window.innerHeight: on phones
+            // innerHeight changes every time the URL bar collapses, while the
+            // canvas (pinned to the large viewport by .viewport-bg) does not.
+            const rect = canvas.getBoundingClientRect();
+            width = Math.round(rect.width) || window.innerWidth;
+            height = Math.round(rect.height) || window.innerHeight;
             dpr = Math.min(window.devicePixelRatio || 1, 2); // Cap rendering at 2x for performance
 
+            // Assigning width/height resets the context, so the scale below
+            // is re-applied rather than compounded.
             canvas.width = width * dpr;
             canvas.height = height * dpr;
 
             ctx.scale(dpr, dpr);
+        };
 
+        const init = () => {
+            resizeCanvas();
             createStars();
         };
 
@@ -264,7 +273,18 @@ export default function AsteriaBackground() {
 
         // Events
         const handleResize = () => {
-            init();
+            const prevWidth = width;
+            const prevHeight = height;
+
+            resizeCanvas();
+
+            // Reseed only on a real layout change. A mobile URL bar sliding
+            // away fires resize without changing the canvas box, and
+            // reseeding there teleports all 400 static stars mid-scroll —
+            // which reads as the background "shifting".
+            if (width !== prevWidth || height !== prevHeight) {
+                createStars();
+            }
         };
 
         // Detect touch device to avoid unnatural mobile mouse tracking
@@ -311,11 +331,8 @@ export default function AsteriaBackground() {
     return (
         <canvas
             ref={canvasRef}
+            className="viewport-bg"
             style={{
-                position: 'fixed',
-                inset: 0,
-                width: '100%',
-                height: '100%',
                 pointerEvents: 'none', // Allow clicks to pass through
                 zIndex: 0,             // Render beneath content
                 background: 'transparent'
