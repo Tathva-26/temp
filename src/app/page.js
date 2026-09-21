@@ -3,7 +3,6 @@ import ContactPage from "@/components/Contact";
 import Hero from "@/components/Hero";
 import Gallery from "@/components/Galleryv2";
 import MinimalSections from "@/components/Explore";
-import Footer from "@/components/Footer";
 import { useRef } from "react";
 
 export default function Home() {
@@ -20,9 +19,6 @@ export default function Home() {
       <MinimalSections />
       <Gallery ref={galleryRef} />
       <ContactPage ref={contactRef} />
-      
-      {/* Footer can also receive refs if needed */}
-      <Footer refs={{ gallery: galleryRef, contact: contactRef }} />
     </div>
   );
 }

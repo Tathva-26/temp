@@ -1,22 +1,31 @@
 "use client";
 import { useState, useEffect } from "react";
-import axios from "axios";
-import { Calendar, MapPin, Tag } from "lucide-react";
+import { Calendar, Tag } from "lucide-react";
 import BackendStatus from "@/components/BackendStatus";
+import { getBackendURL } from "@/lib/api";
 
 const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
+/**
+ * Read-only view of what TIQR holds for our host account.
+ *
+ * The direction of this used to be backwards. It listed TIQR's events and
+ * offered to copy them into our database — but we are now the source of truth:
+ * an admin creates the event here and publishing it pushes it to TIQR. There
+ * is no `/api/events/create` for a visitor to call (creation is admin-only,
+ * under `/api/admin/events`), so the "Add to Tathva DB" button could only ever
+ * 404. This is kept as a reconciliation aid, nothing more.
+ */
 export default function EventsListing() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [addingEventId, setAddingEventId] = useState(null);
 
   if (!backendEnabled) {
     return (
       <BackendStatus
         title="Event management coming soon"
-        message="Event imports will be available when the backend is ready."
+        message="TIQR event listings will be available when the backend is ready."
       />
     );
   }
@@ -28,54 +37,18 @@ export default function EventsListing() {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API}/api/tiqr-events`,
-      );
+      const response = await fetch(`${getBackendURL()}/api/tiqr-events/`);
+      if (!response.ok) throw new Error(`Request failed (${response.status})`);
+
       const data = await response.json();
-      setEvents(data.events.results);
+      // TIQR paginates, so the list is under `results`.
+      setEvents(data.events?.results ?? data.events ?? []);
       setError(null);
     } catch (err) {
+      console.error("Failed to load TIQR events:", err);
       setError("Failed to load events. Please try again later.");
     } finally {
       setLoading(false);
-    }
-  };
-
-  console.log(events);
-  const handleAddEvent = async (event) => {
-    try {
-      setAddingEventId(event.id);
-      const body = {
-        id: event.id,
-        ticketId: event.ticket_prices[0].id,
-        type: event.genre || "general",
-        heading: event.name,
-        datetime: event.start_date,
-        price: event.minimum_ticket_price || 0,
-        venueId: event.address?.id || null,
-        description: event.short_description || "",
-        catchyPara: event.catchy_para || "",
-        picture: event.cover?.image || "",
-      };
-
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API}/api/events/create`,
-        body,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("jwt")}`, // if using JWT auth
-            "Content-Type": "application/json",
-          },
-        },
-      );
-
-      alert(`✅ Event "${event.name}" added successfully!`);
-      console.log("Created event:", response.data);
-    } catch (err) {
-      console.error(err);
-      alert("❌ Failed to add event. Please check console or credentials.");
-    } finally {
-      setAddingEventId(null);
     }
   };
 
@@ -139,21 +112,10 @@ export default function EventsListing() {
                 {formatDate(event.start_date)} – {formatTime(event.start_date)}
               </div>
 
-              <button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 mb-2">
-                View Details
-              </button>
-
-              <button
-                onClick={() => handleAddEvent(event)}
-                disabled={addingEventId === event.id}
-                className={`w-full border border-purple-600 text-purple-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 ${
-                  addingEventId === event.id
-                    ? "opacity-60"
-                    : "hover:bg-purple-50"
-                }`}
-              >
-                {addingEventId === event.id ? "Adding..." : "Add to Tathva DB"}
-              </button>
+              <p className="text-xs text-gray-500">
+                TIQR event #{event.id}. Events are created and published from
+                the admin panel; publishing is what pushes them here.
+              </p>
             </div>
           </div>
         ))}

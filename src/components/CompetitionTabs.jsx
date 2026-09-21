@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import SectionCard from "@/components/SectionCard";
+import { formatPrice } from "@/lib/events";
 
 export default function CompetitionTabs({ tathvaEvents, preTathvaEvents }) {
   const [activeTab, setActiveTab] = useState("tathva");
@@ -62,7 +63,8 @@ export default function CompetitionTabs({ tathvaEvents, preTathvaEvents }) {
                         description={
                           event.description || "No description available."
                         }
-                        price={event.price}
+                        price={formatPrice(event.price)}
+                        extraInfo={event.venueName ?? ""}
                       />
                     </Link>
                   ))}
@@ -88,7 +90,8 @@ export default function CompetitionTabs({ tathvaEvents, preTathvaEvents }) {
                         description={
                           event.description || "No description available."
                         }
-                        price={event.price}
+                        price={formatPrice(event.price)}
+                        extraInfo={event.venueName ?? ""}
                       />
                     </Link>
                   ))}

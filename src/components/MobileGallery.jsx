@@ -59,7 +59,7 @@ const MobileGallery = forwardRef((props, ref) => {
         isWrappingRef.current = true;
         el.style.scrollSnapType = "none";
         el.scrollLeft += singleSetWidth;
-        el.offsetHeight; 
+        el.offsetHeight;
         requestAnimationFrame(() => {
           el.style.scrollSnapType = "";
           isWrappingRef.current = false;
@@ -68,7 +68,7 @@ const MobileGallery = forwardRef((props, ref) => {
         isWrappingRef.current = true;
         el.style.scrollSnapType = "none";
         el.scrollLeft -= singleSetWidth;
-        el.offsetHeight; 
+        el.offsetHeight;
         requestAnimationFrame(() => {
           el.style.scrollSnapType = "";
           isWrappingRef.current = false;
@@ -93,13 +93,13 @@ const MobileGallery = forwardRef((props, ref) => {
       const factor = 1 - Math.min(1, distance / maxDist);
       updates.push({
         card,
-        scale: 0.5 + factor * 0.5,
-        opacity: 0.3 + factor * 0.7,
+        scale: 0.7 + factor * 0.3,
+        opacity: Math.min(1, 0.67 + factor * 0.33),
       });
     });
 
     updates.forEach(({ card, scale, opacity }) => {
-      card.style.transform = `scale(${scale})`; 
+      card.style.transform = `scale(${scale})`;
       card.style.opacity = opacity;
     });
   };
@@ -149,8 +149,8 @@ const MobileGallery = forwardRef((props, ref) => {
       } else {
         autoScrollRafRef.current = null;
         isAutoScrollingRef.current = false;
-        el.style.scrollSnapType = ""; 
-        wrapIfNeeded(); 
+        el.style.scrollSnapType = "";
+        wrapIfNeeded();
         scheduleAutoplay();
       }
     };
@@ -182,7 +182,7 @@ const MobileGallery = forwardRef((props, ref) => {
       idleWrapTimerRef.current = setTimeout(() => {
         wrapIfNeeded();
         if (!isHoveredRef.current) scheduleAutoplay();
-      }, 150); 
+      }, 150);
     }
   };
 
@@ -209,7 +209,7 @@ const MobileGallery = forwardRef((props, ref) => {
 
     const setup = () => {
       singleSetWidthRef.current = measureSingleSetWidth();
-      el.scrollLeft = singleSetWidthRef.current * 3.0; 
+      el.scrollLeft = singleSetWidthRef.current * 3.0;
       updateVisuals();
       scheduleAutoplay();
     };
@@ -235,9 +235,9 @@ const MobileGallery = forwardRef((props, ref) => {
       onTouchStart={handleMouseEnter}
       onTouchEnd={handleMouseLeave}
       style={{ scrollBehavior: "auto" }}
-      className="relative overflow-x-scroll snap-x py-16 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden w-full flex items-center"
+      className="relative overflow-x-scroll snap-x py-8 sm:py-16 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden w-full flex items-center"
     >
-      <div className="flex items-center gap-4 px-[15vw]">
+      <div className="flex items-center gap-0.1 px-[20vw]">
         {GalleryImages.map((img) => (
           <div
             key={img.id}
@@ -252,7 +252,7 @@ const MobileGallery = forwardRef((props, ref) => {
             <img
               src={img.src}
               alt={img.alt}
-              className="w-full h-80 sm:h-100 object-cover rounded-lg shadow-2xl shadow-black/60 border border-white/10"
+              className="w-full h-56 sm:h-80 object-cover rounded-lg shadow-2xl shadow-black/60 border border-white/10"
               draggable={false}
             />
           </div>

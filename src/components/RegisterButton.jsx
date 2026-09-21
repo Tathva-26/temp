@@ -2,23 +2,32 @@
 import { useState } from "react";
 import { regHandler } from "@/functions/regHandler";
 
-export default function RegisterButton({ id, ticketId }) {
+export default function RegisterButton({
+  id,
+  quantity = 1,
+  referralCode,
+  disabled = false,
+}) {
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleClick = () => {
+  /*
+   * Stays in the loading state on success: `regHandler` navigates to TIQR, and
+   * re-enabling the button in the meantime invites a second booking. It only
+   * resets when the booking was refused and the page is still ours. (This used
+   * to be a fixed 2.5s timeout, which reset the button mid-redirect.)
+   */
+  const handleClick = async () => {
+    if (isLoading) return;
     setIsLoading(true);
 
-setTimeout(() => {
-  setIsLoading(false);
-}, 2500);
-
-    regHandler(id, ticketId);
+    const redirecting = await regHandler(id, quantity, referralCode);
+    if (!redirecting) setIsLoading(false);
   };
 
   return (
     <button
       onClick={handleClick}
-      disabled={isLoading}
+      disabled={isLoading || disabled}
       className="p-4 w-[180px] bg-gray-900 text-white rounded-xl text-sm sm:text-base uppercase tracking-wider font-medium border border-gray-900 hover:bg-white hover:text-gray-900 transition duration-200 shadow-sm disabled:cursor-not-allowed flex items-center justify-center gap-2"
     >
       {isLoading ? (

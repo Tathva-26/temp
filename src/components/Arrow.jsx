@@ -11,7 +11,7 @@ export const Arrow = forwardRef(({ direction }, ref) => {
 
         // Fill animation
         tl.to(pathRef.current, {
-          fill: "black",
+          fill: "grey",
           duration: 0.3,
           ease: "power2.out",
         })
@@ -38,7 +38,7 @@ export const Arrow = forwardRef(({ direction }, ref) => {
         ref={pathRef}
         d="M147.5 1.5H85L3 81.5L81.5 160.5H149.5L66.5 81.5L147.5 1.5Z"
         fill="transparent"
-        stroke="black"
+        stroke="grey"
         strokeWidth="3"
       />
     </svg>

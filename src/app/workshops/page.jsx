@@ -1,11 +1,12 @@
 "use client";
+
 import React, { useEffect, useLayoutEffect, useState, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
-import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import BackendStatus from "@/components/BackendStatus";
 import gsap from "gsap";
+import { fetchEvents } from "@/lib/events";
 
 const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
@@ -1756,9 +1757,8 @@ export default function WorkshopsPage() {
     const fetchWorkshops = async () => {
       try {
         setLoading(true);
-        const url = `${process.env.NEXT_PUBLIC_API}/api/events/all?type=workshops`;
-        const response = await axios.get(url);
-        setWorkshops(response.data.events);
+        // Published only, and prices already in rupees — see lib/events.
+        setWorkshops(await fetchEvents("workshops"));
         setError(null);
       } catch (err) {
         console.error("Error fetching workshops:", err);
@@ -1779,7 +1779,7 @@ export default function WorkshopsPage() {
   // the data or the search text actually changes.
   const sortedWorkshops = useMemo(() => {
     const searched = workshops.filter((workshop) =>
-      workshop.heading.toLowerCase().includes(searchQuery.toLowerCase())
+      (workshop.heading ?? "").toLowerCase().includes(searchQuery.toLowerCase())
     );
     const filtered = searched.filter((w) => !w.isFull);
     return [
