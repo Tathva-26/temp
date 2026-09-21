@@ -46,15 +46,15 @@ export default async function WorkshopPage({ params }) {
 
   const workshopData = {
     id: workshop.id,
-    // Bookability is decided server-side from our event id; the button only
-    // needs to know whether to offer itself.
     isBookable: workshop.isBookable,
     name: workshop.heading,
     date: formatDate(workshop.datetime),
     time: formatTime(workshop.datetime),
     venue: workshop.venueName || "TBA",
-    // Numeric: the checkout modal computes the platform fee off it.
-    price: workshop.price,
+    // Convert paisa to rupees: ensure it's a number, then divide by 100
+    price: workshop.price !== null && workshop.price !== undefined 
+      ? Number(workshop.price) / 100 
+      : null,
     priceLabel: formatPrice(workshop.price),
     description: workshop.description,
     image: workshop.picture,

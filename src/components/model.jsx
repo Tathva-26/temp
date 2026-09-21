@@ -20,12 +20,12 @@ export default function Modal({
   const gst = (gstPercent / 100) * platformFee
   const total = basePrice + platformFee + gst
 
-  // 💰 Proper INR formatter
+  // Proper INR formatter
   const formatINR = (num) =>
     new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
-      minimumFractionDigits: 2,
+      minimumFractionDigits: 2, // Rounding won't affect us because every thing is over 100 for sure
     }).format(num)
 
   return (
