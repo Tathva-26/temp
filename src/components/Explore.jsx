@@ -89,7 +89,7 @@ export default function Explore() {
 
         {/* Left Side: Image Container */}
         <div className="md:w-1/2 h-auto md:h-full flex items-end md:items-center justify-center pt-20 md:pt-0 pointer-events-auto">
-          <div className="relative w-full h-[40vh] sm:h-80 md:h-[600px] rounded-xl overflow-hidden bg-white/5 shadow-2xl">
+          <div className="relative w-full h-[40vh] sm:h-80 md:h-[600px] rounded-xl overflow-hidden shadow-2xl">
             {/* Sliding track for images */}
             <div
               className="absolute top-0 left-0 w-full h-full transition-transform duration-[1000ms]"

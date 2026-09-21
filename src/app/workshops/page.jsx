@@ -20,20 +20,20 @@ const MAX_TRANSLATE = 15
 const MAX_TILT = 3
 const HOVER_SCALE = 1.07
 const LIFT_Z = 18
-const REST_SHADOW = '0 4px 16px -3px rgba(0,0,0,0.45)'
-const HOVER_SHADOW = '0 20px 34px -9px rgba(0,0,0,0.58)'
+const REST_SHADOW = '0 4px 16px -3px rgba(0,0,0,0)'
+const HOVER_SHADOW = '0 20px 34px -9px rgba(0,0,0,0)'
 const ENTER_DURATION = 0.95
 const MOVE_DURATION = 1.92
 const LEAVE_DURATION = 0.6
 const EASE = 'power2.out'
 
 // Focal-card material/depth response (Step 5)
-const REST_EDGE_BG = 'rgba(18, 18, 24, 0.95)'
-const FOCUS_EDGE_BG = 'rgba(9, 9, 13, 0.98)'
-const REST_EDGE_HIGHLIGHT_TOP = 'rgba(255,255,255,0.08)'
-const FOCUS_EDGE_HIGHLIGHT_TOP = 'rgba(255,255,255,0.18)'
-const REST_EDGE_HIGHLIGHT_LEFT = 'rgba(255,255,255,0.05)'
-const FOCUS_EDGE_HIGHLIGHT_LEFT = 'rgba(255,255,255,0.11)'
+const REST_EDGE_BG = 'rgba(18, 18, 24, 0)'
+const FOCUS_EDGE_BG = 'rgba(9, 9, 13, 0)'
+const REST_EDGE_HIGHLIGHT_TOP = 'rgba(255,255,255,0)'
+const FOCUS_EDGE_HIGHLIGHT_TOP = 'rgba(255,255,255,0)'
+const REST_EDGE_HIGHLIGHT_LEFT = 'rgba(255,255,255,0)'
+const FOCUS_EDGE_HIGHLIGHT_LEFT = 'rgba(255,255,255,0)'
 
 // Surrounding-card "make room" response — Step 4
 const GRID_GAP_PX = 32
@@ -129,12 +129,19 @@ const IDLE_YIELD_DURATION = 0.5
 const IDLE_RESTORE_DURATION = 0.85
 
 // Mock workshop images
+// Uniform poster box for every card, so a grid row stays even no matter what
+// shape the uploaded picture is. Portrait, matching a typical event poster.
+const CARD_ASPECT_RATIO = '2 / 3'
+
+// Placeholder art for workshops with no usable picture. These must exist in
+// `public/` — the previous list pointed at /images/workshop{1,2,4,5,56}.jpg,
+// none of which are in the repo, so every fallback card rendered blank.
 const MOCK_WORKSHOP_IMAGES = [
-  '/images/workshop1.jpg',
-  '/images/workshop2.jpg',
-  '/images/workshop4.jpg',
-  '/images/workshop5.jpg',
-  '/images/workshop56.jpg',
+  '/images/carousel/1.jpeg',
+  '/images/carousel/2.jpeg',
+  '/images/carousel/3.jpeg',
+  '/images/carousel/4.jpeg',
+  '/images/carousel/5.jpeg',
 ]
 
 export default function WorkshopsPage() {
@@ -2038,14 +2045,13 @@ export default function WorkshopsPage() {
                         }}
                         style={{
                           position: 'relative',
-                          background:
-                            'linear-gradient(170deg, rgba(32, 32, 42, 0.98) 0%, rgba(24, 24, 32, 0.96) 100%)',
+                          background: 'transparent',
                           borderRadius: '6px 5px 4px 5px',
                           overflow: 'hidden',
                           marginBottom: '5px',
                           marginRight: '3px',
-                          borderTop: '1px solid rgba(255,255,255,0.08)',
-                          borderLeft: '1px solid rgba(255,255,255,0.05)',
+                          borderTop: '1px solid rgba(255,255,255,0)',
+                          borderLeft: '1px solid rgba(255,255,255,0)',
                         }}
                       >
                         <Link
@@ -2055,19 +2061,39 @@ export default function WorkshopsPage() {
                             handleCardClick(e, id, workshopHref, displayImage)
                           }
                         >
+                          {/* Every card is the same 2:3 poster box, and every
+                              picture fills it edge to edge at the same size.
+                              A blurred, cover-scaled copy of the same image
+                              takes up whatever the contained picture leaves
+                              over, so nothing is cropped and no empty panel
+                              shows through. */}
                           <div
                             style={{
                               position: 'relative',
-                              aspectRatio: '1 / 1',
+                              aspectRatio: CARD_ASPECT_RATIO,
                               overflow: 'hidden',
-                              background: 'rgba(255, 255, 255, 0.05)',
                             }}
                           >
+                            <div
+                              aria-hidden='true'
+                              style={{
+                                position: 'absolute',
+                                inset: 0,
+                                backgroundImage: `url("${displayImage}")`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                                filter: 'blur(22px) brightness(0.55)',
+                                // Overscaled so the blur's soft edge never
+                                // exposes the corners of the slot.
+                                transform: 'scale(1.2)',
+                              }}
+                            />
                             <img
                               src={displayImage}
                               alt={heading ?? 'Workshop'}
                               loading='lazy'
                               style={{
+                                position: 'relative',
                                 width: '100%',
                                 height: '100%',
                                 objectFit: 'contain',

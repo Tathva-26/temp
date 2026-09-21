@@ -93,7 +93,7 @@ export default async function WorkshopPage({ params }) {
                   priority
                 />
               ) : (
-                <div className='flex h-full w-full items-center justify-center bg-white/5 px-4 text-center text-sm uppercase tracking-widest text-white/40'>
+                <div className='flex h-full w-full items-center justify-center border border-dashed border-white/15 px-4 text-center text-sm uppercase tracking-widest text-white/40'>
                   {workshopData.name}
                 </div>
               )}

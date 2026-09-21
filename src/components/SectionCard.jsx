@@ -17,16 +17,27 @@ export default function SectionCard({
     <div className="group cursor-pointer">
       <div className="overflow-hidden mb-4">
         {image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={image}
-            alt={title}
-            className="w-full object-contain bg-white/5 h-[500px] transition-transform duration-300 group-hover:scale-102"
-          />
+          // Uniform 2:3 poster box for every card, filled edge to edge by a
+          // blurred copy of the same picture so every image renders at the
+          // same size without any of it being cropped away.
+          <div className="relative aspect-[2/3] w-full overflow-hidden">
+            <div
+              aria-hidden="true"
+              // Overscaled so the blur's soft edge never exposes the corners.
+              className="absolute inset-0 scale-110 bg-cover bg-center blur-xl brightness-50"
+              style={{ backgroundImage: `url("${image}")` }}
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={image}
+              alt={title}
+              className="relative h-full w-full object-contain transition-transform duration-300 group-hover:scale-102"
+            />
+          </div>
         ) : (
           // `picture` is nullable on the API, and an <img> with src={null}
           // renders as a broken image.
-          <div className="flex h-[500px] w-full items-center justify-center bg-white/5 text-center text-sm uppercase tracking-widest text-white/40">
+          <div className="flex aspect-[2/3] w-full items-center justify-center border border-dashed border-white/15 text-center text-sm uppercase tracking-widest text-white/40">
             {title}
           </div>
         )}

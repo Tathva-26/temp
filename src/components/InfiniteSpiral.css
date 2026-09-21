@@ -21,10 +21,12 @@
   width: var(--infinite-spiral-card-width);
   height: var(--infinite-spiral-card-height);
   overflow: hidden;
-  border: 1px solid rgb(255 255 255 / 0.24);
+  /* No frame or fill: with object-fit: contain the card is larger than the
+     image, so any border or background reads as an empty box around it. */
+  border: none;
   border-radius: var(--infinite-spiral-card-radius);
-  background: rgb(255 255 255 / 0.08);
-  box-shadow: 0 14px 38px rgb(8 6 18 / 0.2);
+  background: transparent;
+  box-shadow: none;
   transform-style: preserve-3d;
   backface-visibility: hidden;
   will-change: transform, opacity, filter;
