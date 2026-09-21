@@ -52,13 +52,13 @@ export default function Footer() {
   ]
 
   return (
-    <footer className='relative w-full bg-black/40 backdrop-blur-2xl border-t border-white/10 text-white overflow-hidden mt-12'>
+    <footer className='relative w-full bg-black/40 backdrop-blur-2xl border-t border-white/10 text-white overflow-hidden mt-4 sm:mt-12'>
       <div className='max-w-7xl mx-auto px-6 sm:px-8 '>
         {/* =========================
             MAIN FOOTER
         ========================== */}
 
-        <div className='relative flex flex-wrap flex-col items-center justify-center min-h-48 sm:min-h-32 py-10'>
+        <div className='relative flex flex-wrap flex-col items-center justify-center min-h-48 sm:min-h-32 py-6 sm:py-10'>
           {/* Logo - absolutely centered */}
           <div className='mb-8 md:mb-0'>
             <img

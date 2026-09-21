@@ -85,10 +85,10 @@ export default function Explore() {
     >
 
       {/* Sticky Viewport */}
-      <div className="sticky top-0 h-[100svh] w-full overflow-hidden flex flex-col md:flex-row justify-center md:justify-start max-w-6xl mx-auto px-5 sm:px-8 z-10 gap-8 md:gap-0">
+      <div className="sticky top-0 h-[100svh] w-full overflow-hidden flex flex-col md:flex-row justify-center md:justify-start max-w-6xl mx-auto px-5 sm:px-8 z-10 gap-4 sm:gap-6 md:gap-0">
 
         {/* Left Side: Image Container */}
-        <div className="md:w-1/2 h-auto md:h-full flex items-end md:items-center justify-center pt-20 md:pt-0 pointer-events-auto">
+        <div className="md:w-1/2 h-auto md:h-full flex items-end md:items-center justify-center pt-8 md:pt-0 pointer-events-auto">
           <div className="relative w-full h-[40vh] sm:h-80 md:h-[600px] rounded-xl overflow-hidden bg-white/5 shadow-2xl">
             {/* Sliding track for images */}
             <div

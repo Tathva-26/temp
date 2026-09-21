@@ -85,7 +85,7 @@ const ContactPage = forwardRef((props, ref) => {
   return (
     <section
       ref={ref}
-      className='relative w-full bg-transparent px-4 py-24 text-white sm:px-6 lg:px-8 overflow-hidden z-10'
+      className='relative w-full bg-transparent px-4 py-8 sm:py-16 md:py-24 text-white sm:px-6 lg:px-8 overflow-hidden z-10'
     >
       {/* Creative "Dark Nebula" Fade for Contact Section */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(0,0,0,0.9)_0%,_rgba(0,0,0,0.5)_40%,_transparent_70%)] pointer-events-none -z-10" />
@@ -93,7 +93,7 @@ const ContactPage = forwardRef((props, ref) => {
       <ToastContainer />
       
       <div className='mx-auto w-full max-w-4xl relative z-10'>
-        <div className='mx-auto max-w-2xl text-center mb-12'>
+        <div className='mx-auto max-w-2xl text-center mb-6 sm:mb-12'>
           <p className='poppins text-xs uppercase tracking-[0.3em] text-cyan-400 mb-4 font-medium'>
             Get in touch
           </p>
