@@ -124,7 +124,7 @@ export default function CavaVisualizer() {
       )}
 
       {/* Music Player */}
-      <div className="flex items-center gap-4 rounded-full bg-zinc-900/80 p-2 pr-6 backdrop-blur-md border border-zinc-800 shadow-xl">
+      <div className="flex items-center gap-4 rounded-full bg-zinc-900/80 p-2 sm:pr-6 backdrop-blur-md border border-zinc-800 shadow-xl">
         <button
           onClick={togglePlay}
           onMouseEnter={playHoverSound}
@@ -132,7 +132,7 @@ export default function CavaVisualizer() {
         >
           {isPlaying ? <Square size={16} /> : <Play className="ml-1" size={16} />}
         </button>
-        <canvas ref={canvasRef} width={100} height={30} className="opacity-80" />
+        <canvas ref={canvasRef} width={100} height={30} className="hidden sm:block opacity-80" />
         <audio ref={audioRef} src="/bgm.mp3" loop />
       </div>
     </div>
