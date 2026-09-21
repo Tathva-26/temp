@@ -13,19 +13,18 @@ export default function ScrollHeader() {
   const router = useRouter();
 
   useEffect(() => {
-    // Homepage has a tall hero, inner pages reveal the header sooner
-    const threshold = pathname === '/' ? 300 : 120;
+    // Only the landing page hides the header at the top — its hero is meant to
+    // be seen uninterrupted. Everywhere else the header is part of the page and
+    // shows straight away, so there is nothing to listen for.
+    if (pathname !== '/') {
+      setIsVisible(true);
+      return;
+    }
+
+    // Past the hero.
+    const threshold = 300;
 
     const handleScroll = () => {
-      // Pages too short to scroll would never be able to reveal the header
-      const canScroll =
-        document.documentElement.scrollHeight > window.innerHeight + threshold;
-
-      if (!canScroll && pathname !== '/') {
-        setIsVisible(true);
-        return;
-      }
-
       if (window.scrollY > threshold) {
         setIsVisible(true);
       } else {
