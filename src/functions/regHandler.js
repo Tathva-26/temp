@@ -15,11 +15,19 @@ import { clearReferralCode, getReferralCode } from "@/lib/referral";
  * @param {number} eventId **Our** event id, from `/api/events/all` — not
  *   TIQR's `tiqrEventId`.
  * @param {number} [quantity]
+ * @param {string} [referralCodeInput] What the checkout dialog's field holds.
+ *   Any string wins over the remembered landing-URL code, including an empty
+ *   one — someone who cleared the field wants no attribution. Left undefined,
+ *   the remembered code is used.
  * @returns {Promise<boolean>} false when the booking was refused. On success
  *   the browser is already navigating away.
  */
-export async function regHandler(eventId, quantity = 1) {
-  const referralCode = getReferralCode();
+export async function regHandler(eventId, quantity = 1, referralCodeInput) {
+  const referralCode = (
+    typeof referralCodeInput === "string"
+      ? referralCodeInput
+      : getReferralCode()
+  )?.trim();
 
   try {
     const { data } = await api.post("/api/booking/create", {
@@ -42,7 +50,19 @@ export async function regHandler(eventId, quantity = 1) {
     return true;
   } catch (error) {
     const status = error?.response?.status;
-    const message = error?.response?.data?.error;
+    /*
+     * Older routes report in `message`, newer ones in `error` (API.md §3), so
+     * reading only `error` left the branches below dead against a
+     * `message`-shaped body — the phone-number redirect in particular, which is
+     * the only thing telling someone why their booking cannot go through.
+     *
+     * A Zod failure puts an *array* in `error`; that is a list of field issues,
+     * not a message, and `.includes()` on it would test membership instead of
+     * substring. Hence the string check.
+     */
+    const body = error?.response?.data;
+    const message =
+      typeof body?.error === "string" ? body.error : body?.message;
 
     // Each of these means something different to the person clicking, so they
     // are worth separating rather than collapsing into "booking failed".
@@ -65,7 +85,9 @@ export async function regHandler(eventId, quantity = 1) {
       // the next attempt is not refused for the same reason.
       clearReferralCode();
       toast.error(
-        "That booking was rejected. If you followed a referral link, try again without it.",
+        referralCode
+          ? "That booking was rejected. Check the referral code, or clear it and try again."
+          : "That booking was rejected. Please try again.",
       );
       return false;
     }

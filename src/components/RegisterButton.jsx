@@ -2,7 +2,12 @@
 import { useState } from "react";
 import { regHandler } from "@/functions/regHandler";
 
-export default function RegisterButton({ id, quantity = 1, disabled = false }) {
+export default function RegisterButton({
+  id,
+  quantity = 1,
+  referralCode,
+  disabled = false,
+}) {
   const [isLoading, setIsLoading] = useState(false);
 
   /*
@@ -15,7 +20,7 @@ export default function RegisterButton({ id, quantity = 1, disabled = false }) {
     if (isLoading) return;
     setIsLoading(true);
 
-    const redirecting = await regHandler(id, quantity);
+    const redirecting = await regHandler(id, quantity, referralCode);
     if (!redirecting) setIsLoading(false);
   };
 

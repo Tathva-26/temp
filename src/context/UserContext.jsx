@@ -6,11 +6,12 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import toast from "react-hot-toast";
 import { createAuthClient } from "better-auth/react";
-import api, { getBackendURL } from "@/lib/api";
+import api, { getBackendURL, setUnauthorizedHandler } from "@/lib/api";
 import { captureReferralCode } from "@/lib/referral";
 
 const UserContext = createContext(null);
@@ -86,11 +87,47 @@ export default function UserContextWrapper({ children }) {
       const normalized = normalizeProfile(data);
       setProfile(normalized);
       return normalized;
-    } catch {
+    } catch (err) {
+      // A 401 is a genuine "not signed in", and the handler below has already
+      // said so. Anything else — backend down, network dropped — is not proof
+      // the session ended, so it is worth a line in the console rather than
+      // being silently indistinguishable from a sign-out.
+      if (err?.response?.status !== 401) {
+        console.error("Could not load your profile:", err);
+      }
       setProfile(null);
       return null;
     }
   }, []);
+
+  /*
+   * Sessions last 3 days and are never refreshed, so they expire under people
+   * mid-visit. Before this, the catch above turned that into a silent logout
+   * that looked exactly like a network blip.
+   *
+   * The guard matters: a visitor who never signed in also 401s on the first
+   * profile fetch, and must not be told their session expired. Only a 401 that
+   * arrives while we are holding a profile means something was lost.
+   */
+  const signedInRef = useRef(false);
+
+  useEffect(() => {
+    signedInRef.current = !!profile;
+  }, [profile]);
+
+  useEffect(
+    () =>
+      setUnauthorizedHandler(() => {
+        if (!signedInRef.current) return;
+        signedInRef.current = false;
+        setProfile(null);
+        // A stable id collapses the burst of 401s that parallel calls produce.
+        toast.error("Your session expired. Please sign in again.", {
+          id: "session-expired",
+        });
+      }),
+    [],
+  );
 
   useEffect(() => {
     if (sessionPending) return;

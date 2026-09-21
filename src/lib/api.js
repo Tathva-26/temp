@@ -39,4 +39,30 @@ export function apiErrorMessage(err, fallback = "Something went wrong.") {
   return body.error || body.message || fallback;
 }
 
+/*
+ * A 401 means the session is gone — expired (they last 3 days with no refresh,
+ * API.md §2) or never established at all. Recognising it here means every call
+ * gets the same treatment instead of only the profile fetch.
+ *
+ * The reaction lives in UserContext rather than here: a signed-out visitor's
+ * first `GET /api/user/` also 401s, and only that component knows whether
+ * someone was actually signed in a moment ago.
+ */
+let onUnauthorized = null;
+
+export function setUnauthorizedHandler(handler) {
+  onUnauthorized = handler;
+  return () => {
+    if (onUnauthorized === handler) onUnauthorized = null;
+  };
+}
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error?.response?.status === 401) onUnauthorized?.();
+    return Promise.reject(error);
+  },
+);
+
 export default api;
