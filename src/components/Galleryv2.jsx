@@ -18,7 +18,7 @@ const baseGalleryImages = [
     alt: '',
   },
   {
-    src: '/images/carousel/4.jpeg',
+    src: '/images/carousel/7.jpeg',
     alt: '',
   },
   { src: '/images/carousel/5.jpeg', alt: '' },
@@ -58,8 +58,8 @@ const Gallery = forwardRef((props, ref) => {
             imageFit='contain'
             animationMode='all'
             speed={0.5}
-            cardWidth={350}
-            cardHeight={450}
+            cardWidth={400}
+            cardHeight={520}
             radius={350}
             cardsPerTurn={3.5}
             verticalSpacing={200}
