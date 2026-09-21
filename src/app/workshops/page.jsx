@@ -2061,12 +2061,10 @@ export default function WorkshopsPage() {
                             handleCardClick(e, id, workshopHref, displayImage)
                           }
                         >
-                          {/* Every card is the same 2:3 poster box, and every
-                              picture fills it edge to edge at the same size.
-                              A blurred, cover-scaled copy of the same image
-                              takes up whatever the contained picture leaves
-                              over, so nothing is cropped and no empty panel
-                              shows through. */}
+                          {/* Every card is the same 2:3 poster slot with the
+                              picture contained inside it. Nothing is drawn
+                              behind the image — a poster that isn't exactly
+                              2:3 just leaves transparent space. */}
                           <div
                             style={{
                               position: 'relative',
@@ -2074,26 +2072,11 @@ export default function WorkshopsPage() {
                               overflow: 'hidden',
                             }}
                           >
-                            <div
-                              aria-hidden='true'
-                              style={{
-                                position: 'absolute',
-                                inset: 0,
-                                backgroundImage: `url("${displayImage}")`,
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center',
-                                filter: 'blur(22px) brightness(0.55)',
-                                // Overscaled so the blur's soft edge never
-                                // exposes the corners of the slot.
-                                transform: 'scale(1.2)',
-                              }}
-                            />
                             <img
                               src={displayImage}
                               alt={heading ?? 'Workshop'}
                               loading='lazy'
                               style={{
-                                position: 'relative',
                                 width: '100%',
                                 height: '100%',
                                 objectFit: 'contain',

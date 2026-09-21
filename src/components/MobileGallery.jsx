@@ -16,7 +16,7 @@ const baseGalleryImages = [
     alt: '',
   },
   {
-    src: '/images/carousel/4.jpeg',
+    src: '/images/carousel/7.jpeg',
     alt: '',
   },
   { src: '/images/carousel/5.jpeg', alt: '' },
@@ -265,15 +265,15 @@ const MobileGallery = forwardRef((props, ref) => {
             data-gallery-item
             className='shrink-0 snap-center'
             style={{
-              width: '70vw',
-              maxWidth: '420px',
+              width: '78vw',
+              maxWidth: '460px',
               willChange: 'transform',
             }}
           >
             <img
               src={img.src}
               alt={img.alt}
-              className='w-full h-56 sm:h-80 object-contain rounded-lg shadow-2xl shadow-black/60 border border-white/10'
+              className='w-full h-64 sm:h-96 object-contain rounded-lg shadow-2xl shadow-black/60 border border-white/10'
               draggable={false}
             />
           </div>
