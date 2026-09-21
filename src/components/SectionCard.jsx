@@ -1,57 +1,50 @@
 import { ArrowRight } from "lucide-react";
 
-/**
- * `price` and `extraInfo` arrive pre-formatted — `formatPrice` in lib/events
- * and the venue name respectively. They were being passed in and dropped on
- * the floor here, so a card showed no price at all.
- */
-export default function SectionCard({
-  image,
-  title,
-  description,
-  date,
-  price,
-  extraInfo,
-}) {
+export default function SectionCard({ image, title, description, date, price }) {
   return (
     <div className="group cursor-pointer">
-      <div className="overflow-hidden mb-4">
-        {image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={image}
-            alt={title}
-            className="w-full  object-cover h-[500px] transition-transform duration-300 group-hover:scale-102"
-          />
-        ) : (
-          // `picture` is nullable on the API, and an <img> with src={null}
-          // renders as a broken image.
-          <div className="flex h-[500px] w-full items-center justify-center bg-white/5 text-center text-sm uppercase tracking-widest text-white/40">
-            {title}
-          </div>
-        )}
+      {/* Image container with aspect ratio and hover zoom */}
+      <div className="relative overflow-hidden rounded-xl aspect-square">
+        <img
+          src={image}
+          alt={title}
+          className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+        />
+        {/* Dark gradient overlay — deepens on hover */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-70 transition-opacity duration-500 group-hover:opacity-90 pointer-events-none" />
       </div>
 
-      <div className="w-full h-px bg-white/20 mb-4"></div>
+      {/* Divider */}
+      <div className="w-full h-px bg-white/15 mt-4 mb-3" />
 
-      <div className="flex items-start justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <h3 className="text-lg font-medium text-white mb-1 pp-fragment line-clamp-1 uppercase group">
-              {title}
-            </h3>
-            <ArrowRight size={24} className="-mt-2 transform transition-transform duration-300 rotate-45 group-hover:-rotate-45 text-white" />
-          </div>
-          <p className="text-sm text-gray-300  border-x border-t mt-2 px-2 p-2">{description}</p>
-          <p className="text-sm text-gray-300  italic border p-1 px-2 font-semibold">{date}</p>
-          {price || extraInfo ? (
-            <p className="mt-2 text-sm font-semibold text-white">
-              {price}
-              {price && extraInfo ? " · " : ""}
-              {extraInfo}
-            </p>
-          ) : null}
-        </div>
+      {/* Title + arrow */}
+      <div className="flex items-center gap-2">
+        <h3 className="text-lg font-medium text-white pp-fragment uppercase line-clamp-1 leading-tight">
+          {title}
+        </h3>
+        <ArrowRight
+          size={20}
+          className="flex-shrink-0 -mt-0.5 text-white/70 transition-all duration-300 rotate-[-45deg] group-hover:rotate-0 group-hover:text-white"
+        />
+      </div>
+
+      {/* Description — 2-line clamp */}
+      <p className="text-sm text-gray-400 inter mt-1.5 line-clamp-2 leading-relaxed">
+        {description}
+      </p>
+
+      {/* Metadata row — date + fee pills */}
+      <div className="flex items-center gap-2 mt-3 flex-wrap">
+        {date && (
+          <span className="text-xs text-gray-300 bg-white/5 border border-white/10 rounded-full px-3 py-1 inter">
+            {date}
+          </span>
+        )}
+        {price != null && (
+          <span className="text-xs text-gray-300 bg-white/5 border border-white/10 rounded-full px-3 py-1 inter">
+            {typeof price === "number" ? `₹${price}` : price}
+          </span>
+        )}
       </div>
     </div>
   );
