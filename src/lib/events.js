@@ -64,7 +64,12 @@ export async function fetchEvent(id) {
 }
 
 /** `250` → `"₹250"`. The backend's price is a whole number of rupees. */
-export function formatPrice(rupees) {
-  if (rupees === null || rupees === undefined) return "TBA";
-  return rupees === 0 ? "Free" : `₹${rupees}`;
+export function formatPrice(paisa) {
+  if (paisa === null || paisa === undefined) return "TBA";
+  
+  // Convert paisa to rupees and ensure it's a number
+  const rupees = Number(paisa) / 100;
+  
+  if (rupees === 0) return "Free";
+  return Number.isInteger(rupees) ? `₹${rupees}` : `₹${rupees.toFixed(2)}`;
 }
