@@ -80,6 +80,16 @@ export async function regHandler(eventId, quantity = 1, referralCodeInput) {
       return false;
     }
 
+    if (status === 400 && message?.includes("own referral code")) {
+      // A CA who followed their own link carries their code in storage, which
+      // would refuse every booking they make. Drop it so a later checkout does
+      // not prefill it again. The open dialog's field keeps what it shows, so
+      // the message asks for that rather than claiming it was cleared.
+      clearReferralCode();
+      toast.error("You cannot use your own referral code. Clear the field and try again.");
+      return false;
+    }
+
     if (status === 400 && message === "Booking rejected") {
       // TIQR validates the referral code, and a bad one lands here. Drop it so
       // the next attempt is not refused for the same reason.
