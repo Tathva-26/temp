@@ -2060,6 +2060,7 @@ export default function WorkshopsPage() {
                               position: 'relative',
                               aspectRatio: '1 / 1',
                               overflow: 'hidden',
+                              background: 'rgba(255, 255, 255, 0.05)',
                             }}
                           >
                             <img
@@ -2069,7 +2070,7 @@ export default function WorkshopsPage() {
                               style={{
                                 width: '100%',
                                 height: '100%',
-                                objectFit: 'cover',
+                                objectFit: 'contain',
                                 display: 'block',
                               }}
                             />
@@ -2177,7 +2178,9 @@ export default function WorkshopsPage() {
               style={{
                 width: '100%',
                 height: '100%',
-                objectFit: 'cover',
+                // Matches the card's fit, so the zoom doesn't re-crop the
+                // image the moment the transition starts.
+                objectFit: 'contain',
                 display: 'block',
                 transformOrigin: 'center center',
                 willChange: 'transform',

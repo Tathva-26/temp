@@ -160,7 +160,7 @@ export default async function EventPage({ params }) {
                   src={eventData.image}
                   alt={eventData.name}
                   fill
-                  className='object-cover'
+                  className='object-contain'
                   priority
                 />
               ) : (

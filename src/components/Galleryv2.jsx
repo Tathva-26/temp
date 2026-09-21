@@ -55,6 +55,7 @@ const Gallery = forwardRef((props, ref) => {
         <div className='hidden sm:block h-full w-full'>
           <InfiniteSpiral
             items={baseGalleryImages}
+            imageFit='contain'
             animationMode='all'
             speed={0.5}
             cardWidth={350}

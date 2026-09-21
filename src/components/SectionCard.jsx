@@ -21,7 +21,7 @@ export default function SectionCard({
           <img
             src={image}
             alt={title}
-            className="w-full  object-cover h-[500px] transition-transform duration-300 group-hover:scale-102"
+            className="w-full object-contain bg-white/5 h-[500px] transition-transform duration-300 group-hover:scale-102"
           />
         ) : (
           // `picture` is nullable on the API, and an <img> with src={null}
