@@ -1,5 +1,6 @@
 "use client";
 import RegisterButton from "./RegisterButton";
+import useReferralCodeField from "./useReferralCodeField";
 import { Michroma } from "next/font/google";
 
 const mi = Michroma({
@@ -16,10 +17,13 @@ export default function Modal({
   isBookable = true,
   title = "Checkout Summary",
 }) {
+  // A hook, so it has to run before the early return below.
+  const [referralCode, referralCodeField] = useReferralCodeField(isOpen);
+
   if (!isOpen) return null;
 
   const basePrice = Number(price ) || 0;
-  const platformFeePercent = 2.0;
+  const platformFeePercent = 2.5;
   const gstPercent = 18;
 
   const platformFee = (platformFeePercent / 100) * basePrice;
@@ -71,6 +75,8 @@ export default function Modal({
             <span>{formatINR(total)}</span>
           </div>
 
+          {referralCodeField}
+
           {/* Buttons */}
           <div className="flex justify-end gap-3 mt-6">
             <button
@@ -80,7 +86,11 @@ export default function Modal({
               Cancel
             </button>
             {/* `id` is ours; TIQR's ticket is resolved server-side from it. */}
-            <RegisterButton id={eventId} disabled={!isBookable} />
+            <RegisterButton
+              id={eventId}
+              referralCode={referralCode}
+              disabled={!isBookable}
+            />
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
 'use client'
 import RegisterButton from './RegisterButton'
+import useReferralCodeField from './useReferralCodeField'
 
 export default function Modal({
   isOpen,
@@ -7,6 +8,9 @@ export default function Modal({
   workshopData,
   title = 'Checkout Summary',
 }) {
+  // A hook, so it has to run before the early return below.
+  const [referralCode, referralCodeField] = useReferralCodeField(isOpen)
+
   if (!isOpen) return null
 
   // `price` is a whole number of rupees straight from the API — dividing by
@@ -69,6 +73,8 @@ export default function Modal({
             <span>{formatINR(total)}</span>
           </div>
 
+          {referralCodeField}
+
           {/* Buttons */}
           <div className='flex justify-end gap-3 mt-6'>
             <button
@@ -80,6 +86,7 @@ export default function Modal({
             {/* `id` is ours; TIQR's ticket is resolved server-side from it. */}
             <RegisterButton
               id={workshopData.id}
+              referralCode={referralCode}
               disabled={!workshopData.isBookable}
             />
           </div>

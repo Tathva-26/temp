@@ -15,11 +15,19 @@ import { clearReferralCode, getReferralCode } from "@/lib/referral";
  * @param {number} eventId **Our** event id, from `/api/events/all` — not
  *   TIQR's `tiqrEventId`.
  * @param {number} [quantity]
+ * @param {string} [referralCodeInput] What the checkout dialog's field holds.
+ *   Any string wins over the remembered landing-URL code, including an empty
+ *   one — someone who cleared the field wants no attribution. Left undefined,
+ *   the remembered code is used.
  * @returns {Promise<boolean>} false when the booking was refused. On success
  *   the browser is already navigating away.
  */
-export async function regHandler(eventId, quantity = 1) {
-  const referralCode = getReferralCode();
+export async function regHandler(eventId, quantity = 1, referralCodeInput) {
+  const referralCode = (
+    typeof referralCodeInput === "string"
+      ? referralCodeInput
+      : getReferralCode()
+  )?.trim();
 
   try {
     const { data } = await api.post("/api/booking/create", {
@@ -77,7 +85,9 @@ export async function regHandler(eventId, quantity = 1) {
       // the next attempt is not refused for the same reason.
       clearReferralCode();
       toast.error(
-        "That booking was rejected. If you followed a referral link, try again without it.",
+        referralCode
+          ? "That booking was rejected. Check the referral code, or clear it and try again."
+          : "That booking was rejected. Please try again.",
       );
       return false;
     }
