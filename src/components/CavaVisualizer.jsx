@@ -69,7 +69,7 @@ export default function CavaVisualizer() {
   }, [showTooltip]);
 
   useEffect(() => {
-    if (lowPowerMode || !isPlaying || !analyzerRef.current) {
+    if (lowPowerMode || !isPlaying || !analyzerRef.current || !canvasRef.current) {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       return;
     }
