@@ -28,7 +28,7 @@ export default function EventsPage() {
     const getCompetitions = async () => {
       try {
         setLoading(true);
-        // Published only, and prices already in rupees — see lib/events.
+        // Published only; prices are paise — format with formatPrice. See lib/events.
         setAllCompetitions(await fetchEvents("competitions"));
         setError(null);
       } catch (err) {

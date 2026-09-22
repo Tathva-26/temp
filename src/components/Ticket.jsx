@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Michroma } from "next/font/google";
 import localFont from "next/font/local";
 import ModalWrapper from "./modelWrapperProShow";
+import { toRupees } from "@/lib/events";
 
 const mi = Michroma({
   subsets: ["latin"],
@@ -80,7 +81,7 @@ function Ticket({ day, date, eventId, price, isBookable = true }) {
             <button
               className={`${mi.className} bg-[#3E3E3B] cursor-pointer rounded-xs text-[0.5rem] sm:text-[0.4rem] md:text-[0.5rem] lg:text-[0.65rem] w-12 h-3 sm:w-16 sm:h-4 md:w-18 md:h-4 lg:w-23 lg:h-5 text-white`}
             >
-              {day != 4 ? `Rs ${price}/-` : `FREE`}
+              {day != 4 ? `Rs ${toRupees(price) ?? 0}/-` : `FREE`}
             </button>
           </div>
         </div>

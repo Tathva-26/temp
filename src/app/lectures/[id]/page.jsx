@@ -103,7 +103,8 @@ export default async function EventPage({ params }) {
     // needs to know whether to offer itself.
     isBookable: event.isBookable,
     venue: event.venue || null,
-    // Numeric: the checkout modal computes the platform fee off it.
+    // Paise, as the API sends it; the checkout modal converts and computes
+    // the platform fee off it.
     price: event.price,
     priceLabel: formatPrice(event.price),
     description: event.description || 'No description available',
@@ -202,7 +203,7 @@ export default async function EventPage({ params }) {
               {/* Button Container - New Implementation */}
               <div className='flex items-center space-x-4 mt-4 mb-5'>
                 {/* Modal Wrapper (Register Button) */}
-                <ModalWrapper workshopData={eventData} />
+                <ModalWrapper workshopData={eventData} eventType='Lecture' />
 
                 {/* Display Brochure Button */}
                 {brochures.length !== 0 && (

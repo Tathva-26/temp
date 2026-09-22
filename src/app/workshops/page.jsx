@@ -1850,7 +1850,7 @@ export default function WorkshopsPage() {
     const fetchWorkshops = async () => {
       try {
         setLoading(true)
-        // Published only, and prices already in rupees — see lib/events.
+        // Published only; prices are paise — format with formatPrice. See lib/events.
         setWorkshops(await fetchEvents('workshops'))
         setError(null)
       } catch (err) {

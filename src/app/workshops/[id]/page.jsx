@@ -51,11 +51,9 @@ export default async function WorkshopPage({ params }) {
     date: formatDate(workshop.datetime),
     time: formatTime(workshop.datetime),
     venue: workshop.venueName || 'TBA',
-    // Convert paisa to rupees: ensure it's a number, then divide by 100
-    price:
-      workshop.price !== null && workshop.price !== undefined
-        ? Number(workshop.price) / 100
-        : null,
+    // Paise, as the API sends it; the checkout modal converts and computes
+    // the platform fee off it.
+    price: workshop.price,
     priceLabel: formatPrice(workshop.price),
     description: workshop.description,
     image: workshop.picture,
@@ -125,7 +123,7 @@ export default async function WorkshopPage({ params }) {
                 {workshopData.description}
               </p>
               <div className='mt-10 sm:mt-8 flex'>
-                <ModalWrapper workshopData={workshopData} />
+                <ModalWrapper workshopData={workshopData} eventType='Workshop' />
               </div>
               <p className='mt-9 text-gray-400'>
                 Note - Ticket details are automatically taken from your profile.
