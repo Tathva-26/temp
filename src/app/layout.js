@@ -1,73 +1,73 @@
-import "./globals.css";
-import Footer from "@/components/Footer";
-import { Toaster } from "react-hot-toast";
-import { PerformanceProvider } from "@/context/PerformanceContext";
-import PowerToggle from "@/components/PowerToggle";
-import CavaVisualizer from "@/components/CavaVisualizer";
-import DynamicBackground from "@/components/DynamicBackground";
-import CommandPalette from "@/components/CommandPalette";
-import ScrollHeader from "@/components/ScrollHeader";
-import UserContextWrapper from "@/context/UserContext";
-import { Plus_Jakarta_Sans } from 'next/font/google';
+import './globals.css'
+import Footer from '@/components/Footer'
+import { Toaster } from 'react-hot-toast'
+import { PerformanceProvider } from '@/context/PerformanceContext'
+import PowerToggle from '@/components/PowerToggle'
+import CavaVisualizer from '@/components/CavaVisualizer'
+import DynamicBackground from '@/components/DynamicBackground'
+import CommandPalette from '@/components/CommandPalette'
+import ScrollHeader from '@/components/ScrollHeader'
+import UserContextWrapper from '@/context/UserContext'
+import { Plus_Jakarta_Sans } from 'next/font/google'
 
-const plusJakarta = Plus_Jakarta_Sans({ 
-  subsets: ['latin'], 
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
   variable: '--font-plus-jakarta',
   display: 'swap',
-});
+})
 
 export const metadata = {
-  metadataBase: new URL("https://tathva.org"), // ✅ set your production domain here
-  title: "Tathva ’26 | National Techno-Management Fest",
+  metadataBase: new URL('https://tathva.org'), // ✅ set your production domain here
+  title: 'Tathva ’26 | National Techno-Management Fest',
   description:
-    "Official website of Tathva ’26, the annual techno-management festival of NIT Calicut. Explore events, workshops, and exhibitions.",
+    'Official website of Tathva ’26, the annual techno-management festival of NIT Calicut. Explore events, workshops, and exhibitions.',
   keywords: [
-    "Tathva 26",
-    "NIT Calicut",
-    "Techno-Management Fest",
-    "College Fest",
-    "Workshops",
-    "Events",
+    'Tathva 26',
+    'NIT Calicut',
+    'Techno-Management Fest',
+    'College Fest',
+    'Workshops',
+    'Events',
   ],
-  authors: [{ name: "Tathva Team" }],
+  authors: [{ name: 'Tathva Team' }],
   openGraph: {
-    title: "Tathva ’26 | National Techno-Management Fest",
+    title: 'Tathva ’26 | National Techno-Management Fest',
     description:
-      "Join us at Tathva ’26, NIT Calicut’s annual techno-management fest. Explore events, competitions, workshops, and exhibitions.",
-    url: "https://tathva.org",
-    siteName: "Tathva 25",
+      'Join us at Tathva ’26, NIT Calicut’s annual techno-management fest. Explore events, competitions, workshops, and exhibitions.',
+    url: 'https://tathva.org',
+    siteName: 'Tathva 26',
     images: [
       {
-        url: "/tathva25.svg", // will resolve to https://tathva.org/tathva25.svg
+        url: '/tathva25.svg', // will resolve to https://tathva.org/tathva25.svg
         width: 1200,
         height: 630,
-        alt: "Tathva 25 Banner",
+        alt: 'Tathva 26 Banner',
       },
     ],
-    locale: "en_IN",
-    type: "website",
+    locale: 'en_IN',
+    type: 'website',
   },
   twitter: {
-    card: "summary_large_image",
-    title: "Tathva ’26 | National Techno-Management Fest",
+    card: 'summary_large_image',
+    title: 'Tathva ’26 | National Techno-Management Fest',
     description:
-      "The official website of Tathva ’26, NIT Calicut’s annual techno-management festival.",
-    images: ["/tathva25.svg"],
-    creator: "@tathva",
+      'The official website of Tathva ’26, NIT Calicut’s annual techno-management festival.',
+    images: ['/tathva25.svg'],
+    creator: '@tathva',
   },
-};
+}
 
-import SmoothScrolling from "@/components/SmoothScrolling";
+import SmoothScrolling from '@/components/SmoothScrolling'
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={plusJakarta.variable}>
-      <body style={{ overflowX: "clip" }} className="plus-jakarta">
+    <html lang='en' className={plusJakarta.variable}>
+      <body style={{ overflowX: 'clip' }} className='plus-jakarta'>
         <PerformanceProvider>
           <UserContextWrapper>
             <DynamicBackground />
             <Toaster />
-            <div className="relative z-10">
+            <div className='relative z-10'>
               <SmoothScrolling>
                 {children}
                 <Footer />
@@ -81,5 +81,5 @@ export default function RootLayout({ children }) {
         </PerformanceProvider>
       </body>
     </html>
-  );
+  )
 }
