@@ -5,7 +5,7 @@ import Modal from "./model";
 import { useUserContext } from "@/context/UserContext";
 
 
-export default function ModalWrapper({ workshopData }) {
+export default function ModalWrapper({ workshopData, eventType }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { isLoggedIn, authLoading, loginWithGoogle } = useUserContext();
 
@@ -34,6 +34,7 @@ export default function ModalWrapper({ workshopData }) {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 workshopData={workshopData}
+                eventType={eventType}
             />
         </div>
     );
