@@ -124,15 +124,15 @@ export default function CavaVisualizer() {
       )}
 
       {/* Music Player */}
-      <div className="flex items-center gap-4 rounded-full bg-zinc-900/80 p-2 pr-6 backdrop-blur-md border border-zinc-800 shadow-xl">
+      {/* Music Player */}
+      <div className="flex items-center justify-center rounded-full bg-zinc-900/80 backdrop-blur-md border border-zinc-800 shadow-xl">
         <button
           onClick={togglePlay}
           onMouseEnter={playHoverSound}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 text-white transition-all hover:bg-cyan-500 hover:text-black"
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800 text-white transition-all hover:bg-cyan-500 hover:text-black"
         >
-          {isPlaying ? <Square size={16} /> : <Play className="ml-1" size={16} />}
+          {isPlaying ? <Square size={18} /> : <Play className="ml-1" size={18} />}
         </button>
-        <canvas ref={canvasRef} width={100} height={30} className="opacity-80" />
         <audio ref={audioRef} src="/bgm.mp3" loop />
       </div>
     </div>
