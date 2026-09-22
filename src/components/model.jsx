@@ -1,11 +1,16 @@
 'use client'
 import RegisterButton from './RegisterButton'
 import useReferralCodeField from './useReferralCodeField'
+import { toRupees } from '@/lib/events'
 
 export default function Modal({
   isOpen,
   onClose,
   workshopData,
+  // What this event is called in the checkout copy. Every caller passes its
+  // own ("Workshop", "Competition", "Lecture") — hardcoding "Workshop" here
+  // told competition and lecture registrants they were buying a workshop.
+  eventType = 'Event',
   title = 'Checkout Summary',
 }) {
   // A hook, so it has to run before the early return below.
@@ -13,9 +18,8 @@ export default function Modal({
 
   if (!isOpen) return null
 
-  // `price` is a whole number of rupees straight from the API — dividing by
-  // 100 here showed ₹2.50 for a ₹250 workshop.
-  const basePrice = Number(workshopData.price) || 0
+  // `price` is paise straight from the API — see lib/events.
+  const basePrice = toRupees(workshopData.price) ?? 0
 
   const platformFeePercent = 2.5
   const gstPercent = 18
@@ -49,13 +53,13 @@ export default function Modal({
         {/* Billing Breakdown */}
         <div className='space-y-4'>
           <div className='flex justify-between'>
-            <span>Workshop </span>
+            <span>{eventType} </span>
             <span>{workshopData.name}</span>
           </div>
 
           <div className='border-b pb-2 text-sm text-gray-700'>
             <div className='flex justify-between'>
-              <span>Workshop Price</span>
+              <span>{eventType} Price</span>
               <span>{formatINR(basePrice)}</span>
             </div>
             <div className='flex justify-between'>

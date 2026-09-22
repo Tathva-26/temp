@@ -9,8 +9,9 @@ import { getBackendURL } from "@/lib/api";
  *  - **`/api/events/all` includes unpublished events.** Only an admin publish
  *    pushes an event to TIQR and gives it a ticket, so an unpublished event is
  *    not bookable — showing it means a booking attempt that 400s. Filtered here.
- *  - **`price` is in rupees**, not paise. Dividing by 100 showed ₹2.50 for a
- *    ₹250 workshop.
+ *  - **`price` is in paise**, not rupees: a ₹250 workshop arrives as `25000`.
+ *    Render it with `formatPrice`; use `toRupees` when you need a number to
+ *    compute on, as the checkout modals do for the platform fee.
  *
  * `venue` arrives as an object (`{ id, name, location }`), not a string, so
  * interpolating it straight into text renders "[object Object]".
@@ -63,13 +64,22 @@ export async function fetchEvent(id) {
   return data.event ? toCard(data.event) : null;
 }
 
-/** `250` → `"₹250"`. The backend's price is a whole number of rupees. */
-export function formatPrice(paisa) {
-  if (paisa === null || paisa === undefined) return "TBA";
-  
-  // Convert paisa to rupees and ensure it's a number
+/**
+ * `25000` → `250`. The backend's price is in paise; anything unusable (a null
+ * price, a non-numeric one) comes back as null so callers can say "TBA".
+ */
+export function toRupees(paisa) {
+  if (paisa === null || paisa === undefined) return null;
+
   const rupees = Number(paisa) / 100;
-  
+  return Number.isFinite(rupees) ? rupees : null;
+}
+
+/** `25000` → `"₹250"`. */
+export function formatPrice(paisa) {
+  const rupees = toRupees(paisa);
+  if (rupees === null) return "TBA";
+
   if (rupees === 0) return "Free";
   return Number.isInteger(rupees) ? `₹${rupees}` : `₹${rupees.toFixed(2)}`;
 }
