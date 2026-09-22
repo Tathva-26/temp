@@ -165,9 +165,23 @@ export default function UserContextWrapper({ children }) {
     }
 
     try {
+      /*
+       * Every URL better-auth may bounce the browser to has to be named here,
+       * absolutely, or it falls back to the backend's own origin: an unset
+       * `callbackURL` becomes the API's baseURL, and an OAuth error goes to
+       * `${baseURL}/error`, which answers with a relative redirect to
+       * `/?error=…`. Either way the visitor finishes on the API's
+       * "Welcome to the Tathva API" page rather than back on the site.
+       *
+       * Both must sit on an origin in the backend's trustedOrigins, or the
+       * sign-in POST is refused outright with 403 INVALID_CALLBACK_URL —
+       * which is why a dev origin has to be added there to sign in locally.
+       */
+      const returnTo = `${window.location.origin}/auth/google/callback`;
       const payload = {
         provider: "google",
-        callbackURL: `${window.location.origin}/auth/google/callback`,
+        callbackURL: returnTo,
+        errorCallbackURL: returnTo,
       };
       const role = process.env.NEXT_PUBLIC_OAUTH_ROLE;
       if (role) {
@@ -179,8 +193,11 @@ export default function UserContextWrapper({ children }) {
         throw new Error(error.message || error.statusText || "Google sign-in failed");
       }
     } catch (err) {
+      // The reason matters here — a 403 INVALID_CALLBACK_URL means this origin
+      // is missing from the backend's trustedOrigins, which looks nothing like
+      // "try again" and cannot be fixed by trying again.
       console.error("Failed to start Google sign-in:", err);
-      toast.error("Could not start Google sign-in. Please try again.");
+      toast.error(err?.message || "Could not start Google sign-in. Please try again.");
     }
   }, []);
 
