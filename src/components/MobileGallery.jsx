@@ -273,7 +273,7 @@ const MobileGallery = forwardRef((props, ref) => {
             <img
               src={img.src}
               alt={img.alt}
-              className='w-full h-64 sm:h-96 object-contain rounded-lg shadow-2xl shadow-black/60 border border-white/10'
+              className='w-full h-64 sm:h-96 object-contain rounded-lg shadow-2xl shadow-black/60'
               draggable={false}
             />
           </div>

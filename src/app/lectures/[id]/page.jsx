@@ -152,7 +152,7 @@ export default async function EventPage({ params }) {
         <div className='grid grid-cols-1 lg:grid-cols-12 gap-8 items-start'>
           {/* Left — Image Section */}
           <div className='lg:col-span-4'>
-            <div className='relative w-full h-[500px] rounded-2xl overflow-hidden shadow-lg border border-white/20 hover:scale-[1.02] transition-transform duration-300'>
+            <div className='relative w-full h-[500px] rounded-2xl overflow-hidden shadow-lg hover:scale-[1.02] transition-transform duration-300'>
               {/* `picture` is nullable on the API, and next/image throws on a
                   null src rather than rendering nothing. */}
               {eventData.image ? (
