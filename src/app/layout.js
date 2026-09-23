@@ -3,7 +3,6 @@ import Footer from '@/components/Footer'
 import { Toaster } from 'react-hot-toast'
 import { PerformanceProvider } from '@/context/PerformanceContext'
 import PowerToggle from '@/components/PowerToggle'
-import CavaVisualizer from '@/components/CavaVisualizer'
 import DynamicBackground from '@/components/DynamicBackground'
 import CommandPalette from '@/components/CommandPalette'
 import ScrollHeader from '@/components/ScrollHeader'
@@ -75,7 +74,6 @@ export default function RootLayout({ children }) {
             </div>
             <ScrollHeader />
             <CommandPalette />
-            <CavaVisualizer />
             <PowerToggle />
           </UserContextWrapper>
         </PerformanceProvider>
