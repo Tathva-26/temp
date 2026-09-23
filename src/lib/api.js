@@ -1,4 +1,6 @@
 import axios from "axios";
+import { USE_MOCK_DATA } from "@/lib/mock/data";
+import { mockAdapter, mockFetch } from "@/lib/mock/api";
 
 // One backend origin for the whole app. The session is an httpOnly cookie the
 // browser attaches itself (`withCredentials`) — there is no bearer token, and
@@ -19,6 +21,8 @@ const api = axios.create({
   baseURL: getBackendURL(),
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
+  // NEXT_PUBLIC_USE_MOCK_DATA=true answers from src/lib/mock instead of the network.
+  ...(USE_MOCK_DATA ? { adapter: mockAdapter } : {}),
 });
 
 /**
@@ -64,5 +68,8 @@ api.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+
+/** `fetch` for the callers that do not use axios; mocked when the flag is on. */
+export const backendFetch = USE_MOCK_DATA ? mockFetch : (...args) => fetch(...args);
 
 export default api;

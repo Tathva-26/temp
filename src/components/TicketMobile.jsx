@@ -14,7 +14,7 @@ const fontspring = localFont({
   src: "../../public/fonts/fontspring.otf",
 });
 
-function TicketMobile({ day, date, eventId, price, isBookable = true }) {
+function TicketMobile({ day, date, eventId, price, isBookable = true, isClosed = false }) {
   return (
     <div className="relative w-20 h-56 sm:w-20 sm:h-56 ">
       {/* Oversized Image */}
@@ -71,6 +71,7 @@ function TicketMobile({ day, date, eventId, price, isBookable = true }) {
               eventId={eventId}
               price={price}
               isBookable={isBookable}
+                isClosed={isClosed}
             />
           ) : null}
           <button

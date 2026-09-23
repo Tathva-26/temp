@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import ClosedBanner from "@/components/ClosedBanner";
 
 /**
  * `price` and `extraInfo` arrive pre-formatted — `formatPrice` in lib/events
@@ -12,10 +13,12 @@ export default function SectionCard({
   date,
   price,
   extraInfo,
+  closed = false,
 }) {
   return (
-    <div className="group cursor-pointer">
-      <div className="overflow-hidden mb-4">
+    <div className={closed ? "cursor-pointer" : "group cursor-pointer"}>
+      <div className="relative overflow-hidden mb-4">
+        {closed ? <ClosedBanner /> : null}
         {image ? (
           // Uniform 2:3 poster slot with the picture contained inside it and
           // nothing drawn behind it.
@@ -23,7 +26,11 @@ export default function SectionCard({
           <img
             src={image}
             alt={title}
-            className="aspect-[2/3] w-full object-contain transition-transform duration-300 group-hover:scale-102"
+            className={`aspect-[2/3] w-full object-contain ${
+              closed
+                ? "grayscale opacity-50"
+                : "transition-transform duration-300 group-hover:scale-102"
+            }`}
           />
         ) : (
           // `picture` is nullable on the API, and an <img> with src={null}
@@ -42,7 +49,11 @@ export default function SectionCard({
             <h3 className="text-lg font-medium text-white mb-1 pp-fragment line-clamp-1 uppercase group">
               {title}
             </h3>
-            <ArrowRight size={24} className="-mt-2 transform transition-transform duration-300 rotate-45 group-hover:-rotate-45 text-white" />
+            <ArrowRight size={24} className={`-mt-2 text-white ${
+                closed
+                  ? "rotate-45 opacity-40"
+                  : "transform transition-transform duration-300 rotate-45 group-hover:-rotate-45"
+              }`} />
           </div>
           <p className="text-sm text-gray-300  border-x border-t mt-2 px-2 p-2">{description}</p>
           <p className="text-sm text-gray-300  italic border p-1 px-2 font-semibold">{date}</p>

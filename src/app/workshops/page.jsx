@@ -11,6 +11,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import BackendStatus from '@/components/BackendStatus'
 import { fetchEvents, formatPrice } from '@/lib/events'
+import ClosedBanner from '@/components/ClosedBanner'
 import gsap from 'gsap'
 
 const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== 'false'
@@ -2072,6 +2073,8 @@ export default function WorkshopsPage() {
                               overflow: 'hidden',
                             }}
                           >
+                            {/* Unpublished: still animates like any card. */}
+                            {workshop.isClosed ? <ClosedBanner /> : null}
                             <img
                               src={displayImage}
                               alt={heading ?? 'Workshop'}
