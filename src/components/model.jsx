@@ -92,6 +92,7 @@ export default function Modal({
               id={workshopData.id}
               referralCode={referralCode}
               disabled={!workshopData.isBookable}
+              closed={workshopData.isClosed}
             />
           </div>
         </div>

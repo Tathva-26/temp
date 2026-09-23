@@ -65,6 +65,7 @@ export default function CompetitionTabs({ tathvaEvents, preTathvaEvents }) {
                       }
                       price={formatPrice(event.price)}
                       extraInfo={event.venueName ?? ''}
+                      closed={event.isClosed}
                     />
                   </Link>
                 ))}
@@ -92,6 +93,7 @@ export default function CompetitionTabs({ tathvaEvents, preTathvaEvents }) {
                       }
                       price={formatPrice(event.price)}
                       extraInfo={event.venueName ?? ''}
+                      closed={event.isClosed}
                     />
                   </Link>
                 ))}

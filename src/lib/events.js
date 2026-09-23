@@ -1,4 +1,6 @@
 import { getBackendURL } from "@/lib/api";
+import { USE_MOCK_DATA } from "@/lib/mock/data";
+import { mockEventById, mockEventsByType } from "@/lib/mock/api";
 
 /**
  * Public event reads, in one place.
@@ -8,7 +10,8 @@ import { getBackendURL } from "@/lib/api";
  *
  *  - **`/api/events/all` includes unpublished events.** Only an admin publish
  *    pushes an event to TIQR and gives it a ticket, so an unpublished event is
- *    not bookable — showing it means a booking attempt that 400s. Filtered here.
+ *    not bookable. These are kept in the list and flagged `isClosed`, so cards
+ *    render a "Booking full" state instead of the event vanishing.
  *  - **`price` is in paise**, not rupees: a ₹250 workshop arrives as `25000`.
  *    Render it with `formatPrice`; use `toRupees` when you need a number to
  *    compute on, as the checkout modals do for the platform fee.
@@ -22,6 +25,8 @@ function toCard(event) {
   return {
     ...event,
     venueName: event.venue?.name ?? null,
+    /** Not published by an admin: shown, but greyed out and not bookable. */
+    isClosed: !event.published,
     /**
      * Bookable only once TIQR has issued a ticket. A publish whose sync failed
      * leaves `ticketId` at 0, and the booking endpoint 409s on those.
@@ -35,6 +40,10 @@ function toCard(event) {
  *   which the backend lowercases on write — so "workshops", not "Workshops".
  */
 export async function fetchEvents(type) {
+  if (USE_MOCK_DATA) {
+    return mockEventsByType(type).map(toCard);
+  }
+
   const query = type ? `?type=${encodeURIComponent(type)}` : "";
   const res = await fetch(`${getBackendURL()}/api/events/all${query}`, {
     // Events change when an admin publishes, which is not build time.
@@ -44,7 +53,7 @@ export async function fetchEvents(type) {
   if (!res.ok) throw new Error(`Failed to load events (${res.status})`);
 
   const data = await res.json();
-  return (data.events ?? []).filter((event) => event.published).map(toCard);
+  return (data.events ?? []).map(toCard);
 }
 
 /**
@@ -53,6 +62,11 @@ export async function fetchEvents(type) {
  * a not-found page rather than an error.
  */
 export async function fetchEvent(id) {
+  if (USE_MOCK_DATA) {
+    const event = mockEventById(id);
+    return event ? toCard(event) : null;
+  }
+
   const res = await fetch(`${getBackendURL()}/api/events/details/${id}`, {
     cache: "no-store",
   });

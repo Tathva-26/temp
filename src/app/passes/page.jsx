@@ -87,6 +87,7 @@ function toPassCards(events) {
       eventId: event.id,
       // A pass whose TIQR sync failed has no ticket and would 409 on booking.
       isBookable: event.isBookable,
+      isClosed: event.isClosed,
     };
   });
 }
@@ -377,6 +378,7 @@ function Page() {
               price={ticket.price}
               eventId={ticket.eventId}
               isBookable={ticket.isBookable}
+              isClosed={ticket.isClosed}
             />
           ) : (
             <Ticket
@@ -385,6 +387,7 @@ function Page() {
               price={ticket.price}
               eventId={ticket.eventId}
               isBookable={ticket.isBookable}
+              isClosed={ticket.isClosed}
             />
           )}
         </div>

@@ -13,6 +13,8 @@ import toast from "react-hot-toast";
 import { createAuthClient } from "better-auth/react";
 import api, { getBackendURL, setUnauthorizedHandler } from "@/lib/api";
 import { captureReferralCode } from "@/lib/referral";
+import { USE_MOCK_DATA, MOCK_USER } from "@/lib/mock/data";
+import { isMockSignedIn, setMockSignedIn } from "@/lib/mock/api";
 
 const UserContext = createContext(null);
 
@@ -68,7 +70,23 @@ function normalizeProfile(data) {
 
 
 export default function UserContextWrapper({ children }) {
-  const { data: sessionData, isPending: sessionPending } = useSession();
+  const realSession = useSession();
+
+  // Mock mode: the "session" is a localStorage flag, read after mount so the
+  // server and first client render agree.
+  const [mockSession, setMockSession] = useState(null);
+  useEffect(() => {
+    if (USE_MOCK_DATA) setMockSession(isMockSignedIn());
+  }, []);
+
+  const sessionData = USE_MOCK_DATA
+    ? mockSession
+      ? { user: { id: MOCK_USER.id, image: null } }
+      : null
+    : realSession.data;
+  const sessionPending = USE_MOCK_DATA
+    ? mockSession === null
+    : realSession.isPending;
 
   // A CA's link lands on any page with ?referral_code=…; grab it before the
   // visitor navigates away, so it is still around at checkout.
@@ -159,6 +177,13 @@ export default function UserContextWrapper({ children }) {
   const authLoading = sessionPending || profileLoading;
 
   const loginWithGoogle = useCallback(async () => {
+    if (USE_MOCK_DATA) {
+      setMockSignedIn(true);
+      setMockSession(true);
+      toast.success("Signed in as mock user");
+      return;
+    }
+
     if (!getBackendURL()) {
       toast.error("Set NEXT_PUBLIC_BACKEND_URL in .env.local");
       return;
@@ -203,7 +228,12 @@ export default function UserContextWrapper({ children }) {
 
   const logout = useCallback(async () => {
     try {
-      await signOut();
+      if (USE_MOCK_DATA) {
+        setMockSignedIn(false);
+        setMockSession(false);
+      } else {
+        await signOut();
+      }
     } catch (err) {
       console.error("Sign-out failed:", err);
     } finally {

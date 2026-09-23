@@ -24,10 +24,14 @@ export default function ModalWrapper({ workshopData, eventType }) {
         <div className="flex">
             <button
                 onClick={handleClick}
-                disabled={authLoading}
-                className="px-5 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition disabled:opacity-60"
+                disabled={authLoading || workshopData.isClosed}
+                className="px-5 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
-                {isLoggedIn ? "Register" : "Login to Register"}
+                {workshopData.isClosed
+                    ? "Booking full"
+                    : isLoggedIn
+                      ? "Register"
+                      : "Login to Register"}
             </button>
 
             <Modal

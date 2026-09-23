@@ -3,9 +3,10 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import ModalWrapper from '@/components/modelWrapper'
+import ClosedBanner from '@/components/ClosedBanner'
 import BrochureButton from '@/components/BrochureButton'
 import BackendStatus from '@/components/BackendStatus'
-import { getBackendURL } from '@/lib/api'
+import { getBackendURL, backendFetch } from '@/lib/api'
 import { fetchEvent, formatPrice } from '@/lib/events'
 
 const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== 'false'
@@ -22,7 +23,7 @@ async function getBrochure(tiqrEventId) {
   if (!tiqrEventId) return []
 
   try {
-    const res = await fetch(
+    const res = await backendFetch(
       `${getBackendURL()}/api/tiqr-events/${tiqrEventId}`,
       { cache: 'no-store' },
     )
@@ -102,6 +103,7 @@ export default async function EventPage({ params }) {
     // Bookability is decided server-side from our event id; the button only
     // needs to know whether to offer itself.
     isBookable: event.isBookable,
+    isClosed: event.isClosed,
     venue: event.venue || null,
     // Paise, as the API sends it; the checkout modal converts and computes
     // the platform fee off it.
@@ -153,15 +155,16 @@ export default async function EventPage({ params }) {
         <div className='grid grid-cols-1 lg:grid-cols-12 gap-8 items-start'>
           {/* Left — Image Section */}
           <div className='lg:col-span-4'>
-            <div className='relative w-full h-[500px] rounded-2xl overflow-hidden shadow-lg hover:scale-[1.02] transition-transform duration-300'>
+            <div className={`relative w-full h-[500px] rounded-2xl overflow-hidden shadow-lg ${eventData.isClosed ? '' : 'hover:scale-[1.02] transition-transform duration-300'}`}>
               {/* `picture` is nullable on the API, and next/image throws on a
                   null src rather than rendering nothing. */}
+              {eventData.isClosed ? <ClosedBanner /> : null}
               {eventData.image ? (
                 <Image
                   src={eventData.image}
                   alt={eventData.name}
                   fill
-                  className='object-contain'
+                  className={`object-contain ${eventData.isClosed ? 'grayscale opacity-50' : ''}`}
                   priority
                 />
               ) : (

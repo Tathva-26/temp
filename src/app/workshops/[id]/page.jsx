@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import ModalWrapper from '@/components/modelWrapper'
+import ClosedBanner from '@/components/ClosedBanner'
 import BackendStatus from '@/components/BackendStatus'
 import { fetchEvent, formatPrice } from '@/lib/events'
 
@@ -47,6 +48,7 @@ export default async function WorkshopPage({ params }) {
   const workshopData = {
     id: workshop.id,
     isBookable: workshop.isBookable,
+    isClosed: workshop.isClosed,
     name: workshop.heading,
     date: formatDate(workshop.datetime),
     time: formatTime(workshop.datetime),
@@ -79,15 +81,16 @@ export default async function WorkshopPage({ params }) {
         <div className='grid grid-cols-1 lg:grid-cols-12 gap-8 items-start'>
           {/* Left — Image Section */}
           <div className='lg:col-span-4 flex items-center'>
-            <div className='relative w-full h-[450px] rounded-2xl overflow-hidden shadow-lg hover:scale-[1.02] transition-transform duration-300'>
+            <div className={`relative w-full h-[450px] rounded-2xl overflow-hidden shadow-lg ${workshopData.isClosed ? '' : 'hover:scale-[1.02] transition-transform duration-300'}`}>
               {/* `picture` is nullable on the API, and next/image throws on a
                   null src rather than rendering nothing. */}
+              {workshopData.isClosed ? <ClosedBanner /> : null}
               {workshopData.image ? (
                 <Image
                   src={workshopData.image}
                   alt={workshopData.name}
                   fill
-                  className='object-contain'
+                  className={`object-contain ${workshopData.isClosed ? 'grayscale opacity-50' : ''}`}
                   priority
                 />
               ) : (

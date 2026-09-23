@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import BackendStatus from "@/components/BackendStatus";
-import { getBackendURL } from "@/lib/api";
+import { getBackendURL, backendFetch } from "@/lib/api";
 
 const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
@@ -70,7 +70,7 @@ export default function AnnouncementsPage() {
 
     const fetchAnnouncements = async () => {
       try {
-        const response = await fetch(`${getBackendURL()}/api/announcements`);
+        const response = await backendFetch(`${getBackendURL()}/api/announcements`);
 
         if (response.status === 404) {
           if (!cancelled) setSpecificAnnouncements([]);

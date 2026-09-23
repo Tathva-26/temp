@@ -16,6 +16,7 @@ export default function Modal({
   eventId,
   price = 0,
   isBookable = true,
+  isClosed = false,
   // What this event is called in the checkout copy. This modal only ever
   // fronts a day pass, so "Workshop Price" was wrong on every render.
   eventType = "Pass",
@@ -95,6 +96,7 @@ export default function Modal({
               id={eventId}
               referralCode={referralCode}
               disabled={!isBookable}
+              closed={isClosed}
             />
           </div>
         </div>

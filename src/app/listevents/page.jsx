@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { Calendar, Tag } from 'lucide-react'
 import BackendStatus from '@/components/BackendStatus'
-import { getBackendURL } from '@/lib/api'
+import { getBackendURL, backendFetch } from '@/lib/api'
 
 const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== 'false'
 
@@ -37,7 +37,7 @@ export default function EventsListing() {
   const fetchEvents = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`${getBackendURL()}/api/tiqr-events/`)
+      const response = await backendFetch(`${getBackendURL()}/api/tiqr-events/`)
       if (!response.ok) throw new Error(`Request failed (${response.status})`)
 
       const data = await response.json()

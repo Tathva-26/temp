@@ -14,7 +14,7 @@ const fontspring = localFont({
   src: "../../public/fonts/fontspring.otf",
 });
 
-function Ticket({ day, date, eventId, price, isBookable = true }) {
+function Ticket({ day, date, eventId, price, isBookable = true, isClosed = false }) {
   // Dynamic event text based on day
   const eventText =
     day === 1 ? "Wheels | Robowars | Conclave" : "Proshow | Events | Conclave";
@@ -76,6 +76,7 @@ function Ticket({ day, date, eventId, price, isBookable = true }) {
                 eventId={eventId}
                 price={price}
                 isBookable={isBookable}
+                isClosed={isClosed}
               />
             ) : null}
             <button

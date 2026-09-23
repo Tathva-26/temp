@@ -67,6 +67,7 @@ export default async function LecturesPage() {
                   description={lecture.description}
                   price={formatPrice(lecture.price)}
                   extraInfo={lecture.venueName ?? ""}
+                  closed={lecture.isClosed}
                 />
               </Link>
             ))}
