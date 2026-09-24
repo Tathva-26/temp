@@ -3,9 +3,7 @@
 import React, { useState, useEffect } from "react";
 import CompetitionTabs from "@/components/CompetitionTabs";
 import BackendStatus from "@/components/BackendStatus";
-import Link from "next/link";
-import SectionCard from "@/components/SectionCard";
-import { fetchEvents, formatPrice } from "@/lib/events";
+import { fetchEvents } from "@/lib/events";
 
 // Event ids that are passes rather than competitions; shown in their own section.
 const PASS_IDS = [13, 14, 16];
@@ -124,31 +122,8 @@ export default function EventsPage() {
         <CompetitionTabs
           tathvaEvents={otherCompetitions}
           preTathvaEvents={gpcEvents}
+          passes={passes}
         />
-      )}
-
-      {/* Passes */}
-      {passes.length > 0 && (
-        <div id="passes" className="mt-20">
-          <div className="mb-8 border-b border-gray-300 pb-4">
-            <h2 className="pp-fragment text-3xl sm:text-4xl tracking-wide text-white uppercase">
-              PASSES
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {passes.map((event) => (
-              <Link href={`competitions/${event.id}`} key={event.id}>
-                <SectionCard
-                  image={event.picture || "/images/events.jpg"}
-                  title={event.heading || "Untitled Pass"}
-                  description={event.description || "No description available."}
-                  price={formatPrice(event.price)}
-                  extraInfo={event.venueName ?? ""}
-                />
-              </Link>
-            ))}
-          </div>
-        </div>
       )}
     </div>
   );

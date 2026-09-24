@@ -5,7 +5,7 @@ import Link from 'next/link'
 import SectionCard from '@/components/SectionCard'
 import { formatPrice } from '@/lib/events'
 
-export default function CompetitionTabs({ tathvaEvents, preTathvaEvents }) {
+export default function CompetitionTabs({ tathvaEvents, preTathvaEvents, passes = [] }) {
   const [activeTab, setActiveTab] = useState('tathva')
 
   // Styles for the tab buttons
@@ -74,6 +74,32 @@ export default function CompetitionTabs({ tathvaEvents, preTathvaEvents }) {
               <p className='text-center text-gray-400 py-8'>
                 No Tathva '26 competitions match your search.
               </p>
+            )}
+
+            {/* Passes (Tathva '26 only) */}
+            {passes.length > 0 && (
+              <div id='passes' className='mt-20'>
+                <div className='mb-8 border-b border-gray-300 pb-4'>
+                  <h2 className='pp-fragment text-3xl sm:text-4xl tracking-wide text-white uppercase'>
+                    PASSES
+                  </h2>
+                </div>
+                <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8'>
+                  {passes.map((event) => (
+                    <Link href={`competitions/${event.id}`} key={event.id}>
+                      <SectionCard
+                        image={event.picture || '/images/events.jpg'}
+                        title={event.heading || 'Untitled Pass'}
+                        description={
+                          event.description || 'No description available.'
+                        }
+                        price={formatPrice(event.price)}
+                        extraInfo={event.venueName ?? ''}
+                      />
+                    </Link>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
         )}
