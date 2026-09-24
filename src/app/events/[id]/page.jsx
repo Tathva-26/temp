@@ -22,8 +22,11 @@ import api, { apiErrorMessage } from "@/lib/api";
 import { useUserContext } from "@/context/UserContext";
 
 // The webhook that confirms a booking can land after the buyer is redirected,
-// so a missing booking right now is not the same as a failed one.
-const POLL_DELAYS_MS = [0, 1500, 3000, 5000];
+// so a missing booking right now is not the same as a failed one. The backend
+// serves bookings from a cache and only honours `refresh=1` once per debounce
+// window, so retries wait for the `refreshableInMs` it reports.
+const MAX_ATTEMPTS = 6;
+const MIN_RETRY_MS = 2000;
 
 const rupees = (paise) => `₹${Math.round((paise ?? 0) / 100)}`;
 
@@ -55,10 +58,11 @@ function EventReturn() {
       // Match on the TIQR event id, which is what a booking carries.
       const tiqrEventId = found?.tiqrEventId ?? null;
 
-      for (const delay of POLL_DELAYS_MS) {
-        if (delay) await new Promise((r) => setTimeout(r, delay));
+      let waitMs = 0;
+      for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+        if (waitMs) await new Promise((r) => setTimeout(r, waitMs));
 
-        const res = await api.get("/api/booking/my");
+        const res = await api.get("/api/booking/my", { params: { refresh: 1 } });
         const rows = res.data?.bookings ?? [];
         const mine = rows
           .filter((b) => !tiqrEventId || b?.ticket?.event === tiqrEventId)
@@ -73,6 +77,8 @@ function EventReturn() {
           );
           return;
         }
+
+        waitMs = Math.max(MIN_RETRY_MS, (res.data?.refreshableInMs ?? 0) + 250);
       }
 
       // Charged, but nothing has reached TIQR's booking list yet.

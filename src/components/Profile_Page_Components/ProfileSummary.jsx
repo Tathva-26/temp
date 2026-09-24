@@ -57,24 +57,31 @@ function formatDate(value) {
  * shape: snake_case, and `ticket.event` is **TIQR's** event id. Our own events
  * carry that id as `tiqrEventId`, which is what this joins on — matching
  * against `Event.id` silently pairs each booking with the wrong event.
+ *
+ * The endpoint is served from a short cache. The first load takes whatever is
+ * cached; the Refresh button sends `refresh=1` for a live read. The backend
+ * debounces that, so the response says how long until the next refresh will be
+ * honoured (`refreshableInMs`) and the button waits out that cooldown.
  */
 function useMyBookings(enabled) {
   const [bookings, setBookings] = useState([])
   const [eventsByTiqrId, setEventsByTiqrId] = useState({})
   const [loading, setLoading] = useState(enabled)
   const [error, setError] = useState(null)
+  const [cooldownS, setCooldownS] = useState(0)
 
-  const load = useCallback(async () => {
+  const load = useCallback(async ({ refresh = false } = {}) => {
     setLoading(true)
     setError(null)
     try {
       const [bookingsRes, eventsRes] = await Promise.all([
-        api.get('/api/booking/my'),
+        api.get('/api/booking/my', refresh ? { params: { refresh: 1 } } : undefined),
         // Public, and cheap enough to fetch whole — the join needs the map.
         api.get('/api/events/all'),
       ])
 
       setBookings(bookingsRes.data?.bookings ?? [])
+      setCooldownS(Math.ceil((bookingsRes.data?.refreshableInMs ?? 0) / 1000))
 
       const map = {}
       for (const event of eventsRes.data?.events ?? []) {
@@ -94,7 +101,15 @@ function useMyBookings(enabled) {
     load()
   }, [enabled, load])
 
-  return { bookings, eventsByTiqrId, loading, error, reload: load }
+  useEffect(() => {
+    if (cooldownS <= 0) return
+    const t = setTimeout(() => setCooldownS((s) => s - 1), 1000)
+    return () => clearTimeout(t)
+  }, [cooldownS])
+
+  const reload = useCallback(() => load({ refresh: true }), [load])
+
+  return { bookings, eventsByTiqrId, loading, error, cooldownS, reload }
 }
 
 function BookingCard({ booking, event }) {
@@ -145,7 +160,7 @@ function BookingCard({ booking, event }) {
 export default function ProfileSummary({ user }) {
   const { logout, refreshProfile } = useUserContext()
 
-  const { bookings, eventsByTiqrId, loading, error, reload } =
+  const { bookings, eventsByTiqrId, loading, error, cooldownS, reload } =
     useMyBookings(!!user)
 
   const [form, setForm] = useState({})
@@ -390,9 +405,10 @@ export default function ProfileSummary({ user }) {
           <button
             type='button'
             onClick={reload}
-            className='text-xs font-semibold uppercase tracking-wider text-cyan-400 hover:text-cyan-300'
+            disabled={loading || cooldownS > 0}
+            className='text-xs font-semibold uppercase tracking-wider text-cyan-400 hover:text-cyan-300 disabled:cursor-not-allowed disabled:text-white/30'
           >
-            Refresh
+            {cooldownS > 0 ? `Refresh in ${cooldownS}s` : 'Refresh'}
           </button>
         </div>
 
