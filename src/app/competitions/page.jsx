@@ -1,51 +1,51 @@
-"use client";
+'use client'
 
-import React, { useState, useEffect } from "react";
-import CompetitionTabs from "@/components/CompetitionTabs";
-import BackendStatus from "@/components/BackendStatus";
-import { fetchEvents } from "@/lib/events";
+import React, { useState, useEffect } from 'react'
+import CompetitionTabs from '@/components/CompetitionTabs'
+import BackendStatus from '@/components/BackendStatus'
+import { fetchEvents } from '@/lib/events'
 
-const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
+const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== 'false'
 
 export default function EventsPage() {
-  // State for storing competitions, loading status, errors, and the search query
-  const [allCompetitions, setAllCompetitions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  // State for storing competitions, loading status, errors, and the search query HEHE
+  const [allCompetitions, setAllCompetitions] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [searchQuery, setSearchQuery] = useState('')
 
   if (!backendEnabled) {
     return (
       <BackendStatus
-        title="Competitions coming soon"
-        message="Competition details will be available soon."
+        title='Competitions coming soon'
+        message='Competition details will be available soon.'
       />
-    );
+    )
   }
 
   // Fetch data when the component mounts
   useEffect(() => {
     const getCompetitions = async () => {
       try {
-        setLoading(true);
+        setLoading(true)
         // Published only; prices are paise — format with formatPrice. See lib/events.
-        setAllCompetitions(await fetchEvents("competitions"));
-        setError(null);
+        setAllCompetitions(await fetchEvents('competitions'))
+        setError(null)
       } catch (err) {
-        console.error("Failed to fetch competitions:", err);
-        setError(err.message || "Failed to load competitions");
+        console.error('Failed to fetch competitions:', err)
+        setError(err.message || 'Failed to load competitions')
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    getCompetitions();
-  }, []); // Empty dependency array ensures this runs only once
+    getCompetitions()
+  }, []) // Empty dependency array ensures this runs only once
 
   // Filter competitions based on the search query in real-time
   const searchedCompetitions = allCompetitions.filter((event) =>
     event.heading.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  )
 
   // Separate the *filtered* list into two categories
   /*
@@ -55,51 +55,51 @@ export default function EventsPage() {
    * booking time; `isBookable` is what gates the button.
    */
   const gpcEvents = searchedCompetitions.filter(
-    (event) => event.committee === "GPC",
-  );
+    (event) => event.committee === 'GPC',
+  )
   const otherCompetitions = searchedCompetitions.filter(
-    (event) => event.committee !== "GPC",
-  );
+    (event) => event.committee !== 'GPC',
+  )
 
   // Loading state UI
   if (loading) {
     return (
-      <div className="bg-transparent min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-white border-r-transparent"></div>
-          <p className="mt-4 text-gray-300">Loading competitions...</p>
+      <div className='bg-transparent min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center'>
+        <div className='text-center'>
+          <div className='inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-white border-r-transparent'></div>
+          <p className='mt-4 text-gray-300'>Loading competitions...</p>
         </div>
       </div>
-    );
+    )
   }
 
   // Error state UI
   if (error) {
     return (
-      <div className="bg-transparent min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center">
-        <div className="text-center text-red-500">
-          <p className="text-xl font-semibold">Error loading competitions</p>
-          <p className="mt-2">{error}</p>
+      <div className='bg-transparent min-h-screen py-16 px-4 sm:px-8 flex items-center justify-center'>
+        <div className='text-center text-red-500'>
+          <p className='text-xl font-semibold'>Error loading competitions</p>
+          <p className='mt-2'>{error}</p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="bg-transparent min-h-screen pt-24 sm:pt-28 pb-4 sm:pb-10 px-4 sm:px-8 text-white">
+    <div className='bg-transparent min-h-screen pt-24 sm:pt-28 pb-4 sm:pb-10 px-4 sm:px-8 text-white'>
       {/* Heading and Search Bar Section */}
-      <div className="mb-12">
-        <div className="mb-12 border-b border-gray-300 pb-4">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <h1 className="pp-fragment text-4xl sm:text-5xl md:text-6xl text-center md:text-left tracking-wide text-white uppercase md:mt-3">
+      <div className='mb-12'>
+        <div className='mb-12 border-b border-gray-300 pb-4'>
+          <div className='flex flex-col md:flex-row md:items-center md:justify-between gap-4'>
+            <h1 className='pp-fragment text-4xl sm:text-5xl md:text-6xl text-center md:text-left tracking-wide text-white uppercase md:mt-3'>
               COMPETITIONS
             </h1>
             <input
-              type="text"
+              type='text'
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search For Competitions"
-              className="w-full md:max-w-lg p-4 bg-black/30 border border-white/30 rounded-full shadow-inner focus:ring-white focus:border-white"
+              placeholder='Search For Competitions'
+              className='w-full md:max-w-lg p-4 bg-black/30 border border-white/30 rounded-full shadow-inner focus:ring-white focus:border-white'
             />
           </div>
         </div>
@@ -107,7 +107,7 @@ export default function EventsPage() {
 
       {/* Conditional rendering for the tabs or a "not found" message */}
       {searchedCompetitions.length === 0 && !loading ? (
-        <p className="text-center text-gray-300 text-lg mt-16">
+        <p className='text-center text-gray-300 text-lg mt-16'>
           No competitions found matching your search.
         </p>
       ) : (
@@ -117,5 +117,5 @@ export default function EventsPage() {
         />
       )}
     </div>
-  );
+  )
 }
