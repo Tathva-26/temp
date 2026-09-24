@@ -5,7 +5,7 @@ import Link from 'next/link'
 import SectionCard from '@/components/SectionCard'
 import { formatPrice } from '@/lib/events'
 
-export default function CompetitionTabs({ tathvaEvents, preTathvaEvents }) {
+export default function CompetitionTabs({ tathvaEvents, preTathvaEvents, passEvents = [] }) {
   const [activeTab, setActiveTab] = useState('tathva')
 
   // Styles for the tab buttons
@@ -14,94 +14,73 @@ export default function CompetitionTabs({ tathvaEvents, preTathvaEvents }) {
   const activeTabTextStyle = 'text-white'
   const inactiveTabTextStyle = 'text-gray-500 hover:text-gray-300'
 
+  const tabs = [
+    {
+      key: 'tathva',
+      label: "Tathva '26",
+      events: tathvaEvents,
+      empty: "No Tathva '26 competitions match your search.",
+    },
+    {
+      key: 'pretathva',
+      label: 'Pre-Tathva',
+      events: preTathvaEvents,
+      empty: 'No Pre-Tathva competitions match your search.',
+    },
+    {
+      key: 'passes',
+      label: 'Passes',
+      events: passEvents,
+      empty: 'No passes match your search.',
+    },
+  ]
+  const activeIndex = tabs.findIndex((tab) => tab.key === activeTab)
+  const active = tabs[activeIndex]
+
   return (
     <div className='mx-auto'>
       {/* Tab Navigation Container */}
-      <div className='relative w-full max-w-md mx-auto mb-12 border-b-2 border-white/20'>
+      <div className='relative w-full max-w-xl mx-auto mb-12 border-b-2 border-white/20'>
         <div className='flex'>
-          <button
-            onClick={() => setActiveTab('tathva')}
-            className={`${tabButtonBaseStyle} ${
-              activeTab === 'tathva' ? activeTabTextStyle : inactiveTabTextStyle
-            }`}
-          >
-            Tathva '26
-          </button>
-          <button
-            onClick={() => setActiveTab('pretathva')}
-            className={`${tabButtonBaseStyle} ${
-              activeTab === 'pretathva'
-                ? activeTabTextStyle
-                : inactiveTabTextStyle
-            }`}
-          >
-            Pre-Tathva
-          </button>
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`${tabButtonBaseStyle} ${
+                activeTab === tab.key ? activeTabTextStyle : inactiveTabTextStyle
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
         <div
           className='absolute bottom-[-2px] h-0.5 bg-white transition-all duration-300 ease-in-out'
           style={{
-            width: '50%',
-            transform:
-              activeTab === 'tathva' ? 'translateX(0%)' : 'translateX(100%)',
+            width: `${100 / tabs.length}%`,
+            transform: `translateX(${activeIndex * 100}%)`,
           }}
         />
       </div>
 
-      {/* Conditional Content Display */}
-      <div>
-        {/* Renders when 'Tathva '25' tab is active */}
-        {activeTab === 'tathva' && (
-          <div id='tathva-content'>
-            {tathvaEvents.length > 0 ? (
-              <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8'>
-                {tathvaEvents.map((event) => (
-                  <Link href={`competitions/${event.id}`} key={event.id}>
-                    <SectionCard
-                      image={event.picture || '/images/events.jpg'}
-                      title={event.heading || 'Untitled Event'}
-                      description={
-                        event.description || 'No description available.'
-                      }
-                      price={formatPrice(event.price)}
-                      extraInfo={event.venueName ?? ''}
-                    />
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <p className='text-center text-gray-400 py-8'>
-                No Tathva '26 competitions match your search.
-              </p>
-            )}
+      {/* Active tab content */}
+      <div id={`${active.key}-content`}>
+        {active.events.length > 0 ? (
+          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8'>
+            {active.events.map((event) => (
+              <Link href={`competitions/${event.id}`} key={event.id}>
+                <SectionCard
+                  image={event.picture || '/images/events.jpg'}
+                  title={event.heading || 'Untitled Event'}
+                  description={event.description || 'No description available.'}
+                  price={formatPrice(event.price)}
+                  extraInfo={event.venueName ?? ''}
+                />
+              </Link>
+            ))}
           </div>
-        )}
-
-        {/* Renders when 'Pre-Tathva' tab is active */}
-        {activeTab === 'pretathva' && (
-          <div id='pretathva-content'>
-            {preTathvaEvents.length > 0 ? (
-              <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8'>
-                {preTathvaEvents.map((event) => (
-                  <Link href={`competitions/${event.id}`} key={event.id}>
-                    <SectionCard
-                      image={event.picture || '/images/events.jpg'}
-                      title={event.heading || 'Untitled Event'}
-                      description={
-                        event.description || 'No description available.'
-                      }
-                      price={formatPrice(event.price)}
-                      extraInfo={event.venueName ?? ''}
-                    />
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <p className='text-center text-gray-400 py-8'>
-                No Pre-Tathva competitions match your search.
-              </p>
-            )}
-          </div>
+        ) : (
+          <p className='text-center text-gray-400 py-8'>{active.empty}</p>
         )}
       </div>
     </div>

@@ -3,12 +3,11 @@
 import React, { useState, useEffect } from "react";
 import CompetitionTabs from "@/components/CompetitionTabs";
 import BackendStatus from "@/components/BackendStatus";
-import Link from "next/link";
-import SectionCard from "@/components/SectionCard";
-import { fetchEvents, formatPrice } from "@/lib/events";
+import { fetchEvents } from "@/lib/events";
 
-// Event ids that are passes rather than competitions; shown in their own section.
+// Event ids that are passes rather than competitions; shown in their own tab.
 const PASS_IDS = [13, 14, 16];
+const isPass = (event) => PASS_IDS.includes(Number(event.id));
 
 const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
@@ -48,14 +47,9 @@ export default function EventsPage() {
   }, []); // Empty dependency array ensures this runs only once
 
   // Filter competitions based on the search query in real-time
-  const passes = allCompetitions.filter((event) =>
-    PASS_IDS.includes(Number(event.id)),
+  const searchedCompetitions = allCompetitions.filter((event) =>
+    event.heading.toLowerCase().includes(searchQuery.toLowerCase()),
   );
-  const searchedCompetitions = allCompetitions
-    .filter((event) => !PASS_IDS.includes(Number(event.id)))
-    .filter((event) =>
-      event.heading.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
 
   // Separate the *filtered* list into two categories
   /*
@@ -64,12 +58,14 @@ export default function EventsPage() {
    * stale one silently hid a bookable competition. Availability is decided at
    * booking time; `isBookable` is what gates the button.
    */
-  const gpcEvents = searchedCompetitions.filter(
-    (event) => event.committee === "GPC",
-  );
-  const otherCompetitions = searchedCompetitions.filter(
-    (event) => event.committee !== "GPC",
-  );
+  const passEvents = searchedCompetitions
+    .filter(isPass)
+    .sort((a, b) => Number(a.id) - Number(b.id));
+  const competitions = searchedCompetitions.filter((event) => !isPass(event));
+  const gpcEvents = competitions.filter((event) => event.committee === "GPC");
+  const otherCompetitions = competitions
+    .filter((event) => event.committee !== "GPC")
+    .sort((a, b) => Number(a.id) - Number(b.id));
 
   // Loading state UI
   if (loading) {
@@ -124,31 +120,8 @@ export default function EventsPage() {
         <CompetitionTabs
           tathvaEvents={otherCompetitions}
           preTathvaEvents={gpcEvents}
+          passEvents={passEvents}
         />
-      )}
-
-      {/* Passes */}
-      {passes.length > 0 && (
-        <div id="passes" className="mt-20">
-          <div className="mb-8 border-b border-gray-300 pb-4">
-            <h2 className="pp-fragment text-3xl sm:text-4xl tracking-wide text-white uppercase">
-              PASSES
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {passes.map((event) => (
-              <Link href={`competitions/${event.id}`} key={event.id}>
-                <SectionCard
-                  image={event.picture || "/images/events.jpg"}
-                  title={event.heading || "Untitled Pass"}
-                  description={event.description || "No description available."}
-                  price={formatPrice(event.price)}
-                  extraInfo={event.venueName ?? ""}
-                />
-              </Link>
-            ))}
-          </div>
-        </div>
       )}
     </div>
   );
