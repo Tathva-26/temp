@@ -1,4 +1,5 @@
 'use client'
+import { PAGE_TRANSITION_ID } from '@/lib/pageTransition'
 import React, {
   useEffect,
   useLayoutEffect,
@@ -1483,6 +1484,10 @@ export default function WorkshopsPage() {
     e.preventDefault()
     isNavigatingRef.current = true
 
+    // Warm the detail route while the ~1s zoom animation plays, so the page
+    // is ready when router.push fires instead of blank while it loads.
+    router.prefetch(href)
+
     // B4 fix: make the "navigation in progress" state visible and actually
     // block interaction with other cards during the transition, instead of
     // silently swallowing their hover/click events with no feedback.
@@ -1558,68 +1563,47 @@ export default function WorkshopsPage() {
     const tl = gsap.timeline()
     transitionTlRef.current = tl
 
-    // 1. Surrounding UI and page text fade to 0 opacity while receding back in 3D space
+    // The poster is cloned onto <body> so it outlives this page: it zooms up
+    // while fading out from the very first frame, and the detail page (already
+    // navigating underneath) shows through as it fades.
+    // (Strict Mode runs this effect twice in dev; keep a single clone.)
+    document.getElementById(PAGE_TRANSITION_ID)?.remove()
+    const clone = overlayEl.cloneNode(true)
+    clone.id = PAGE_TRANSITION_ID
+    document.body.appendChild(clone)
+    gsap.set(overlayEl, { opacity: 0 })
+    // Safety net if the detail page never mounts (error, offline).
+    setTimeout(() => clone.remove(), 4000)
+
+    const cloneImg = clone.querySelector('img')
+    const DURATION = 0.7
+    gsap.to(clone, {
+      left: 0,
+      top: 0,
+      width: window.innerWidth,
+      height: window.innerHeight,
+      borderRadius: '0px',
+      boxShadow: '0 0 0px rgba(0,0,0,0)',
+      duration: DURATION,
+      ease: 'power2.out',
+    })
+    gsap.to(clone, {
+      opacity: 0,
+      duration: DURATION,
+      ease: 'power1.in',
+      onComplete: () => clone.remove(),
+    })
+    if (cloneImg) {
+      gsap.to(cloneImg, { scale: 1.15, duration: DURATION, ease: 'power2.out' })
+    }
+
     if (pageRef.current) {
       tl.to(
         pageRef.current,
-        {
-          opacity: 0,
-          scale: 0.94,
-          duration: 0.8,
-          ease: 'power3.inOut',
-        },
+        { opacity: 0, scale: 0.96, duration: 0.3, ease: 'power2.out' },
         0,
       )
     }
-
-    // 2. Smoothly expand image overlay to fill viewport edge-to-edge
-    tl.to(
-      overlayEl,
-      {
-        left: 0,
-        top: 0,
-        width: window.innerWidth,
-        height: window.innerHeight,
-        borderRadius: '0px',
-        boxShadow: '0 0 0px rgba(0,0,0,0)',
-        duration: 0.8,
-        ease: 'power3.inOut',
-      },
-      0,
-    )
-    tl.to(
-      imgEl,
-      {
-        opacity: 0,
-        duration: 0.22,
-        ease: 'power2.in',
-      },
-      0.18,
-    )
-
-    // 3. Subtle camera-push scale on inner image to reinforce moving into the space
-    if (imgEl) {
-      tl.to(
-        imgEl,
-        {
-          scale: 1.08,
-          duration: 0.8,
-          ease: 'power3.inOut',
-        },
-        0,
-      )
-    }
-
-    // 4. Trigger Next.js navigation cleanly at 85% of timeline completion
-    tl.to(
-      imgEl,
-      {
-        opacity: 0,
-        duration: 0.25,
-        ease: 'power2.inOut',
-      },
-      0.8,
-    )
 
     tl.add(() => {
       router.push(href)
@@ -1632,7 +1616,7 @@ export default function WorkshopsPage() {
         gridRef.current.style.pointerEvents = ''
         gridRef.current.style.cursor = ''
       }
-    }, 1.05)
+    }, 0.12)
 
     return () => {
       if (transitionTlRef.current) {
@@ -2178,6 +2162,7 @@ export default function WorkshopsPage() {
               zIndex: 99999,
               overflow: 'hidden',
               borderRadius: '6px',
+              backgroundColor: 'transparent',
               boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
               pointerEvents: 'none',
               willChange: 'left, top, width, height, border-radius',
