@@ -46,14 +46,9 @@ export default function EventsPage() {
   }, []); // Empty dependency array ensures this runs only once
 
   // Filter competitions based on the search query in real-time
-  const passes = allCompetitions.filter((event) =>
-    PASS_IDS.includes(Number(event.id)),
+  const searchedCompetitions = allCompetitions.filter((event) =>
+    event.heading.toLowerCase().includes(searchQuery.toLowerCase()),
   );
-  const searchedCompetitions = allCompetitions
-    .filter((event) => !PASS_IDS.includes(Number(event.id)))
-    .filter((event) =>
-      event.heading.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
 
   // Separate the *filtered* list into two categories
   /*
