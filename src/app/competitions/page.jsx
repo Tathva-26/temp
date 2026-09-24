@@ -5,7 +5,10 @@ import CompetitionTabs from '@/components/CompetitionTabs'
 import BackendStatus from '@/components/BackendStatus'
 import { fetchEvents } from '@/lib/events'
 
-const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== 'false'
+// Event ids that are passes rather than competitions; shown in their own section.
+const PASS_IDS = [13, 14, 16];
+
+const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
 export default function EventsPage() {
   // State for storing competitions, loading status, errors, and the search query HEHE
@@ -114,6 +117,7 @@ export default function EventsPage() {
         <CompetitionTabs
           tathvaEvents={otherCompetitions}
           preTathvaEvents={gpcEvents}
+          passes={passes}
         />
       )}
     </div>
