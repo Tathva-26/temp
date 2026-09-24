@@ -7,7 +7,8 @@ import { fetchEvents } from "@/lib/events";
 
 // Event ids that are passes rather than competitions; shown in their own tab.
 const PASS_IDS = [13, 14, 16];
-const isPass = (event) => PASS_IDS.includes(Number(event.id));
+const isPass = (event) =>
+  PASS_IDS.includes(Number(event.id)) || /\bpass(es)?\b/i.test(event.heading ?? "");
 
 const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
