@@ -41,7 +41,9 @@ function toCard(event) {
  */
 export async function fetchEvents(type) {
   if (USE_MOCK_DATA) {
-    return mockEventsByType(type).map(toCard);
+    return mockEventsByType(type)
+      .map(toCard)
+      .sort((a, b) => Number(a.isClosed) - Number(b.isClosed));
   }
 
   const query = type ? `?type=${encodeURIComponent(type)}` : "";
@@ -53,7 +55,11 @@ export async function fetchEvents(type) {
   if (!res.ok) throw new Error(`Failed to load events (${res.status})`);
 
   const data = await res.json();
-  return (data.events ?? []).map(toCard);
+  // Bookable (published) events first; closed ones sink to the end. The sort
+  // is stable, so each group keeps the order the backend sent.
+  return (data.events ?? [])
+    .map(toCard)
+    .sort((a, b) => Number(a.isClosed) - Number(b.isClosed));
 }
 
 /**
