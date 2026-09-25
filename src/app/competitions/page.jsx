@@ -5,6 +5,9 @@ import CompetitionTabs from "@/components/CompetitionTabs";
 import BackendStatus from "@/components/BackendStatus";
 import { fetchEvents } from "@/lib/events";
 
+const ROBOWARS_IDS = [6, 7];
+const PASS_IDS = [13, 14, 16];
+
 const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
 export default function EventsPage() {
@@ -57,8 +60,14 @@ export default function EventsPage() {
   const gpcEvents = searchedCompetitions.filter(
     (event) => event.committee === "GPC",
   );
-  const otherCompetitions = searchedCompetitions.filter(
+  const tathvaCompetitions = searchedCompetitions.filter(
     (event) => event.committee !== "GPC",
+  );
+  const inIds = (ids) => (event) => ids.includes(Number(event.id));
+  const robowarsEvents = tathvaCompetitions.filter(inIds(ROBOWARS_IDS));
+  const passEvents = tathvaCompetitions.filter(inIds(PASS_IDS));
+  const otherCompetitions = tathvaCompetitions.filter(
+    (event) => !ROBOWARS_IDS.includes(Number(event.id)) && !PASS_IDS.includes(Number(event.id)),
   );
 
   // Loading state UI
@@ -112,6 +121,8 @@ export default function EventsPage() {
         </p>
       ) : (
         <CompetitionTabs
+          robowarsEvents={robowarsEvents}
+          passEvents={passEvents}
           tathvaEvents={otherCompetitions}
           preTathvaEvents={gpcEvents}
         />
