@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import HeroTitle from '@/components/HeroTitle'
 import AuthButton from '@/components/AuthButton'
+import { CDN_BASE_URL } from '@/lib/cdn'
 
 export default function Hero({ refs }) {
   const [countdown, setCountdown] = useState({
@@ -82,7 +83,7 @@ export default function Hero({ refs }) {
 
 
       <Image
-        src='/images/TATHVA25_LOGO_BLACK.png'
+        src={`${CDN_BASE_URL}/images/TATHVA25_LOGO_BLACK.png`}
         alt='Tathva Logo'
         width={150}
         height={150}

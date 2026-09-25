@@ -14,6 +14,7 @@ import BackendStatus from '@/components/BackendStatus'
 import { fetchEvents, formatPrice } from '@/lib/events'
 import ClosedBanner from '@/components/ClosedBanner'
 import gsap from 'gsap'
+import { CDN_BASE_URL } from '@/lib/cdn'
 
 const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== 'false'
 
@@ -135,15 +136,16 @@ const IDLE_RESTORE_DURATION = 0.85
 // shape the uploaded picture is. Portrait, matching a typical event poster.
 const CARD_ASPECT_RATIO = '2 / 3'
 
-// Placeholder art for workshops with no usable picture. These must exist in
-// `public/` — the previous list pointed at /images/workshop{1,2,4,5,56}.jpg,
-// none of which are in the repo, so every fallback card rendered blank.
+// Placeholder art for workshops with no usable picture. These must exist on
+// the CDN (CDN_BASE_URL) — the previous list pointed at
+// /images/workshop{1,2,4,5,56}.jpg, none of which existed, so every fallback
+// card rendered blank.
 const MOCK_WORKSHOP_IMAGES = [
-  '/images/carousel/1.jpeg',
-  '/images/carousel/2.jpeg',
-  '/images/carousel/3.jpeg',
-  '/images/carousel/4.jpeg',
-  '/images/carousel/5.jpeg',
+  `${CDN_BASE_URL}/images/carousel/1.jpeg`,
+  `${CDN_BASE_URL}/images/carousel/2.jpeg`,
+  `${CDN_BASE_URL}/images/carousel/3.jpeg`,
+  `${CDN_BASE_URL}/images/carousel/4.jpeg`,
+  `${CDN_BASE_URL}/images/carousel/5.jpeg`,
 ]
 
 export default function WorkshopsPage() {
@@ -1973,7 +1975,7 @@ export default function WorkshopsPage() {
               const displayImage =
                 !picture ||
                 picture.trim().endsWith('-DUMMY.jpg') ||
-                picture.trim() === '/images/workshops.jpg'
+                picture.trim() === `${CDN_BASE_URL}/images/workshops.jpg`
                   ? MOCK_WORKSHOP_IMAGES[index % MOCK_WORKSHOP_IMAGES.length]
                   : picture
 
