@@ -11,7 +11,7 @@ const sections = [
       'Hands-on sessions covering topics like robotics, AI, and sustainable tech. These workshops provide students with the opportunity to gain practical knowledge, work on real-world problems, and interact with industry professionals.',
   },
   {
-    image: 'https://cdn-next.tathva.org/images/events.',
+    image: 'https://cdn-next.tathva.org/images/events.jpg',
     title: 'Competitions',
     description:
       "Over 65 events including coding competitions, gaming, and cultural showcases. From technical battles of skill to fun informal events, Tathva's events are designed to inspire innovation, teamwork, and creativity.",
