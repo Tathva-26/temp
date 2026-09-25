@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import ModalWrapper from '@/components/modelWrapper'
 import ClosedBanner from '@/components/ClosedBanner'
+import Linkify from '@/components/Linkify'
 import BrochureButton from '@/components/BrochureButton'
 import BackendStatus from '@/components/BackendStatus'
 import { getBackendURL, backendFetch } from '@/lib/api'
@@ -246,7 +247,7 @@ export default async function EventPage({ params }) {
             </h2>
             <div className='prose prose-invert max-w-none'>
               <p className='text-base pp-fragment leading-relaxed text-gray-300 whitespace-pre-line break-words'>
-                {eventData.catchyPara}
+                <Linkify text={eventData.catchyPara} />
               </p>
             </div>
           </div>
