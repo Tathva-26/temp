@@ -6,6 +6,7 @@ export default function RegisterButton({
   id,
   quantity = 1,
   referralCode,
+  passcode,
   disabled = false,
   closed = false,
 }) {
@@ -21,7 +22,7 @@ export default function RegisterButton({
     if (isLoading) return;
     setIsLoading(true);
 
-    const redirecting = await regHandler(id, quantity, referralCode);
+    const redirecting = await regHandler(id, quantity, referralCode, passcode);
     if (!redirecting) setIsLoading(false);
   };
 

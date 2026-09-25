@@ -22,7 +22,12 @@ import { clearReferralCode, getReferralCode } from "@/lib/referral";
  * @returns {Promise<boolean>} false when the booking was refused. On success
  *   the browser is already navigating away.
  */
-export async function regHandler(eventId, quantity = 1, referralCodeInput) {
+export async function regHandler(
+  eventId,
+  quantity = 1,
+  referralCodeInput,
+  passcode,
+) {
   const referralCode = (
     typeof referralCodeInput === "string"
       ? referralCodeInput
@@ -36,6 +41,8 @@ export async function regHandler(eventId, quantity = 1, referralCodeInput) {
       // Omit rather than send null: the schema accepts the key or its absence,
       // and an empty value is not a code.
       ...(referralCode ? { referralCode } : {}),
+      // Only events the backend flags `passcodeRequired` read this.
+      ...(passcode?.trim() ? { passcode: passcode.trim() } : {}),
     });
 
     if (!data?.redir_url) {
@@ -89,6 +96,16 @@ export async function regHandler(eventId, quantity = 1, referralCodeInput) {
           ? "That booking was rejected. Check the referral code, or clear it and try again."
           : "That booking was rejected. Please try again.",
       );
+      return false;
+    }
+
+    if (status === 403 && body?.code === "PASSCODE_REQUIRED") {
+      toast.error("Enter the passcode to book this event.");
+      return false;
+    }
+
+    if (status === 403 && body?.code === "PASSCODE_INVALID") {
+      toast.error("Incorrect passcode. Please check and try again.");
       return false;
     }
 
