@@ -4,6 +4,7 @@ import { usePerformance } from '@/context/PerformanceContext'
 import AsteriaBackground from './AsteriaBackground'
 import Particles from '@/components/Particles'
 import { usePathname } from 'next/navigation'
+import { CDN_BASE_URL } from '@/lib/cdn'
 
 const particlesOptions = {
   particles: {
@@ -69,7 +70,7 @@ export default function DynamicBackground() {
     <div className='viewport-bg z-0 pointer-events-none bg-[#0a0510]'>
       {/* Hyper-realistic Milky Way Background */}
       <Image
-        src='/images/milky_way_bg.jpg'
+        src={`${CDN_BASE_URL}/images/milky_way_bg.jpg`}
         alt='Milky Way Galaxy Background'
         fill
         className='object-cover opacity-60'

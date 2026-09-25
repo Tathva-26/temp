@@ -5,6 +5,7 @@ import Link from "next/link";
 import { BellDot, Menu, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import AuthButton from "./AuthButton";
+import { CDN_BASE_URL } from "@/lib/cdn";
 
 export default function ScrollHeader() {
   const [isVisible, setIsVisible] = useState(false);
@@ -63,7 +64,7 @@ export default function ScrollHeader() {
               }
           }}>
             <Image
-              src="/images/TATHVA25_LOGO_BLACK.png"
+              src={`${CDN_BASE_URL}/images/TATHVA25_LOGO_BLACK.png`}
               alt="Tathva Logo"
               width={100}
               height={100}
