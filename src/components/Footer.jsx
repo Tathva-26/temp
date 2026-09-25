@@ -4,7 +4,6 @@ import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useLenis } from 'lenis/react'
-import { CDN_BASE_URL } from '@/lib/cdn'
 
 export default function Footer() {
   const pathname = usePathname()
@@ -63,7 +62,7 @@ export default function Footer() {
           {/* Logo - absolutely centered */}
           <div className='mb-8 md:mb-0'>
             <img
-              src={`${CDN_BASE_URL}/images/TATHVA25_LOGO_BLACK.png`}
+              src='/images/TATHVA25_LOGO_BLACK.png'
               alt='Tathva Logo'
               className='h-14 sm:h-20 w-auto invert opacity-90 hover:opacity-100 transition-opacity duration-300'
             />

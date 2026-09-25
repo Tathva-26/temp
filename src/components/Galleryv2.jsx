@@ -3,27 +3,26 @@
 import { forwardRef } from 'react'
 import InfiniteSpiral from './InfiniteSpiral'
 import MobileGallery from './MobileGallery'
-import { CDN_BASE_URL } from '@/lib/cdn'
 
 const baseGalleryImages = [
   {
-    src: `${CDN_BASE_URL}/images/carousel/1.jpeg`,
+    src: '/images/carousel/1.jpeg',
     alt: '',
   },
   {
-    src: `${CDN_BASE_URL}/images/carousel/2.jpeg`,
+    src: '/images/carousel/2.jpeg',
     alt: '',
   },
   {
-    src: `${CDN_BASE_URL}/images/carousel/3.jpeg`,
+    src: '/images/carousel/3.jpeg',
     alt: '',
   },
   {
-    src: `${CDN_BASE_URL}/images/carousel/7.jpeg`,
+    src: '/images/carousel/7.jpeg',
     alt: '',
   },
-  { src: `${CDN_BASE_URL}/images/carousel/5.jpeg`, alt: '' },
-  { src: `${CDN_BASE_URL}/images/carousel/6.jpeg`, alt: '' },
+  { src: '/images/carousel/5.jpeg', alt: '' },
+  { src: '/images/carousel/6.jpeg', alt: '' },
 ]
 
 const Gallery = forwardRef((props, ref) => {

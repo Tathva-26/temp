@@ -4,7 +4,6 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import SectionCard from '@/components/SectionCard'
 import { formatPrice } from '@/lib/events'
-import { CDN_BASE_URL } from '@/lib/cdn'
 
 function EventGrid({ events }) {
   return (
@@ -12,7 +11,9 @@ function EventGrid({ events }) {
       {events.map((event) => (
         <Link href={`competitions/${event.id}`} key={event.id}>
           <SectionCard
-            image={event.picture || `${CDN_BASE_URL}/images/events.jpg`}
+            image={
+              event.picture || 'https://cdn-next.tathva.org/images/events.jpg'
+            }
             title={event.heading || 'Untitled Event'}
             description={event.description || 'No description available.'}
             price={formatPrice(event.price)}
@@ -110,7 +111,10 @@ export default function CompetitionTabs({
                 {preTathvaEvents.map((event) => (
                   <Link href={`competitions/${event.id}`} key={event.id}>
                     <SectionCard
-                      image={event.picture || `${CDN_BASE_URL}/images/events.jpg`}
+                      image={
+                        event.picture ||
+                        'https://cdn-next.tathva.org/images/events.jpg'
+                      }
                       title={event.heading || 'Untitled Event'}
                       description={
                         event.description || 'No description available.'

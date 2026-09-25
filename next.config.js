@@ -21,12 +21,6 @@ const nextConfig = {
         pathname: '/**',
       },
       {
-        // Static images that used to live under public/, now served from this CDN.
-        protocol: 'https',
-        hostname: 'cdn-next.tathva.org',
-        pathname: '/**',
-      },
-      {
         protocol: 'https',
         hostname: 'tiqr-events.sgp1.cdn.digitaloceanspaces.com',
         pathname: '/**', // This allows any image path from this host

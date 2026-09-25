@@ -3,7 +3,6 @@ import { Michroma } from "next/font/google";
 import localFont from "next/font/local";
 import ModalWrapper from "./modelWrapperProShow";
 import { toRupees } from "@/lib/events";
-import { CDN_BASE_URL } from "@/lib/cdn";
 
 const mi = Michroma({
   subsets: ["latin"],
@@ -20,7 +19,7 @@ function TicketMobile({ day, date, eventId, price, isBookable = true, isClosed =
     <div className="relative w-20 h-56 sm:w-20 sm:h-56 ">
       {/* Oversized Image */}
       <Image
-        src={`${CDN_BASE_URL}/newbg.png`}
+        src="/newbg.png"
         alt="ticket"
         width={800}
         height={800}
@@ -42,7 +41,7 @@ function TicketMobile({ day, date, eventId, price, isBookable = true, isClosed =
           </p>
           <div className="w-full flex justify-center mt-2">
             <Image
-              src={`${CDN_BASE_URL}/qr.png`}
+              src="/qr.png"
               alt="qr"
               width={50}
               height={50}
