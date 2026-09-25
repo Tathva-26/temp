@@ -49,6 +49,7 @@ export default async function WorkshopPage({ params }) {
     id: workshop.id,
     isBookable: workshop.isBookable,
     isClosed: workshop.isClosed,
+    passcodeRequired: workshop.passcodeRequired,
     name: workshop.heading,
     date: formatDate(workshop.datetime),
     time: formatTime(workshop.datetime),

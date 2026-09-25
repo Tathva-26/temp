@@ -1,4 +1,5 @@
 'use client'
+import { useState } from 'react'
 import RegisterButton from './RegisterButton'
 import useReferralCodeField from './useReferralCodeField'
 import { toRupees } from '@/lib/events'
@@ -15,6 +16,7 @@ export default function Modal({
 }) {
   // A hook, so it has to run before the early return below.
   const [referralCode, referralCodeField] = useReferralCodeField(isOpen)
+  const [passcode, setPasscode] = useState('')
 
   if (!isOpen) return null
 
@@ -79,6 +81,31 @@ export default function Modal({
 
           {/*referralCodeField*/}
 
+          {/* Shortlist-only events: the backend refuses payment without it. */}
+          {workshopData.passcodeRequired && (
+            <div>
+              <label
+                htmlFor='event-passcode'
+                className='block text-sm text-gray-700 mb-1'
+              >
+                Passcode
+              </label>
+              <input
+                id='event-passcode'
+                type='text'
+                value={passcode}
+                onChange={(e) => setPasscode(e.target.value)}
+                autoComplete='off'
+                maxLength={64}
+                placeholder='Enter your passcode'
+                className='w-full px-3 py-2 rounded-lg border border-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-gray-900'
+              />
+              <p className='text-xs text-gray-500 mt-1'>
+                Only shortlisted participants can register for this event.
+              </p>
+            </div>
+          )}
+
           {/* Buttons */}
           <div className='flex justify-end gap-3 mt-6'>
             <button
@@ -91,7 +118,11 @@ export default function Modal({
             <RegisterButton
               id={workshopData.id}
               referralCode={referralCode}
-              disabled={!workshopData.isBookable}
+              passcode={workshopData.passcodeRequired ? passcode : undefined}
+              disabled={
+                !workshopData.isBookable ||
+                (workshopData.passcodeRequired && !passcode.trim())
+              }
               closed={workshopData.isClosed}
             />
           </div>

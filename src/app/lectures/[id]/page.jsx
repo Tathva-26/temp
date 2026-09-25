@@ -104,6 +104,7 @@ export default async function EventPage({ params }) {
     // needs to know whether to offer itself.
     isBookable: event.isBookable,
     isClosed: event.isClosed,
+    passcodeRequired: event.passcodeRequired,
     venue: event.venue || null,
     // Paise, as the API sends it; the checkout modal converts and computes
     // the platform fee off it.
