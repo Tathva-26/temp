@@ -2,22 +2,23 @@
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
+import { CDN_BASE_URL } from '@/lib/cdn'
 
 const sections = [
   {
-    image: '/images/workshops.jpg',
+    image: `${CDN_BASE_URL}/images/workshops.jpg`,
     title: 'Workshops',
     description:
       'Hands-on sessions covering topics like robotics, AI, and sustainable tech. These workshops provide students with the opportunity to gain practical knowledge, work on real-world problems, and interact with industry professionals.',
   },
   {
-    image: 'https://cdn-next.tathva.org/images/events.jpg',
+    image: `${CDN_BASE_URL}/images/events.jpg`,
     title: 'Competitions',
     description:
       "Over 65 events including coding competitions, gaming, and cultural showcases. From technical battles of skill to fun informal events, Tathva's events are designed to inspire innovation, teamwork, and creativity.",
   },
   {
-    image: '/images/lecture.jpg',
+    image: `${CDN_BASE_URL}/images/lecture.jpg`,
     title: 'Lectures',
     description:
       'Industry experts and academicians share insights on emerging technologies. The lecture series bridges the gap between academia and industry, inspiring students to think beyond classrooms and pursue cutting-edge innovations.',

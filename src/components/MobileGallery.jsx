@@ -1,26 +1,27 @@
 'use client'
 
 import { useRef, useEffect, forwardRef } from 'react'
+import { CDN_BASE_URL } from '@/lib/cdn'
 
 const baseGalleryImages = [
   {
-    src: '/images/carousel/1.jpeg',
+    src: `${CDN_BASE_URL}/images/carousel/1.jpeg`,
     alt: '',
   },
   {
-    src: '/images/carousel/2.jpeg',
+    src: `${CDN_BASE_URL}/images/carousel/2.jpeg`,
     alt: '',
   },
   {
-    src: '/images/carousel/3.jpeg',
+    src: `${CDN_BASE_URL}/images/carousel/3.jpeg`,
     alt: '',
   },
   {
-    src: '/images/carousel/7.jpeg',
+    src: `${CDN_BASE_URL}/images/carousel/7.jpeg`,
     alt: '',
   },
-  { src: '/images/carousel/5.jpeg', alt: '' },
-  { src: '/images/carousel/6.jpeg', alt: '' },
+  { src: `${CDN_BASE_URL}/images/carousel/5.jpeg`, alt: '' },
+  { src: `${CDN_BASE_URL}/images/carousel/6.jpeg`, alt: '' },
 ]
 
 const COPIES = 7

@@ -7,6 +7,8 @@
  * in TIQR's snake_case shape joined to events by `tiqrEventId`.
  */
 
+import { CDN_BASE_URL } from '@/lib/cdn'
+
 export const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true'
 
 const day = (offset, hour = 10, minute = 0) => {
@@ -125,7 +127,7 @@ export const MOCK_EVENTS = [
     time: '10:00 AM',
     price: 25000,
     venue: venues.cs,
-    picture: '/images/workshops.jpg',
+    picture: `${CDN_BASE_URL}/images/workshops.jpg`,
     committee: 'TECH',
   }),
   event({
@@ -137,7 +139,7 @@ export const MOCK_EVENTS = [
     time: '2:00 PM',
     price: 40000,
     venue: venues.ee,
-    picture: '/images/workshops.jpg',
+    picture: `${CDN_BASE_URL}/images/workshops.jpg`,
     committee: 'TECH',
   }),
   event({
@@ -159,7 +161,7 @@ export const MOCK_EVENTS = [
     time: '3:00 PM',
     price: 0,
     venue: venues.arc,
-    picture: '/images/events.jpg',
+    picture: `${CDN_BASE_URL}/images/events.jpg`,
     committee: 'ARTS',
   }),
   event({
@@ -170,7 +172,7 @@ export const MOCK_EVENTS = [
     time: '11:00 AM',
     price: 15000,
     venue: venues.cs,
-    picture: '/images/lecture.jpg',
+    picture: `${CDN_BASE_URL}/images/lecture.jpg`,
     committee: 'TECH',
     // Published but the TIQR push failed: shows the "not bookable" state.
     ticketId: 0,
@@ -188,7 +190,7 @@ export const MOCK_EVENTS = [
     endTime: day(2, 18),
     price: 30000,
     venue: venues.cs,
-    picture: '/images/events.jpg',
+    picture: `${CDN_BASE_URL}/images/events.jpg`,
     committee: 'TECH',
     isTeamEvent: true,
     teamSize: 4,
@@ -201,7 +203,7 @@ export const MOCK_EVENTS = [
     datetime: day(2, 13),
     price: 50000,
     venue: venues.ground,
-    picture: '/images/events.jpg',
+    picture: `${CDN_BASE_URL}/images/events.jpg`,
     committee: 'TECH',
     isTeamEvent: true,
     teamSize: 5,
@@ -213,7 +215,7 @@ export const MOCK_EVENTS = [
     datetime: day(1, 19),
     price: 20000,
     venue: venues.ground,
-    picture: '/images/proshow1.jpeg',
+    picture: `${CDN_BASE_URL}/images/proshow1.jpeg`,
     committee: 'GPC',
     isTeamEvent: true,
     teamSize: 6,
@@ -225,7 +227,7 @@ export const MOCK_EVENTS = [
     datetime: day(2, 17),
     price: 10000,
     venue: venues.arc,
-    picture: '/images/proshow1.jpeg',
+    picture: `${CDN_BASE_URL}/images/proshow1.jpeg`,
     committee: 'GPC',
   }),
   event({
@@ -249,7 +251,7 @@ export const MOCK_EVENTS = [
     datetime: day(0, 17),
     price: 0,
     venue: venues.arc,
-    picture: '/images/lecture.jpg',
+    picture: `${CDN_BASE_URL}/images/lecture.jpg`,
   }),
   event({
     type: 'lectures',
@@ -258,7 +260,7 @@ export const MOCK_EVENTS = [
     datetime: day(1, 11),
     price: 0,
     venue: venues.arc,
-    picture: '/images/lecture.jpg',
+    picture: `${CDN_BASE_URL}/images/lecture.jpg`,
   }),
   event({
     type: 'lectures',
@@ -312,7 +314,7 @@ export const MOCK_EVENTS = [
     datetime: day(1, 12),
     price: 5000,
     venue: venues.cs,
-    picture: '/images/events.jpg',
+    picture: `${CDN_BASE_URL}/images/events.jpg`,
     committee: 'TECH',
     published: false,
     ticketId: 0,
@@ -324,7 +326,7 @@ export const MOCK_EVENTS = [
     datetime: day(2, 12),
     price: 0,
     venue: venues.arc,
-    picture: '/images/lecture.jpg',
+    picture: `${CDN_BASE_URL}/images/lecture.jpg`,
     published: false,
     ticketId: 0,
   }),
@@ -385,7 +387,7 @@ export const MOCK_EVENTS = [
     datetime: day(2, 15),
     price: 10000,
     venue: venues.cs,
-    picture: '/images/events.jpg',
+    picture: `${CDN_BASE_URL}/images/events.jpg`,
     committee: 'TECH',
     published: false,
     ticketId: 0,
@@ -397,7 +399,7 @@ export const MOCK_EVENTS = [
     datetime: day(3, 13),
     price: 7500,
     venue: venues.ee,
-    picture: '/images/events.jpg',
+    picture: `${CDN_BASE_URL}/images/events.jpg`,
     committee: 'TECH',
     published: false,
     ticketId: 0,
@@ -409,7 +411,7 @@ export const MOCK_EVENTS = [
     datetime: day(1, 16),
     price: 0,
     venue: venues.arc,
-    picture: '/images/lecture.jpg',
+    picture: `${CDN_BASE_URL}/images/lecture.jpg`,
     published: false,
     ticketId: 0,
   }),
@@ -420,7 +422,7 @@ export const MOCK_EVENTS = [
     datetime: day(3, 12),
     price: 0,
     venue: venues.arc,
-    picture: '/images/lecture.jpg',
+    picture: `${CDN_BASE_URL}/images/lecture.jpg`,
     published: false,
     ticketId: 0,
   }),
