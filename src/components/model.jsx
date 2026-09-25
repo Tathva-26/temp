@@ -77,7 +77,7 @@ export default function Modal({
             <span>{formatINR(total)}</span>
           </div>
 
-          {referralCodeField}
+          {/* {referralCodeField} */}
 
           {/* Buttons */}
           <div className='flex justify-end gap-3 mt-6'>
