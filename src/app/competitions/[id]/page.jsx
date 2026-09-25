@@ -112,7 +112,7 @@ export default async function EventPage({ params }) {
     price: event.price,
     priceLabel: formatPrice(event.price),
     description: event.description || 'No description available',
-    catchyPara: event.catchyPara || null,
+    extraInfo: event.extraInfo || null,
     image: event.picture,
     committee: event.committee || null,
     isTeamEvent: event.isTeamEvent,
@@ -196,7 +196,7 @@ export default async function EventPage({ params }) {
               <p className='text-base  leading-relaxed text-gray-300 whitespace-pre-line break-words'>
                 {eventData.description}
               </p>
-              {eventData.catchyPara && (
+              {eventData.extraInfo && (
                 <a
                   href='#full-description'
                   className='inline-block mt-3 text-sm font-medium text-gray-300 hover:text-white transition-colors underline'
@@ -236,8 +236,8 @@ export default async function EventPage({ params }) {
           </div>
         </div>
 
-        {/* Full Description Section (Catchy Para) */}
-        {eventData.catchyPara && (
+        {/* Full Description Section (Extra Info) */}
+        {eventData.extraInfo && (
           <div
             id='full-description'
             className='mt-8 bg-black/30 backdrop-blur-lg border border-white/20 shadow-md rounded-2xl p-6 sm:p-8 scroll-mt-20'
@@ -247,7 +247,7 @@ export default async function EventPage({ params }) {
             </h2>
             <div className='prose prose-invert max-w-none'>
               <p className='text-base pp-fragment leading-relaxed text-gray-300 whitespace-pre-line break-words'>
-                <Linkify text={eventData.catchyPara} />
+                <Linkify text={eventData.extraInfo} />
               </p>
             </div>
           </div>
