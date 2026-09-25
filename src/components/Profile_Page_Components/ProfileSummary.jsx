@@ -14,10 +14,17 @@ import { useUserContext } from '@/context/UserContext'
  * endpoint.
  *
  * The backend validates each of these, so the rules are mirrored in the inputs
- * rather than left to come back as a 400: phone is 10–15 digits (a leading 91
- * or 0 is stripped server-side), semester is 1–10 and year 1–5.
+ * rather than left to come back as a 400: name is 1–50 characters (the backend
+ * also strips control/zero-width characters and `<` `>`), phone is 10–15 digits (a leading 91
  */
 const EDITABLE_FIELDS = [
+    {
+    key: 'name',
+    label: 'Full name',
+    type: 'text',
+    placeholder: 'As on your college ID',
+    maxLength: 50,
+  },
   { key: 'phone', label: 'Phone', type: 'tel', placeholder: '9876543210' },
   {
     key: 'college',
@@ -326,6 +333,8 @@ export default function ProfileSummary({ user }) {
                 type={field.type}
                 min={field.min}
                 max={field.max}
+                max={field.max}
+                maxLength={field.maxLength}
                 placeholder={field.placeholder}
                 value={form[field.key] ?? user[field.key] ?? ''}
                 onChange={(e) => set(field.key, e.target.value)}
