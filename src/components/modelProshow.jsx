@@ -1,6 +1,7 @@
 "use client";
 import RegisterButton from "./RegisterButton";
 import useReferralCodeField from "./useReferralCodeField";
+import { toRupees } from "@/lib/events";
 import { Michroma } from "next/font/google";
 
 const mi = Michroma({
@@ -15,6 +16,10 @@ export default function Modal({
   eventId,
   price = 0,
   isBookable = true,
+  isClosed = false,
+  // What this event is called in the checkout copy. This modal only ever
+  // fronts a day pass, so "Workshop Price" was wrong on every render.
+  eventType = "Pass",
   title = "Checkout Summary",
 }) {
   // A hook, so it has to run before the early return below.
@@ -22,7 +27,8 @@ export default function Modal({
 
   if (!isOpen) return null;
 
-  const basePrice = Number(price ) || 0;
+  // `price` is paise straight from the API — see lib/events.
+  const basePrice = toRupees(price) ?? 0;
   const platformFeePercent = 2.5;
   const gstPercent = 18;
 
@@ -39,7 +45,7 @@ export default function Modal({
 
   return (
     <div className={`${mi.className} absolute scale-60 sm:scale-100 flex items-center justify-center z-[1000]`}>
-      <div className="bg-white rounded-2xl p-6 w-[90%] max-w-md shadow-xl relative">
+      <div className="bg-white text-black rounded-2xl p-6 w-[90%] max-w-md shadow-xl relative">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -49,7 +55,7 @@ export default function Modal({
         </button>
 
         {/* Title */}
-        <h2 className={`${mi.className} text-xl font-semibold mb-4`}>
+        <h2 className={`${mi.className} text-xl font-semibold mb-4 text-black`}>
           {title}
         </h2>
 
@@ -57,7 +63,7 @@ export default function Modal({
         <div className="space-y-4">
           <div className="border-b pb-2 text-sm text-gray-700">
             <div className="flex justify-between">
-              <span>Workshop Price</span>
+              <span>{eventType} Price</span>
               <span>{formatINR(basePrice)}</span>
             </div>
             <div className="flex justify-between">
@@ -81,7 +87,7 @@ export default function Modal({
           <div className="flex justify-end gap-3 mt-6">
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition"
+              className="px-4 py-2 rounded-lg border border-gray-300 text-black hover:bg-gray-100 transition"
             >
               Cancel
             </button>
@@ -90,6 +96,7 @@ export default function Modal({
               id={eventId}
               referralCode={referralCode}
               disabled={!isBookable}
+              closed={isClosed}
             />
           </div>
         </div>

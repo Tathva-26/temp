@@ -11,7 +11,7 @@ const mi = Michroma({
   display: "swap",
 });
 
-export default function ModalWrapper({ eventId, price, isBookable = true }) {
+export default function ModalWrapper({ eventId, price, isBookable = true, isClosed = false }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { isLoggedIn, authLoading, loginWithGoogle } = useUserContext();
 
@@ -28,10 +28,10 @@ export default function ModalWrapper({ eventId, price, isBookable = true }) {
     <div className="flex items-center justify-center">
       <button
         onClick={handleClick}
-        disabled={authLoading}
-        className={`${mi.className} disabled:opacity-60 bg-white/20 cursor-pointer rounded-xs text-[0.5rem] sm:text-[0.4rem] md:text-[0.5rem] lg:text-[0.65rem] hover:bg-white/30 px-2 sm:px-3 h-4 sm:h-5 text-white/90 whitespace-nowrap`}
+        disabled={authLoading || isClosed}
+        className={`${mi.className} disabled:opacity-60 disabled:cursor-not-allowed bg-white/20 cursor-pointer rounded-xs text-[0.5rem] sm:text-[0.4rem] md:text-[0.5rem] lg:text-[0.65rem] hover:bg-white/30 px-2 sm:px-3 h-4 sm:h-5 text-white/90 whitespace-nowrap`}
       >
-        {isLoggedIn ? "BOOK" : "REGISTER"}
+        {isClosed ? "BOOKING FULL" : isLoggedIn ? "BOOK" : "REGISTER"}
       </button>
 
       {/* Modal */}
@@ -41,6 +41,7 @@ export default function ModalWrapper({ eventId, price, isBookable = true }) {
         eventId={eventId}
         price={price}
         isBookable={isBookable}
+        isClosed={isClosed}
       />
     </div>
   );

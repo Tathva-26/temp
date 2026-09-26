@@ -1,9 +1,10 @@
-"use client";
-import Image from "next/image";
-import { usePerformance } from "@/context/PerformanceContext";
-import AsteriaBackground from "./AsteriaBackground";
-import Particles from "@/components/Particles";
-import { usePathname } from "next/navigation";
+'use client'
+import Image from 'next/image'
+import { usePerformance } from '@/context/PerformanceContext'
+import AsteriaBackground from './AsteriaBackground'
+import Particles from '@/components/Particles'
+import { usePathname } from 'next/navigation'
+import { CDN_BASE_URL } from '@/lib/cdn'
 
 const particlesOptions = {
   particles: {
@@ -54,33 +55,35 @@ const particlesOptions = {
     },
   },
   retina_detect: false,
-};
+}
 
 export default function DynamicBackground() {
-  const { lowPowerMode } = usePerformance();
-  const pathname = usePathname();
-  
+  const { lowPowerMode } = usePerformance()
+  const pathname = usePathname()
+
   if (lowPowerMode) {
-    return <div className="fixed inset-0 z-0 bg-gradient-to-br from-zinc-950 to-zinc-900" />;
+    return (
+      <div className='viewport-bg z-0 bg-gradient-to-br from-zinc-950 to-zinc-900' />
+    )
   }
   return (
-    <div className="fixed inset-0 z-0 pointer-events-none bg-[#0a0510]">
+    <div className='viewport-bg z-0 pointer-events-none bg-[#0a0510]'>
       {/* Hyper-realistic Milky Way Background */}
-      <Image 
-        src="/images/milky_way_bg.jpg"
-        alt="Milky Way Galaxy Background"
+      <Image
+        src={`${CDN_BASE_URL}/images/milky_way_bg.jpg`}
+        alt='Milky Way Galaxy Background'
         fill
-        className="object-cover opacity-60"
+        className='object-cover opacity-60'
         priority
       />
       <AsteriaBackground />
-      
+
       {/* True Fixed Viewport Particles for Home Page */}
-      {pathname === "/" && (
-        <div className="absolute inset-0 z-10 pointer-events-none">
+      {pathname === '/' && (
+        <div className='absolute inset-0 z-10 pointer-events-none'>
           <Particles options={particlesOptions} />
         </div>
       )}
     </div>
-  );
+  )
 }

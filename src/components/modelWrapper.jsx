@@ -5,7 +5,7 @@ import Modal from "./model";
 import { useUserContext } from "@/context/UserContext";
 
 
-export default function ModalWrapper({ workshopData }) {
+export default function ModalWrapper({ workshopData, eventType }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { isLoggedIn, authLoading, loginWithGoogle } = useUserContext();
 
@@ -24,16 +24,21 @@ export default function ModalWrapper({ workshopData }) {
         <div className="flex">
             <button
                 onClick={handleClick}
-                disabled={authLoading}
-                className="px-5 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition disabled:opacity-60"
+                disabled={authLoading || workshopData.isClosed}
+                className="px-5 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
-                {isLoggedIn ? "Register" : "Login to Register"}
+                {workshopData.isClosed
+                    ? "Booking full"
+                    : isLoggedIn
+                      ? "Register"
+                      : "Login to Register"}
             </button>
 
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 workshopData={workshopData}
+                eventType={eventType}
             />
         </div>
     );

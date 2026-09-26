@@ -13,6 +13,8 @@ import toast from "react-hot-toast";
 import { createAuthClient } from "better-auth/react";
 import api, { getBackendURL, setUnauthorizedHandler } from "@/lib/api";
 import { captureReferralCode } from "@/lib/referral";
+import { USE_MOCK_DATA, MOCK_USER } from "@/lib/mock/data";
+import { isMockSignedIn, setMockSignedIn } from "@/lib/mock/api";
 
 const UserContext = createContext(null);
 
@@ -68,7 +70,23 @@ function normalizeProfile(data) {
 
 
 export default function UserContextWrapper({ children }) {
-  const { data: sessionData, isPending: sessionPending } = useSession();
+  const realSession = useSession();
+
+  // Mock mode: the "session" is a localStorage flag, read after mount so the
+  // server and first client render agree.
+  const [mockSession, setMockSession] = useState(null);
+  useEffect(() => {
+    if (USE_MOCK_DATA) setMockSession(isMockSignedIn());
+  }, []);
+
+  const sessionData = USE_MOCK_DATA
+    ? mockSession
+      ? { user: { id: MOCK_USER.id, image: null } }
+      : null
+    : realSession.data;
+  const sessionPending = USE_MOCK_DATA
+    ? mockSession === null
+    : realSession.isPending;
 
   // A CA's link lands on any page with ?referral_code=…; grab it before the
   // visitor navigates away, so it is still around at checkout.
@@ -159,15 +177,36 @@ export default function UserContextWrapper({ children }) {
   const authLoading = sessionPending || profileLoading;
 
   const loginWithGoogle = useCallback(async () => {
+    if (USE_MOCK_DATA) {
+      setMockSignedIn(true);
+      setMockSession(true);
+      toast.success("Signed in as mock user");
+      return;
+    }
+
     if (!getBackendURL()) {
       toast.error("Set NEXT_PUBLIC_BACKEND_URL in .env.local");
       return;
     }
 
     try {
+      /*
+       * Every URL better-auth may bounce the browser to has to be named here,
+       * absolutely, or it falls back to the backend's own origin: an unset
+       * `callbackURL` becomes the API's baseURL, and an OAuth error goes to
+       * `${baseURL}/error`, which answers with a relative redirect to
+       * `/?error=…`. Either way the visitor finishes on the API's
+       * "Welcome to the Tathva API" page rather than back on the site.
+       *
+       * Both must sit on an origin in the backend's trustedOrigins, or the
+       * sign-in POST is refused outright with 403 INVALID_CALLBACK_URL —
+       * which is why a dev origin has to be added there to sign in locally.
+       */
+      const returnTo = `${window.location.origin}/auth/google/callback`;
       const payload = {
         provider: "google",
-        callbackURL: `${window.location.origin}/auth/google/callback`,
+        callbackURL: returnTo,
+        errorCallbackURL: returnTo,
       };
       const role = process.env.NEXT_PUBLIC_OAUTH_ROLE;
       if (role) {
@@ -179,14 +218,22 @@ export default function UserContextWrapper({ children }) {
         throw new Error(error.message || error.statusText || "Google sign-in failed");
       }
     } catch (err) {
+      // The reason matters here — a 403 INVALID_CALLBACK_URL means this origin
+      // is missing from the backend's trustedOrigins, which looks nothing like
+      // "try again" and cannot be fixed by trying again.
       console.error("Failed to start Google sign-in:", err);
-      toast.error("Could not start Google sign-in. Please try again.");
+      toast.error(err?.message || "Could not start Google sign-in. Please try again.");
     }
   }, []);
 
   const logout = useCallback(async () => {
     try {
-      await signOut();
+      if (USE_MOCK_DATA) {
+        setMockSignedIn(false);
+        setMockSession(false);
+      } else {
+        await signOut();
+      }
     } catch (err) {
       console.error("Sign-out failed:", err);
     } finally {

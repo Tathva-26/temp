@@ -6,7 +6,9 @@ export default function RegisterButton({
   id,
   quantity = 1,
   referralCode,
+  passcode,
   disabled = false,
+  closed = false,
 }) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -20,15 +22,15 @@ export default function RegisterButton({
     if (isLoading) return;
     setIsLoading(true);
 
-    const redirecting = await regHandler(id, quantity, referralCode);
+    const redirecting = await regHandler(id, quantity, referralCode, passcode);
     if (!redirecting) setIsLoading(false);
   };
 
   return (
     <button
       onClick={handleClick}
-      disabled={isLoading || disabled}
-      className="p-4 w-[180px] bg-gray-900 text-white rounded-xl text-sm sm:text-base uppercase tracking-wider font-medium border border-gray-900 hover:bg-white hover:text-gray-900 transition duration-200 shadow-sm disabled:cursor-not-allowed flex items-center justify-center gap-2"
+      disabled={isLoading || disabled || closed}
+      className="p-4 w-[180px] bg-gray-900 text-white rounded-xl text-sm sm:text-base uppercase tracking-wider font-medium border border-gray-900 hover:bg-white hover:text-gray-900 transition duration-200 shadow-sm disabled:cursor-not-allowed disabled:opacity-60 flex items-center justify-center gap-2"
     >
       {isLoading ? (
         <svg
@@ -51,6 +53,8 @@ export default function RegisterButton({
             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
           ></path>
         </svg>
+      ) : closed ? (
+        <>Booking full</>
       ) : (
         <>Proceed</>
       )}

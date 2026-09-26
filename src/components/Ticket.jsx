@@ -2,6 +2,8 @@ import Image from "next/image";
 import { Michroma } from "next/font/google";
 import localFont from "next/font/local";
 import ModalWrapper from "./modelWrapperProShow";
+import { toRupees } from "@/lib/events";
+import { CDN_BASE_URL } from "@/lib/cdn";
 
 const mi = Michroma({
   subsets: ["latin"],
@@ -13,7 +15,7 @@ const fontspring = localFont({
   src: "../../public/fonts/fontspring.otf",
 });
 
-function Ticket({ day, date, eventId, price, isBookable = true }) {
+function Ticket({ day, date, eventId, price, isBookable = true, isClosed = false }) {
   // Dynamic event text based on day
   const eventText =
     day === 1 ? "Wheels | Robowars | Conclave" : "Proshow | Events | Conclave";
@@ -22,7 +24,7 @@ function Ticket({ day, date, eventId, price, isBookable = true }) {
     <div className="relative bottom-10 w-56 h-20 sm:w-96 sm:h-24 md:w-110 md:h-36 lg:w-130 lg:h-36">
       {/* Oversized Image */}
       <Image
-        src="/newbg.png"
+        src={`${CDN_BASE_URL}/newbg.png`}
         alt="ticket"
         width={800}
         height={800}
@@ -44,7 +46,7 @@ function Ticket({ day, date, eventId, price, isBookable = true }) {
           </p>
           <div className="flex ml-auto mb-1 sm:mt-2 sm:scale-120 md:mt-4 md:scale-140 lg:scale-120 lg:mb-2 mr-1 sm:mr-12 md:mr-16 lg:mr-10">
             <Image
-              src="/qr.png"
+              src={`${CDN_BASE_URL}/qr.png`}
               alt="qr"
               width={50}
               height={50}
@@ -75,12 +77,13 @@ function Ticket({ day, date, eventId, price, isBookable = true }) {
                 eventId={eventId}
                 price={price}
                 isBookable={isBookable}
+                isClosed={isClosed}
               />
             ) : null}
             <button
               className={`${mi.className} bg-[#3E3E3B] cursor-pointer rounded-xs text-[0.5rem] sm:text-[0.4rem] md:text-[0.5rem] lg:text-[0.65rem] w-12 h-3 sm:w-16 sm:h-4 md:w-18 md:h-4 lg:w-23 lg:h-5 text-white`}
             >
-              {day != 4 ? `Rs ${price}/-` : `FREE`}
+              {day != 4 ? `Rs ${toRupees(price) ?? 0}/-` : `FREE`}
             </button>
           </div>
         </div>
