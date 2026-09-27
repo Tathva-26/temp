@@ -8,10 +8,10 @@ import { mockEventById, mockEventsByType } from "@/lib/mock/api";
  * Two things the backend does not do for us, and that every caller was getting
  * wrong in its own way:
  *
- *  - **`/api/events/all` includes unpublished events.** Only an admin publish
- *    pushes an event to TIQR and gives it a ticket, so an unpublished event is
- *    not bookable. These are kept in the list and flagged `isClosed`, so cards
- *    render a "Booking full" state instead of the event vanishing.
+ *  - **`/api/events/all` returns OPEN and CLOSED events, never drafts.** Only
+ *    an admin "open booking" pushes an event to TIQR and gives it a ticket. A
+ *    CLOSED event is kept in the list and flagged `isClosed`, so cards render a
+ *    "Booking closed" state instead of the event vanishing.
  *  - **`price` is in paise**, not rupees: a ₹250 workshop arrives as `25000`.
  *    Render it with `formatPrice`; use `toRupees` when you need a number to
  *    compute on, as the checkout modals do for the platform fee.
@@ -25,13 +25,10 @@ function toCard(event) {
   return {
     ...event,
     venueName: event.venue?.name ?? null,
-    /** Not published by an admin: shown, but greyed out and not bookable. */
-    isClosed: !event.published,
-    /**
-     * Bookable only once TIQR has issued a ticket. A publish whose sync failed
-     * leaves `ticketId` at 0, and the booking endpoint 409s on those.
-     */
-    isBookable: Boolean(event.published && event.ticketId),
+    /** Booking closed by an admin: shown, but greyed out and not bookable. */
+    isClosed: event.status === "CLOSED",
+    /** Bookable only while OPEN and once TIQR has issued a ticket. */
+    isBookable: Boolean(event.status === "OPEN" && event.ticketId),
   };
 }
 
@@ -48,14 +45,14 @@ export async function fetchEvents(type) {
 
   const query = type ? `?type=${encodeURIComponent(type)}` : "";
   const res = await fetch(`${getBackendURL()}/api/events/all${query}`, {
-    // Events change when an admin publishes, which is not build time.
+    // Events change when an admin opens or closes booking, which is not build time.
     cache: "no-store",
   });
 
   if (!res.ok) throw new Error(`Failed to load events (${res.status})`);
 
   const data = await res.json();
-  // Bookable (published) events first; closed ones sink to the end. The sort
+  // Bookable (open) events first; closed ones sink to the end. The sort
   // is stable, so each group keeps the order the backend sent.
   return (data.events ?? [])
     .map(toCard)

@@ -21,7 +21,7 @@
 export default function ClosedBanner() {
   return (
     <div
-      aria-label="Booking full"
+      aria-label="Booking closed"
       className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center overflow-hidden"
     >
       <div className="absolute h-20 w-[150%] -rotate-12 bg-black/30 backdrop-blur-sm" />
@@ -50,7 +50,7 @@ export default function ClosedBanner() {
             sm:text-base
           "
         >
-          Booking Full
+          Booking Closed
         </span>
       </div>
     </div>

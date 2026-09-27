@@ -2059,7 +2059,7 @@ export default function WorkshopsPage() {
                               overflow: 'hidden',
                             }}
                           >
-                            {/* Unpublished: still animates like any card. */}
+                            {/* Closed: still animates like any card. */}
                             {workshop.isClosed ? <ClosedBanner /> : null}
                             <img
                               src={displayImage}

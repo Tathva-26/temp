@@ -6,14 +6,14 @@ import { fetchEvents, formatPrice } from "@/lib/events";
 const backendEnabled = process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "false";
 
 /*
- * Rendered per request. Which events are published changes whenever an admin
+ * Rendered per request. Which events are open changes whenever an admin
  * publishes one, so a build-time snapshot would go stale immediately — and
  * prerendering would also mean reaching for the backend during the build.
  */
 export const dynamic = "force-dynamic";
 
 /**
- * Published lectures. An empty list is a normal state — nothing is published
+ * Open and closed lectures. An empty list is a normal state — nothing is open
  * yet — so a fetch failure is swallowed rather than taking the page down.
  */
 async function getLectures() {

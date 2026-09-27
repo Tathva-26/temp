@@ -54,7 +54,7 @@ export default function RegisterButton({
           ></path>
         </svg>
       ) : closed ? (
-        <>Booking full</>
+        <>Booking closed</>
       ) : (
         <>Proceed</>
       )}

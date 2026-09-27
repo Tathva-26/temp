@@ -28,7 +28,7 @@ export default function ModalWrapper({ workshopData, eventType }) {
                 className="px-5 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
                 {workshopData.isClosed
-                    ? "Booking full"
+                    ? "Booking closed"
                     : isLoggedIn
                       ? "Register"
                       : "Login to Register"}

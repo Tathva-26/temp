@@ -32,16 +32,17 @@ export function setMockSignedIn(value) {
   }
 }
 
-const publicEvents = () => MOCK_EVENTS.filter((e) => e.published);
+// Drafts are admin-only: the real API never returns them.
+const publicEvents = () => MOCK_EVENTS.filter((e) => e.status !== "DRAFT");
 
 /** Same lookup the real `GET /api/events/all?type=` does. */
 export function mockEventsByType(type) {
-  const list = MOCK_EVENTS;
+  const list = publicEvents();
   return type ? list.filter((e) => e.type === type) : list;
 }
 
 export function mockEventById(id) {
-  return MOCK_EVENTS.find((e) => String(e.id) === String(id)) ?? null;
+  return publicEvents().find((e) => String(e.id) === String(id)) ?? null;
 }
 
 /** JSON the real endpoint would answer with, or null for "no such route". */
@@ -76,6 +77,7 @@ function route(method, url, body) {
   if (method === "post" && path === "/api/booking/create") {
     const event = mockEventById(body?.eventId);
     if (!event) return { status: 400, data: { error: "Booking rejected" } };
+    if (event.status !== "OPEN") return { status: 400, data: { error: "Event is not open for booking" } };
     if (!event.ticketId) return { status: 409, data: { error: "Not open for booking" } };
     bookings = [
       {
