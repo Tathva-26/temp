@@ -355,57 +355,7 @@ export default function ProfileSummary({ user }) {
         </button>
       </div>
 
-      {/* Referrals — CA only */}
-      {user.role === 'CA' ? (
-        <div className='rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-md'>
-          <h2 className='mb-4 text-lg font-bold text-white'>Your referrals</h2>
 
-          {referral?.registered === false ? (
-            <p className='text-sm text-white/60'>
-              You are not registered as a referrer with our ticketing provider
-              yet. Complete your profile above and it will be set up for you.
-            </p>
-          ) : (
-            <div className='grid grid-cols-1 gap-4 sm:grid-cols-3'>
-              <div>
-                <p className='text-xs uppercase tracking-wide text-white/50'>
-                  Code
-                </p>
-                <p className='font-mono text-lg font-bold text-white'>
-                  {referral?.referralCode || user.referralCode || '—'}
-                </p>
-              </div>
-              <div>
-                <p className='text-xs uppercase tracking-wide text-white/50'>
-                  Tickets sold
-                </p>
-                <p className='text-lg font-bold text-white'>
-                  {referral?.successfulTicketCount ?? '—'}
-                </p>
-              </div>
-              <div>
-                <p className='text-xs uppercase tracking-wide text-white/50'>
-                  Sales
-                </p>
-                <p className='text-lg font-bold text-white'>
-                  {referral?.successfulSalesAmount !== undefined
-                    ? formatPrice(referral.successfulSalesAmount)
-                    : '—'}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/*
-            Only the totals, deliberately. Our ticketing provider exposes no
-            endpoint listing the individual bookings a code generated, so a
-            per-referral table is not something we can build today.
-          */}
-          <p className='mt-4 text-xs text-white/40'>
-            Totals only — a per-booking breakdown is not available.
-          </p>
-        </div>
-      ) : null}
 
       {/* Bookings */}
       <div className='rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-md'>
