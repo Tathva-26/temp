@@ -21,7 +21,7 @@ export default function Hero({ refs }) {
 
   useEffect(() => {
     const updateCountdown = () => {
-      const targetDate = new Date('2026-10-01T18:00:00').getTime()
+      const targetDate = new Date('2026-10-03T18:00:00').getTime()
       const now = new Date().getTime()
       const distance = targetDate - now
 
