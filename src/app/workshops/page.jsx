@@ -1863,11 +1863,19 @@ export default function WorkshopsPage() {
         .toLowerCase()
         .includes(searchQuery.toLowerCase()),
     )
-    // Sort: real images first, dummy ones (ending with "-DUMMY.jpg") last
-    return [
-      ...searched.filter((w) => !w.picture?.trim().endsWith('-DUMMY.jpg')),
-      ...searched.filter((w) => w.picture?.trim().endsWith('-DUMMY.jpg')),
-    ]
+    // Sort priority: open workshops before closed/filled ones, then highest
+    // price first within each group, then (as before) real images before
+    // dummy placeholder ones.
+    const isDummy = (w) => Boolean(w.picture?.trim().endsWith('-DUMMY.jpg'))
+    return [...searched].sort((a, b) => {
+      if (Boolean(a.isClosed) !== Boolean(b.isClosed)) {
+        return Number(a.isClosed) - Number(b.isClosed)
+      }
+      if ((b.price ?? 0) !== (a.price ?? 0)) {
+        return (b.price ?? 0) - (a.price ?? 0)
+      }
+      return Number(isDummy(a)) - Number(isDummy(b))
+    })
   }, [workshops, searchQuery])
 
   if (loading) {
